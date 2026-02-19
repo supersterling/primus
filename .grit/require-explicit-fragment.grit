@@ -1,0 +1,12 @@
+language js
+
+// Require explicit <Fragment> over shorthand <>.
+
+or {
+	`<><$children></>` as $match where {
+		register_diagnostic(span=$match, message="Fragment shorthand `<>` is banned. Use `<Fragment>` from React. See .claude/rules/code-style.md", severity="error")
+	},
+	`</>` as $match where {
+		register_diagnostic(span=$match, message="Fragment shorthand `<>` is banned. Use `<Fragment>` from React. See .claude/rules/code-style.md", severity="error")
+	}
+}

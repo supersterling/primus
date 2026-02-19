@@ -1,0 +1,21 @@
+language js
+
+// Ban implicit select-all in Drizzle queries. Require explicit column selection.
+
+or {
+	or { `db.select()`, `tx.select()` } as $match where {
+		register_diagnostic(span=$match, message="Implicit `select()` is banned. Pass an object with explicit columns. See .claude/rules/database.md", severity="error")
+	},
+	or {
+		`db.insert($_).values($_).returning()`,
+		`tx.insert($_).values($_).returning()`,
+		`db.insert($_).values($_).onConflictDoUpdate($_).returning()`,
+		`tx.insert($_).values($_).onConflictDoUpdate($_).returning()`,
+		`db.update($_).set($_).where($_).returning()`,
+		`tx.update($_).set($_).where($_).returning()`,
+		`db.delete($_).where($_).returning()`,
+		`tx.delete($_).where($_).returning()`
+	} as $match where {
+		register_diagnostic(span=$match, message="Implicit `.returning()` is banned. Pass an object with explicit columns. See .claude/rules/database.md", severity="error")
+	}
+}

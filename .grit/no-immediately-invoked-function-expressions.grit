@@ -1,0 +1,42 @@
+language js
+
+// Ban IIFEs. Extract to named functions or use top-level await.
+
+or {
+	`($callee)()` as $match where {
+		$callee <: or {
+			`() => { $_ }`, `($...) => { $_ }`, `() => $_`, `($...) => $_`,
+			`async () => { $_ }`, `async ($...) => { $_ }`, `async () => $_`, `async ($...) => $_`,
+			`function $_ ($...) { $_ }`, `function ($...) { $_ }`,
+			`async function $_ ($...) { $_ }`, `async function ($...) { $_ }`
+		},
+		register_diagnostic(span=$match, message="IIFEs are banned. Extract to a named function or use top-level await. See .claude/rules/code-style.md", severity="error")
+	},
+	`($callee)($...)` as $match where {
+		$callee <: or {
+			`() => { $_ }`, `($...) => { $_ }`, `() => $_`, `($...) => $_`,
+			`async () => { $_ }`, `async ($...) => { $_ }`, `async () => $_`, `async ($...) => $_`,
+			`function $_ ($...) { $_ }`, `function ($...) { $_ }`,
+			`async function $_ ($...) { $_ }`, `async function ($...) { $_ }`
+		},
+		register_diagnostic(span=$match, message="IIFEs are banned. Extract to a named function or use top-level await. See .claude/rules/code-style.md", severity="error")
+	},
+	`await ($callee)()` as $match where {
+		$callee <: or {
+			`() => { $_ }`, `($...) => { $_ }`, `() => $_`, `($...) => $_`,
+			`async () => { $_ }`, `async ($...) => { $_ }`, `async () => $_`, `async ($...) => $_`,
+			`function $_ ($...) { $_ }`, `function ($...) { $_ }`,
+			`async function $_ ($...) { $_ }`, `async function ($...) { $_ }`
+		},
+		register_diagnostic(span=$match, message="IIFEs are banned. Extract to a named function or use top-level await. See .claude/rules/code-style.md", severity="error")
+	},
+	`await ($callee)($...)` as $match where {
+		$callee <: or {
+			`() => { $_ }`, `($...) => { $_ }`, `() => $_`, `($...) => $_`,
+			`async () => { $_ }`, `async ($...) => { $_ }`, `async () => $_`, `async ($...) => $_`,
+			`function $_ ($...) { $_ }`, `function ($...) { $_ }`,
+			`async function $_ ($...) { $_ }`, `async function ($...) { $_ }`
+		},
+		register_diagnostic(span=$match, message="IIFEs are banned. Extract to a named function or use top-level await. See .claude/rules/code-style.md", severity="error")
+	}
+}

@@ -1,0 +1,8 @@
+language js
+
+// Prefer returning result.fail() over throwing errors.
+// Throwing is escape-hatch behavior — express failure as a value instead.
+
+`throw $expr` as $match where {
+	register_diagnostic(span=$match, message="Prefer returning `result.fail(error)` over throwing. Errors are values — callers should handle failure via `if (!res.ok)`. Use `import { result } from \"@/lib/either\"`", severity="warning")
+}
