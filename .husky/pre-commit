@@ -1,0 +1,6 @@
+concurrently --kill-others-on-fail \
+  --names "biome,tsc,docref" \
+  --prefix-colors "cyan,yellow,green" \
+  "biome check --staged --no-errors-on-unmatched" \
+  "tsc --noEmit" \
+  "docref check"
