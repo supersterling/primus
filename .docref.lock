@@ -1,0 +1,203 @@
+[[entries]]
+hash = "593201c01505a374c54c70f863330b1b934a9fc881ac3672a70c9fb615b41b4a"
+source = "src/lib/README.md"
+symbol = "Fail"
+target = "src/lib/either.ts"
+
+[[entries]]
+hash = "4d2082a11ce8b2da20db6f647168ed04d31a3a18e0ade3f0076b80bdde0249aa"
+source = "src/lib/README.md"
+symbol = "Option"
+target = "src/lib/either.ts"
+
+[[entries]]
+hash = "be73a1249fd5c416b58676ce4ae30605a5ab1391a12da9204c5cb78048fcdfa2"
+source = "src/lib/README.md"
+symbol = "Pass"
+target = "src/lib/either.ts"
+
+[[entries]]
+hash = "b0303417e1a836f11e58a223833cfddc6accca8da9d6c5a96f2b268a939dd9ac"
+source = "src/lib/README.md"
+symbol = "fail"
+target = "src/lib/either.ts"
+
+[[entries]]
+hash = "9adf9d683d153c25d0c1e52ab1f64b947d0119188e39546ac373108de9797bb5"
+source = "src/lib/README.md"
+symbol = "is"
+target = "src/lib/either.ts"
+
+[[entries]]
+hash = "27bcf7539612379329e6e8c68d12f697a17ae720e0f41eb922e67c39d5539695"
+source = "src/lib/README.md"
+symbol = "none"
+target = "src/lib/either.ts"
+
+[[entries]]
+hash = "20af2f0dc1ece4ce12b0506613eb1700898e648b68973e6d0e5ebad47aea46b7"
+source = "src/lib/README.md"
+symbol = "option"
+target = "src/lib/either.ts"
+
+[[entries]]
+hash = "14ff71e9b3f95fd5f91e0b514c29d6bf21dc0912294885948369e86bef3ca190"
+source = "src/lib/README.md"
+symbol = "pass"
+target = "src/lib/either.ts"
+
+[[entries]]
+hash = "eaaccdc1934be63a55a808199117c0478f31848d873dcf5eef63ed5be8c00987"
+source = "src/lib/README.md"
+symbol = "result"
+target = "src/lib/either.ts"
+
+[[entries]]
+hash = "d8ab8166845522e48377b9a8ba726103ac393903aa317c36c42d86d967ffbb42"
+source = "src/lib/README.md"
+symbol = "some"
+target = "src/lib/either.ts"
+
+[[entries]]
+hash = "b186b8d06eb0c625d0d07007fe1b835fa004fcaf899babee87cb75ec5d32322d"
+source = "src/lib/README.md"
+symbol = "trycatch"
+target = "src/lib/either.ts"
+
+[[entries]]
+hash = "29d6d50ecb0e8cfd0a825db99d8aa6b001dec53f2855f7a513c99f35d9484ac5"
+source = "src/lib/README.md"
+symbol = "wrap"
+target = "src/lib/either.ts"
+
+[[entries]]
+hash = "ddeca31ece1007eac0862d9312cc0087364b79265c99d158902cb1818504cea8"
+source = "src/lib/README.md"
+symbol = "env"
+target = "src/lib/env.ts"
+
+[[entries]]
+hash = "545e940cc068b3a958ad7164010e61154ffd3807eec067ee4708f17efc7e2bc1"
+source = "src/lib/README.md"
+symbol = "Logger"
+target = "src/lib/logger.ts"
+
+[[entries]]
+hash = "6d7549801e75d063efea2154d5bf811b524e4298d03679e0a39a9761ba02e97e"
+source = "src/lib/README.md"
+symbol = "NOOP"
+target = "src/lib/logger.ts"
+
+[[entries]]
+hash = "f399274439dfb2f349bac426d4c2e14335ff811d5b3de83bebabbf218e69c43c"
+source = "src/lib/README.md"
+symbol = "Brand"
+target = "src/lib/types.ts"
+
+[[entries]]
+hash = "c758df00a24e9692110b13cae3248ee6a233839ae35129e431d6397ed2acebd8"
+source = "src/lib/README.md"
+symbol = "DeepPartial"
+target = "src/lib/types.ts"
+
+[[entries]]
+hash = "2abeeb3baddc8a6b7e031d6f4c98b71721aaa719cf6b13ca78bfd44cfb9a5039"
+source = "src/lib/README.md"
+symbol = "DeepReadonly"
+target = "src/lib/types.ts"
+
+[[entries]]
+hash = "63450dadbbfcc5e7dd04bd0b73ac35c74fe4c65ceae999c6929fb24bd1e6e64d"
+source = "src/lib/README.md"
+symbol = "DeepRequired"
+target = "src/lib/types.ts"
+
+[[entries]]
+hash = "14aba81b4cef27f182af3b04a8c4820b7dcfdb7e60a6e49d47912c07b707795d"
+source = "src/lib/README.md"
+symbol = "KeysMatching"
+target = "src/lib/types.ts"
+
+[[entries]]
+hash = "bc31bcd4cf15cf99f704fd1726dec136c2589413ba46976f82d248a8223078b1"
+source = "src/lib/README.md"
+symbol = "Length"
+target = "src/lib/types.ts"
+
+[[entries]]
+hash = "680f8c8c092f81b9f727448de1537687aee2c93e0ed3abf1efbe4e12444100a2"
+source = "src/lib/README.md"
+symbol = "Mutable"
+target = "src/lib/types.ts"
+
+[[entries]]
+hash = "8018c8520b49009f0e8e9f0cc9454787236c47017b7e8a2b2255b08d7c5d286f"
+source = "src/lib/README.md"
+symbol = "NonEmptyArray"
+target = "src/lib/types.ts"
+
+[[entries]]
+hash = "2a806725023012d380a3abee4073e8f617d1903c2706bfc14e5f0b74c3e107a3"
+source = "src/lib/README.md"
+symbol = "Nullable"
+target = "src/lib/types.ts"
+
+[[entries]]
+hash = "8133279164cfcc694c6d65b13b8776f0020a3c89d9ed5d57e3d98557e037f5b2"
+source = "src/lib/README.md"
+symbol = "OmitByValue"
+target = "src/lib/types.ts"
+
+[[entries]]
+hash = "f2ec02dcc2cb931e75f81863fd04c09671ef91f84e0564f5912c4931c5fdade1"
+source = "src/lib/README.md"
+symbol = "PartialBy"
+target = "src/lib/types.ts"
+
+[[entries]]
+hash = "0a0b0ac75e032ef71ac4fd067991ec13d6f367dd55ad79826ff2ebcbd4e63e0e"
+source = "src/lib/README.md"
+symbol = "PickByValue"
+target = "src/lib/types.ts"
+
+[[entries]]
+hash = "bd1c8dc34c7bf9174e4d45c7e839663dac90ff6a948b1a9ffd4ac4510d019c10"
+source = "src/lib/README.md"
+symbol = "Prettify"
+target = "src/lib/types.ts"
+
+[[entries]]
+hash = "1b95a5b8a6ec5c732d4f5bca0b232244aa01359fa18156693ef1eef5646ff123"
+source = "src/lib/README.md"
+symbol = "Redacted"
+target = "src/lib/types.ts"
+
+[[entries]]
+hash = "c72e584ba4055265c551e42a37abf321fed11af2a1479cf54494e8bc0fbfe3a4"
+source = "src/lib/README.md"
+symbol = "RequiredBy"
+target = "src/lib/types.ts"
+
+[[entries]]
+hash = "2c9debc5b394238d32ee23096e868d9f86559c1ad258e2bf1b9a45e865450dad"
+source = "src/lib/README.md"
+symbol = "StrictOmit"
+target = "src/lib/types.ts"
+
+[[entries]]
+hash = "6a8ac44c5400e026d3d2c756749623a1f89a2f55dfb925096407d5607254cd6f"
+source = "src/lib/README.md"
+symbol = "ValueOf"
+target = "src/lib/types.ts"
+
+[[entries]]
+hash = "7b84e6ca4bafeae949fe2f85d449b0373bc93a838bd32fc1f7a20f120ef3aad9"
+source = "src/lib/README.md"
+symbol = "Xor"
+target = "src/lib/types.ts"
+
+[[entries]]
+hash = "3bee490a4ed1623e71c0ffbf137678e5bc5e92adc9727fa174bbfdcdb67a1fec"
+source = "src/lib/README.md"
+symbol = "Zip"
+target = "src/lib/types.ts"

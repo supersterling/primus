@@ -1,0 +1,4 @@
+include = ["src/lib/"]
+
+[namespaces]
+lib = "src/lib"
