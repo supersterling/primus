@@ -6,7 +6,8 @@
         "dev": "next dev",
         "build": "next build",
         "start": "next start",
-        "checks": "bun run ts:check && bun run biome:check",
+        "checks": "bun run ts:check && bun run biome:check && bun run docref:check",
+        "docref:check": "docref check",
         "ts:check": "tsc --noEmit",
         "biome:check": "biome check",
         "biome:fix": "biome check --fix"
