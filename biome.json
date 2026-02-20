@@ -1,14 +1,14 @@
 {
     "$schema": "https://biomejs.dev/schemas/2.4.2/schema.json",
     "plugins": [
-        "./.grit/no-try-catch.grit",
-        "./.grit/require-error-cause.grit",
-        "./.grit/require-logger-before-throw.grit",
-        "./.grit/require-absolute-imports.grit",
-        "./.grit/no-immediately-invoked-function-expressions.grit",
-        "./.grit/no-implicit-select-all.grit",
-        "./.grit/require-explicit-fragment.grit",
-        "./.grit/prefer-result-fail.grit"
+        "./.grit/error-handling/no-try-catch.grit",
+        "./.grit/error-handling/require-error-cause.grit",
+        "./.grit/error-handling/require-logger-before-throw.grit",
+        "./.grit/error-handling/prefer-result-fail.grit",
+        "./.grit/imports/require-absolute-imports.grit",
+        "./.grit/database/no-implicit-select-all.grit",
+        "./.grit/react/require-explicit-fragment.grit",
+        "./.grit/style/no-immediately-invoked-function-expressions.grit"
     ],
     "vcs": {
         "enabled": true,
