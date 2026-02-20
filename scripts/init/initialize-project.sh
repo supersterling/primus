@@ -630,9 +630,9 @@ const file = Bun.file("src/app/layout.tsx")
 let src = await file.text()
 const name = Bun.env.APP_NAME ?? ""
 const desc = Bun.env.APP_DESC ?? ""
-src = src.replace(/title:\s*"[^"]*"/, `title: "${name}"`)
+src = src.replace(/title:\s*"[^"]*"/, `title: ${JSON.stringify(name)}`)
 if (desc) {
-    src = src.replace(/description:\s*"[^"]*"/, `description: "${desc}"`)
+    src = src.replace(/description:\s*"[^"]*"/, `description:\n        ${JSON.stringify(desc)}`)
 } else {
     src = src.replace(/\n\s*description:\s*"[^"]*",?/, "")
 }
@@ -660,7 +660,7 @@ EOF
 export default function Home() {
     return (
         <main className="flex min-h-screen items-center justify-center">
-            <h1 className="text-4xl font-bold">Hello, world.</h1>
+            <h1 className="font-bold text-4xl">Hello, world.</h1>
         </main>
     )
 }
