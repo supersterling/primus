@@ -1,6 +1,6 @@
 concurrently --kill-others-on-fail \
-  --names "biome,tsc,docref" \
+  --names "lint-staged,tsc,docref" \
   --prefix-colors "cyan,yellow,green" \
-  "biome check --staged --no-errors-on-unmatched" \
+  "bunx lint-staged" \
   "tsc --noEmit" \
   "docref check"
