@@ -537,12 +537,14 @@ remove_dir() {
     fi
 }
 
-prune_if_empty() {
+prune_empty_parents() {
     local dir="$1"
-    if [[ -d "$dir" ]] && [[ -z "$(ls -A "$dir")" ]]; then
+    local stop="$2"
+    while [[ "$dir" != "$stop" && -d "$dir" && -z "$(ls -A "$dir")" ]]; do
         rmdir "$dir"
         log_step "Pruned empty $dir/"
-    fi
+        dir="$(dirname "$dir")"
+    done
 }
 
 #
@@ -571,8 +573,8 @@ main() {
     remove_dir "$inngest_dir"
     remove_dir "$route_dir"
 
-    prune_if_empty "src/inngest"
-    prune_if_empty "src/app/api/inngest"
+    prune_empty_parents "src/inngest" "src"
+    prune_empty_parents "src/app/api/inngest" "src"
 
     log_done "Client '$CLIENT_ID' removed."
 }
