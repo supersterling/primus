@@ -12,7 +12,7 @@
 #
 # == Usage
 #
-# ./scripts/initialize-project.sh [options]
+# ./scripts/init/initialize-project.sh [options]
 
 set -euo pipefail
 
@@ -28,6 +28,7 @@ readonly FLOW="▷"
 readonly POSE="?"
 readonly EXEC="$"
 readonly WARN="!"
+readonly HINT="+"
 readonly SCRIPT_NAME="$(basename "$0")"
 readonly SCRIPT_PATH="$(cd "$(dirname "$0")" && pwd)/$SCRIPT_NAME"
 
@@ -46,6 +47,7 @@ readonly SCRIPT_PATH="$(cd "$(dirname "$0")" && pwd)/$SCRIPT_NAME"
 #     src/index.ts: OK           ← dim (cmd_exec)
 # ▶ Build complete.
 # ? Deploy now?                  ← cyan (ask_user_via_*)
+#   + Default: yes               ← dim (hint)
 #   > yes
 # ```
 
@@ -129,6 +131,28 @@ log_step() { printf '%s\e[2;30m%s\e[22;39m %s\n' "$(_pad)" "$STEP" "$*"; }
 # ```
 log_pose() { printf '%s\e[36m%s\e[39m %s\n' "$(_pad)" "$POSE" "$*"; }
 
+# ### `log_dull` — Dim text (no prefix)
+#
+# Dims the entire line. No prefix icon. Use for supplementary output
+# that should be visually subdued.
+#
+# ```bash
+# log_dull "skipping optional step"
+# # skipping optional step  (dim)
+# ```
+log_dull() { printf '%s\e[2m%s\e[22m\n' "$(_pad)" "$*"; }
+
+# ### `log_hint` — Hint text with dim prefix
+#
+# Dim **+** prefix, normal body text. Use for supplementary information
+# like default values in `ask_user_via_*` prompts.
+#
+# ```bash
+# log_hint "Configuration loaded from ~/.config"
+# # + Configuration loaded from ~/.config
+# ```
+log_hint() { printf '%s\e[2m%s %s\e[22m\n' "$(_pad)" "$HINT" "$*"; }
+
 # ### `ask_user_via_prompt` — Free-text input
 #
 # First argument is the variable name. If the variable is already set
@@ -147,11 +171,8 @@ ask_user_via_prompt() {
         REPLY="${!varname}"
         return
     fi
-    if [[ -n "$default" ]]; then
-        log_pose "$prompt [$default]"
-    else
-        log_pose "$prompt"
-    fi
+    log_pose "$prompt"
+    [[ -n "$default" ]] && printf '%s\e[2m%s Default: \e[1m%s\e[22;2m. Leave blank to accept.\e[22m\n' "$(_pad)" "$HINT" "$default"
     printf '%s  \e[36m>\e[39m ' "$(_pad)"
     read -r REPLY
     [[ -z "$REPLY" && -n "$default" ]] && REPLY="$default" || true
@@ -204,12 +225,17 @@ ask_user_via_confirm() {
 # (e.g., from a CLI flag via `add_flag`), the prompt is skipped and
 # the value is validated against the options.
 # Sets both `REPLY` and the named variable to the chosen option's text.
+# Pass `--default VALUE` before the variable name to set a default;
+# if the user presses Enter without input, the default is used.
 #
 # ```bash
 # ask_user_via_select ENV "Which environment?" "staging" "production"
+# ask_user_via_select --default "staging" ENV "Which environment?" "staging" "production"
 # echo "$ENV"
 # ```
 ask_user_via_select() {
+    local _default=""
+    [[ "${1:-}" == "--default" ]] && { _default="$2"; shift 2; }
     local varname="$1"; shift
     local prompt="$1"; shift
     local options=("$@")
@@ -226,15 +252,94 @@ ask_user_via_select() {
         printf '%s  \e[36m%d.\e[39m %s\n' "$(_pad)" "$i" "$opt"
         (( i++ ))
     done
+    [[ -n "$_default" ]] && printf '%s\e[2m%s Default: \e[1m%s\e[22;2m. Leave blank to accept.\e[22m\n' "$(_pad)" "$HINT" "$_default"
     while true; do
         printf '%s  \e[36m>\e[39m ' "$(_pad)"
         read -r REPLY
+        if [[ -z "$REPLY" && -n "$_default" ]]; then
+            REPLY="$_default"
+            printf -v "$varname" '%s' "$REPLY"
+            return
+        fi
         if [[ "$REPLY" =~ ^[0-9]+$ ]] && (( REPLY >= 1 && REPLY <= ${#options[@]} )); then
             REPLY="${options[$((REPLY - 1))]}"
             printf -v "$varname" '%s' "$REPLY"
             return
         fi
         log_warn "Enter a number 1-${#options[@]}"
+    done
+}
+
+# ### `ask_user_via_choice` — Multi-select checkbox
+#
+# First argument is the variable name. If the variable is already set
+# (e.g., from a CLI flag via `add_flag`), the prompt is skipped and
+# each space-separated value is validated against the options.
+# Sets both `REPLY` and the named variable to a space-separated string
+# of selected option texts. Iterate with: `for item in $VAR; do`.
+# Pass `--default VALUE` before the variable name to set a default
+# (space-separated option texts); if the user presses Enter without
+# input, the default is used.
+#
+# ```bash
+# ask_user_via_choice FEATURES "Which features?" "logging" "metrics" "tracing"
+# ask_user_via_choice --default "logging tracing" FEATURES "Which features?" "logging" "metrics" "tracing"
+# for f in $FEATURES; do echo "Selected: $f"; done
+# ```
+ask_user_via_choice() {
+    local _default=""
+    [[ "${1:-}" == "--default" ]] && { _default="$2"; shift 2; }
+    local varname="$1"; shift
+    local prompt="$1"; shift
+    local options=("$@")
+    if [[ -n "${!varname:-}" ]]; then
+        REPLY="${!varname}"
+        for word in $REPLY; do
+            local found=0
+            for opt in "${options[@]}"; do
+                [[ "$opt" == "$word" ]] && { found=1; break; }
+            done
+            (( found )) || die "Invalid value for $varname: $word (valid: ${options[*]})"
+        done
+        return
+    fi
+    log_pose "$prompt (enter numbers, e.g. 1,3 or 'all')"
+    local i=1
+    for opt in "${options[@]}"; do
+        printf '%s  \e[36m%d.\e[39m %s\n' "$(_pad)" "$i" "$opt"
+        (( i++ ))
+    done
+    [[ -n "$_default" ]] && printf '%s\e[2m%s Default: \e[1m%s\e[22;2m. Leave blank to accept.\e[22m\n' "$(_pad)" "$HINT" "${_default// /, }"
+    while true; do
+        printf '%s  \e[36m>\e[39m ' "$(_pad)"
+        read -r REPLY
+        if [[ -z "$REPLY" && -n "$_default" ]]; then
+            REPLY="$_default"
+            printf -v "$varname" '%s' "$REPLY"
+            return
+        fi
+        if [[ "$REPLY" == "all" ]]; then
+            REPLY="${options[*]}"
+            printf -v "$varname" '%s' "$REPLY"
+            return
+        fi
+        local input="${REPLY//,/ }"
+        local selected=()
+        local valid=1
+        for num in $input; do
+            if [[ "$num" =~ ^[0-9]+$ ]] && (( num >= 1 && num <= ${#options[@]} )); then
+                selected+=("${options[$((num - 1))]}")
+            else
+                valid=0
+                break
+            fi
+        done
+        if (( valid && ${#selected[@]} > 0 )); then
+            REPLY="${selected[*]}"
+            printf -v "$varname" '%s' "$REPLY"
+            return
+        fi
+        log_warn "Enter numbers 1-${#options[@]} separated by commas or spaces"
     done
 }
 
@@ -415,6 +520,8 @@ usage() {
     printf '  -h, --help             Show this help message\n'
 }
 
+add_flag "agents" "AGENTS" "Space-separated agent names"
+
 #
 # Functions
 #
@@ -430,6 +537,19 @@ require_cmd() {
         die "Required command '$cmd' not found."
     fi
     log_pass "$cmd found ($(command -v "$cmd"))"
+}
+
+# ### `install_skills`
+#
+# Install skills from a repo. First arg is repo, remaining args are skill names.
+# Uses the AGENT_FLAGS array built from user selection.
+install_skills() {
+    local repo="$1"; shift
+    local skill_flags=()
+    for skill in "$@"; do
+        skill_flags+=(--skill "$skill")
+    done
+    cmd_exec bunx skills add "$repo" "${skill_flags[@]}" --yes "${AGENT_FLAGS[@]}"
 }
 
 #
@@ -459,6 +579,28 @@ main() {
     cmd_exec bunx shadcn@latest add --all
     log_pass "All components added"
     log_done "shadcn/ui ready."
+
+    # Agent skills
+    log_flow "Installing agent skills..."
+    ask_user_via_choice --default "claude-code cursor" \
+        AGENTS "Which agents to install skills for?" \
+        "claude-code" "cursor" "codex"
+    AGENT_FLAGS=()
+    for agent in $AGENTS; do
+        AGENT_FLAGS+=(--agent "$agent")
+    done
+    log_step "Agents: $AGENTS"
+    install_skills vercel-labs/skills find-skills
+    install_skills vercel-labs/agent-skills vercel-react-best-practices vercel-composition-patterns web-design-guidelines
+    install_skills vercel-labs/next-skills next-best-practices next-cache-components
+    install_skills vercel/ai ai-sdk
+    install_skills vercel/ai-elements ai-elements
+    install_skills vercel/streamdown streamdown
+    install_skills vercel/components.build building-components
+    install_skills vercel/vercel vercel-cli
+    install_skills vercel-labs/json-render json-render-core json-render-react
+    install_skills vercel-labs/before-and-after before-and-after
+    log_done "Agent skills installed."
 
     # Environment
     log_flow "Setting up environment..."
