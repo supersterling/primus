@@ -1,6 +1,4 @@
 concurrently --kill-others-on-fail \
-  --names "lint-staged,tsc,docref" \
-  --prefix-colors "cyan,yellow,green" \
-  "bunx lint-staged" \
-  "tsc --noEmit" \
-  "docref check"
+  --names "lint-staged" \
+  --prefix-colors "cyan" \
+  "bunx lint-staged"

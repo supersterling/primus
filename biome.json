@@ -2,7 +2,7 @@
     "$schema": "https://biomejs.dev/schemas/2.4.2/schema.json",
     "plugins": [
         "./.grit/no-try-catch.grit",
-        "./.grit/no-new-error.grit",
+        "./.grit/require-error-cause.grit",
         "./.grit/require-logger-before-throw.grit",
         "./.grit/require-absolute-imports.grit",
         "./.grit/no-immediately-invoked-function-expressions.grit",

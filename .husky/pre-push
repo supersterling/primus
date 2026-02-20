@@ -1,0 +1,5 @@
+concurrently --kill-others-on-fail \
+  --names "tsc,docref" \
+  --prefix-colors "yellow,green" \
+  "tsc --noEmit" \
+  "docref check"
