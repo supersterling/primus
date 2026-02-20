@@ -561,7 +561,7 @@ main() {
         die "No client found for '$CLIENT_ID' — nothing to remove"
     fi
 
-    if ! ask_user_via_confirm CONFIRM "Remove client '$CLIENT_ID'? This deletes $inngest_dir/ and $route_dir/" "n"; then
+    if ! ask_user_via_confirm CONFIRM "Remove client '$CLIENT_ID'?" "n"; then
         log_dull "Aborted."
         return
     fi

@@ -652,7 +652,7 @@ main() {
 
     [[ -d "$client_dir" ]] && die "Client directory already exists: $client_dir"
 
-    ask_user_via_confirm REALTIME "Enable realtime support?" "n" || true
+    ask_user_via_confirm REALTIME "Enable realtime support?" "y" || true
 
     ensure_dep "inngest"
     [[ "$REALTIME" == "y" ]] && ensure_dep "@inngest/realtime" || true
