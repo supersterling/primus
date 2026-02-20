@@ -464,6 +464,9 @@ main() {
     # Remove shadcn/ui artifacts
     log_flow "Removing shadcn/ui artifacts..."
     remove_path src/components/ui
+    if [[ -d src/components ]] && [[ -z "$(ls -A src/components)" ]]; then
+        remove_path src/components
+    fi
     remove_path src/hooks
     remove_path src/lib/utils.ts
     remove_path components.json
