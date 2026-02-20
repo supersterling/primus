@@ -521,6 +521,8 @@ usage() {
 }
 
 add_flag "agents" "AGENTS" "Space-separated agent names"
+add_flag "name" "APP_NAME" "App name (npm package name)"
+add_flag "description" "APP_DESC" "App description (one sentence)"
 
 #
 # Functions
@@ -541,15 +543,50 @@ require_cmd() {
 
 # ### `install_skills`
 #
-# Install skills from a repo. First arg is repo, remaining args are skill names.
+# Install skills from repos in parallel. Each argument is a repo spec:
+#   "repo skill1 skill2 ..."  — install only the named skills
+# Every skill must be explicitly listed (no wildcards) to prevent
+# surprise installs when repos add new skills.
 # Uses the AGENT_FLAGS array built from user selection.
+# All repos are cloned and installed concurrently; output is collected
+# and printed after all jobs complete.
 install_skills() {
-    local repo="$1"; shift
-    local skill_flags=()
-    for skill in "$@"; do
-        skill_flags+=(--skill "$skill")
+    local tmpdir
+    tmpdir="$(mktemp -d)"
+    local pids=()
+    local specs=()
+    local i=0
+
+    for spec in "$@"; do
+        local repo="${spec%% *}"
+        local skills="${spec#"$repo"}"
+        skills="${skills# }"
+
+        [[ -z "$skills" ]] && die "install_skills: repo '$repo' has no skills listed"
+        local skill_flags=()
+        for skill in $skills; do
+            skill_flags+=(--skill "$skill")
+        done
+
+        bunx skills add "$repo" "${skill_flags[@]}" --yes "${AGENT_FLAGS[@]}" \
+            > "$tmpdir/$i.out" 2>&1 &
+        pids+=($!)
+        specs+=("$repo")
+        i=$(( i + 1 ))
     done
-    cmd_exec bunx skills add "$repo" "${skill_flags[@]}" --yes "${AGENT_FLAGS[@]}"
+
+    local failed=0
+    for j in "${!pids[@]}"; do
+        if wait "${pids[$j]}"; then
+            log_pass "${specs[$j]}"
+        else
+            log_fail "${specs[$j]}"
+            failed=$(( failed + 1 ))
+        fi
+    done
+
+    rm -rf "$tmpdir"
+    (( failed == 0 )) || die "$failed skill repo(s) failed to install"
 }
 
 #
@@ -566,6 +603,71 @@ main() {
     require_cmd bun "Install: https://bun.sh"
     require_cmd docref "Install: cargo install docref"
     log_done "Prerequisites satisfied."
+
+    # Project identity
+    log_flow "Configuring project identity..."
+
+    ask_user_via_prompt APP_NAME "App name (npm package name)" "primus"
+    if [[ ! "$APP_NAME" =~ ^[a-z0-9]([a-z0-9._-]*[a-z0-9])?$ ]]; then
+        die "Invalid npm name: '$APP_NAME' (must be lowercase, no spaces)"
+    fi
+    log_pass "Name: $APP_NAME"
+
+    ask_user_via_prompt APP_DESC "App description (one sentence)" "An opinionated Next.js template with the best of Vercel, Inngest, and modern tooling."
+    [[ -n "$APP_DESC" ]] && log_pass "Description: $APP_DESC" || log_dull "No description"
+
+    # Rewrite package.json name
+    APP_NAME="$APP_NAME" bun -e '
+const pkg = await Bun.file("package.json").json()
+pkg.name = Bun.env.APP_NAME
+await Bun.write("package.json", JSON.stringify(pkg, null, 2) + "\n")
+'
+    log_pass "Updated package.json"
+
+    # Rewrite layout.tsx metadata
+    APP_NAME="$APP_NAME" APP_DESC="$APP_DESC" bun -e '
+const file = Bun.file("src/app/layout.tsx")
+let src = await file.text()
+const name = Bun.env.APP_NAME ?? ""
+const desc = Bun.env.APP_DESC ?? ""
+src = src.replace(/title:\s*"[^"]*"/, `title: ${JSON.stringify(name)}`)
+if (desc) {
+    src = src.replace(/description:\s*"[^"]*"/, `description:\n        ${JSON.stringify(desc)}`)
+} else {
+    src = src.replace(/\n\s*description:\s*"[^"]*",?/, "")
+}
+await Bun.write("src/app/layout.tsx", src)
+'
+    log_pass "Updated layout.tsx metadata"
+
+    # Generate README.md
+    cat > README.md <<EOF
+# $APP_NAME
+${APP_DESC:+
+$APP_DESC
+}
+## Getting Started
+
+\`\`\`bash
+bun install
+bun dev
+\`\`\`
+EOF
+    log_pass "Generated README.md"
+
+    # Replace page.tsx with clean starter
+    cat > src/app/page.tsx <<'EOF'
+export default function Home() {
+    return (
+        <main className="flex min-h-screen items-center justify-center">
+            <h1 className="font-bold text-4xl">Hello, world.</h1>
+        </main>
+    )
+}
+EOF
+    log_pass "Replaced page.tsx with clean starter"
+
+    log_done "Project identity configured."
 
     # Install dependencies
     log_flow "Installing dependencies..."
@@ -590,16 +692,18 @@ main() {
         AGENT_FLAGS+=(--agent "$agent")
     done
     log_step "Agents: $AGENTS"
-    install_skills vercel-labs/skills find-skills
-    install_skills vercel-labs/agent-skills vercel-react-best-practices vercel-composition-patterns web-design-guidelines
-    install_skills vercel-labs/next-skills next-best-practices next-cache-components
-    install_skills vercel/ai ai-sdk
-    install_skills vercel/ai-elements ai-elements
-    install_skills vercel/streamdown streamdown
-    install_skills vercel/components.build building-components
-    install_skills vercel/vercel vercel-cli
-    install_skills vercel-labs/json-render json-render-core json-render-react
-    install_skills vercel-labs/before-and-after before-and-after
+    install_skills \
+        "vercel-labs/skills find-skills" \
+        "vercel-labs/agent-skills vercel-react-best-practices vercel-composition-patterns web-design-guidelines" \
+        "vercel-labs/next-skills next-best-practices next-cache-components" \
+        "vercel/ai ai-sdk" \
+        "vercel/ai-elements ai-elements" \
+        "vercel/streamdown streamdown" \
+        "vercel/components.build building-components" \
+        "vercel/vercel vercel-cli" \
+        "vercel-labs/json-render json-render-core json-render-react json-render-shadcn" \
+        "vercel-labs/before-and-after before-and-after" \
+        "anthropics/skills skill-creator"
     log_done "Agent skills installed."
 
     # Environment
