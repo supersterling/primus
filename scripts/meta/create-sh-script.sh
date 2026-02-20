@@ -47,7 +47,7 @@ readonly SCRIPT_PATH="$(cd "$(dirname "$0")" && pwd)/$SCRIPT_NAME"
 #     src/index.ts: OK           ← dim (cmd_exec)
 # ▶ Build complete.
 # ? Deploy now?                  ← cyan (ask_user_via_*)
-#   + Default: yes               ← dim (hint)
+# + Default: yes               ← dim (hint)
 #   > yes
 # ```
 
@@ -519,7 +519,7 @@ readonly SCRIPT_PATH="\$(cd "\$(dirname "\$0")" && pwd)/\$SCRIPT_NAME"
 #     src/index.ts: OK           ← dim (cmd_exec)
 # ▶ Build complete.
 # ? Deploy now?                  ← cyan (ask_user_via_*)
-#   + Default: yes               ← dim (hint)
+# + Default: yes               ← dim (hint)
 #   > yes
 # \`\`\`
 

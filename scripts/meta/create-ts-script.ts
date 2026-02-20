@@ -45,6 +45,7 @@ const SCRIPT_PATH = import.meta.path
 //     src/index.ts: OK           ← dim (cmdExec)
 // ▶ Build complete.
 // ? Deploy now?                  ← cyan (askUserVia*)
+// + Default: yes               ← dim (hint)
 //   > yes
 // ```
 
@@ -148,6 +149,53 @@ function logPose(...args: string[]): void {
     console.write(`${pad()}${Bun.color("cyan", "ansi")}${POSE}\x1b[39m ${args.join(" ")}\n`)
 }
 
+// ### `logDull` — Dim text (no prefix)
+//
+// Dims the entire line. No prefix icon. Use for supplementary output
+// that should be visually subdued.
+//
+// ```ts
+// logDull("skipping optional step")
+// // skipping optional step  (dim)
+// ```
+function logDull(...args: string[]): void {
+    console.write(`${pad()}\x1b[2m${args.join(" ")}\x1b[22m\n`)
+}
+
+// ### `logHint` — Hint text with dim prefix
+//
+// Dim **+** prefix, normal body text. Use for supplementary information
+// like default values in `askUserVia*` prompts.
+//
+// ```ts
+// logHint("Configuration loaded from ~/.config")
+// // + Configuration loaded from ~/.config
+// ```
+const HINT = "+"
+const COMMA_RE = /,/g
+const WHITESPACE_RE = /\s+/
+
+function logHint(...args: string[]): void {
+    console.write(`${pad()}\x1b[2m${HINT} ${args.join(" ")}\x1b[22m\n`)
+}
+
+// ### `parseNumberList` — Parse comma/space-separated numbers
+//
+// Parses user input like "1,3" or "1 3" into an array of selected option
+// texts. Returns `undefined` if any number is invalid.
+function parseNumberList(input: string, options: string[]): string[] | undefined {
+    const nums = input.replace(COMMA_RE, " ").trim().split(WHITESPACE_RE)
+    const selected: string[] = []
+    for (const n of nums) {
+        const num = Number.parseInt(n, 10)
+        if (Number.isNaN(num) || num < 1 || num > options.length) {
+            return
+        }
+        selected.push(options[num - 1] as string)
+    }
+    return selected.length > 0 ? selected : undefined
+}
+
 // ### `readLine` — Read a line from stdin
 //
 // Internal helper for the `askUserVia*` functions. Lazily creates a stdin
@@ -168,14 +216,16 @@ async function readLine(): Promise<string> {
 //
 // ```ts
 // const name = await askUserViaPrompt("Project name", "my-app")
-// // ? Project name [my-app]
+// // ? Project name
+// // + Default: my-app. Leave blank to accept.
 // //   >
 // ```
 async function askUserViaPrompt(prompt: string, defaultValue?: string): Promise<string> {
+    logPose(prompt)
     if (defaultValue !== undefined) {
-        logPose(`${prompt} [${defaultValue}]`)
-    } else {
-        logPose(prompt)
+        console.write(
+            `${pad()}\x1b[2m${HINT} Default: \x1b[1m${defaultValue}\x1b[22;2m. Leave blank to accept.\x1b[22m\n`,
+        )
     }
     console.write(`${pad()}  ${Bun.color("cyan", "ansi")}>\x1b[39m `)
     const reply = await readLine()
@@ -227,27 +277,87 @@ async function askUserViaConfirm(prompt: string, defaultValue?: boolean): Promis
 //
 // Displays a numbered list, loops until the user picks a valid option.
 // Returns the chosen option's **text**, not the number.
+// Pass an optional `defaultValue` (must match an option's text);
+// if the user presses Enter without input, the default is used.
 //
 // ```ts
 // const env = await askUserViaSelect("Which environment?", ["staging", "production"])
-// // ? Which environment?
-// //   1. staging
-// //   2. production
-// //   >
+// const env = await askUserViaSelect("Which environment?", ["staging", "production"], "staging")
 // ```
-async function askUserViaSelect(prompt: string, options: string[]): Promise<string> {
+async function askUserViaSelect(
+    prompt: string,
+    options: string[],
+    defaultValue?: string,
+): Promise<string> {
     logPose(prompt)
     for (let i = 0; i < options.length; i += 1) {
         console.write(`${pad()}  ${Bun.color("cyan", "ansi")}${i + 1}.\x1b[39m ${options[i]}\n`)
     }
+    if (defaultValue !== undefined) {
+        console.write(
+            `${pad()}\x1b[2m${HINT} Default: \x1b[1m${defaultValue}\x1b[22;2m. Leave blank to accept.\x1b[22m\n`,
+        )
+    }
     for (;;) {
         console.write(`${pad()}  ${Bun.color("cyan", "ansi")}>\x1b[39m `)
         const reply = await readLine()
+        if (!reply && defaultValue !== undefined) {
+            return defaultValue
+        }
         const num = Number.parseInt(reply, 10)
         if (!Number.isNaN(num) && num >= 1 && num <= options.length) {
             return options[num - 1] as string
         }
         logWarn(`Enter a number 1-${options.length}`)
+    }
+}
+
+// ### `defaultHint` — Show default hint if values are provided
+//
+// Internal helper. Displays the dim "+ Default: ..." line when defaults exist.
+function defaultHint(values?: string[]): void {
+    if (values !== undefined && values.length > 0) {
+        console.write(
+            `${pad()}\x1b[2m${HINT} Default: \x1b[1m${values.join(", ")}\x1b[22;2m. Leave blank to accept.\x1b[22m\n`,
+        )
+    }
+}
+
+// ### `askUserViaChoice` — Multi-select checkbox
+//
+// Displays a numbered list, lets user pick multiple options by entering
+// numbers (e.g. "1,3" or "1 3") or "all". Returns an array of selected
+// option texts. Pass an optional `defaultValues` array; if the user
+// presses Enter without input, the defaults are used.
+//
+// ```ts
+// const features = await askUserViaChoice("Which features?", ["logging", "metrics", "tracing"])
+// const features = await askUserViaChoice("Which features?", ["logging", "metrics"], ["logging"])
+// ```
+async function askUserViaChoice(
+    prompt: string,
+    options: string[],
+    defaultValues?: string[],
+): Promise<string[]> {
+    logPose(`${prompt} (enter numbers, e.g. 1,3 or 'all')`)
+    for (let i = 0; i < options.length; i += 1) {
+        console.write(`${pad()}  ${Bun.color("cyan", "ansi")}${i + 1}.\x1b[39m ${options[i]}\n`)
+    }
+    defaultHint(defaultValues)
+    for (;;) {
+        console.write(`${pad()}  ${Bun.color("cyan", "ansi")}>\x1b[39m `)
+        const reply = await readLine()
+        if (!reply && defaultValues !== undefined) {
+            return defaultValues
+        }
+        if (reply === "all") {
+            return [...options]
+        }
+        const selected = parseNumberList(reply, options)
+        if (selected) {
+            return selected
+        }
+        logWarn(`Enter numbers 1-${options.length} separated by commas or spaces`)
     }
 }
 
@@ -423,6 +533,7 @@ const SCRIPT_PATH = import.meta.path
 //     src/index.ts: OK           ← dim (cmdExec)
 // ▶ Build complete.
 // ? Deploy now?                  ← cyan (askUserVia*)
+// + Default: yes               ← dim (hint)
 //   > yes
 // \`\`\`
 
@@ -526,6 +637,53 @@ function logPose(...args: string[]): void {
     console.write(\`\${pad()}\${Bun.color("cyan", "ansi")}\${POSE}\\x1b[39m \${args.join(" ")}\\n\`)
 }
 
+// ### \`logDull\` — Dim text (no prefix)
+//
+// Dims the entire line. No prefix icon. Use for supplementary output
+// that should be visually subdued.
+//
+// \`\`\`ts
+// logDull("skipping optional step")
+// // skipping optional step  (dim)
+// \`\`\`
+function logDull(...args: string[]): void {
+    console.write(\`\${pad()}\\x1b[2m\${args.join(" ")}\\x1b[22m\\n\`)
+}
+
+// ### \`logHint\` — Hint text with dim prefix
+//
+// Dim **+** prefix, normal body text. Use for supplementary information
+// like default values in \`askUserVia*\` prompts.
+//
+// \`\`\`ts
+// logHint("Configuration loaded from ~/.config")
+// // + Configuration loaded from ~/.config
+// \`\`\`
+const HINT = "+"
+const COMMA_RE = /,/g
+const WHITESPACE_RE = /\\s+/
+
+function logHint(...args: string[]): void {
+    console.write(\`\${pad()}\\x1b[2m\${HINT} \${args.join(" ")}\\x1b[22m\\n\`)
+}
+
+// ### \`parseNumberList\` — Parse comma/space-separated numbers
+//
+// Parses user input like "1,3" or "1 3" into an array of selected option
+// texts. Returns \`undefined\` if any number is invalid.
+function parseNumberList(input: string, options: string[]): string[] | undefined {
+    const nums = input.replace(COMMA_RE, " ").trim().split(WHITESPACE_RE)
+    const selected: string[] = []
+    for (const n of nums) {
+        const num = Number.parseInt(n, 10)
+        if (Number.isNaN(num) || num < 1 || num > options.length) {
+            return
+        }
+        selected.push(options[num - 1] as string)
+    }
+    return selected.length > 0 ? selected : undefined
+}
+
 // ### \`readLine\` — Read a line from stdin
 //
 // Internal helper for the \`askUserVia*\` functions. Lazily creates a stdin
@@ -546,14 +704,14 @@ async function readLine(): Promise<string> {
 //
 // \`\`\`ts
 // const name = await askUserViaPrompt("Project name", "my-app")
-// // ? Project name [my-app]
+// // ? Project name
+// // + Default: my-app. Leave blank to accept.
 // //   >
 // \`\`\`
 async function askUserViaPrompt(prompt: string, defaultValue?: string): Promise<string> {
+    logPose(prompt)
     if (defaultValue !== undefined) {
-        logPose(\`\${prompt} [\${defaultValue}]\`)
-    } else {
-        logPose(prompt)
+        console.write(\`\${pad()}\\x1b[2m\${HINT} Default: \\x1b[1m\${defaultValue}\\x1b[22;2m. Leave blank to accept.\\x1b[22m\\n\`)
     }
     console.write(\`\${pad()}  \${Bun.color("cyan", "ansi")}>\\x1b[39m \`)
     const reply = await readLine()
@@ -605,27 +763,83 @@ async function askUserViaConfirm(prompt: string, defaultValue?: boolean): Promis
 //
 // Displays a numbered list, loops until the user picks a valid option.
 // Returns the chosen option's **text**, not the number.
+// Pass an optional \`defaultValue\` (must match an option's text);
+// if the user presses Enter without input, the default is used.
 //
 // \`\`\`ts
 // const env = await askUserViaSelect("Which environment?", ["staging", "production"])
-// // ? Which environment?
-// //   1. staging
-// //   2. production
-// //   >
+// const env = await askUserViaSelect("Which environment?", ["staging", "production"], "staging")
 // \`\`\`
-async function askUserViaSelect(prompt: string, options: string[]): Promise<string> {
+async function askUserViaSelect(
+    prompt: string,
+    options: string[],
+    defaultValue?: string,
+): Promise<string> {
     logPose(prompt)
     for (let i = 0; i < options.length; i += 1) {
         console.write(\`\${pad()}  \${Bun.color("cyan", "ansi")}\${i + 1}.\\x1b[39m \${options[i]}\\n\`)
     }
+    if (defaultValue !== undefined) {
+        console.write(\`\${pad()}\\x1b[2m\${HINT} Default: \\x1b[1m\${defaultValue}\\x1b[22;2m. Leave blank to accept.\\x1b[22m\\n\`)
+    }
     for (;;) {
         console.write(\`\${pad()}  \${Bun.color("cyan", "ansi")}>\\x1b[39m \`)
         const reply = await readLine()
+        if (!reply && defaultValue !== undefined) {
+            return defaultValue
+        }
         const num = Number.parseInt(reply, 10)
         if (!Number.isNaN(num) && num >= 1 && num <= options.length) {
             return options[num - 1] as string
         }
         logWarn(\`Enter a number 1-\${options.length}\`)
+    }
+}
+
+// ### \`defaultHint\` — Show default hint if values are provided
+//
+// Internal helper. Displays the dim "+ Default: ..." line when defaults exist.
+function defaultHint(values?: string[]): void {
+    if (values !== undefined && values.length > 0) {
+        console.write(\`\${pad()}\\x1b[2m\${HINT} Default: \\x1b[1m\${values.join(", ")}\\x1b[22;2m. Leave blank to accept.\\x1b[22m\\n\`)
+    }
+}
+
+// ### \`askUserViaChoice\` — Multi-select checkbox
+//
+// Displays a numbered list, lets user pick multiple options by entering
+// numbers (e.g. "1,3" or "1 3") or "all". Returns an array of selected
+// option texts. Pass an optional \`defaultValues\` array; if the user
+// presses Enter without input, the defaults are used.
+//
+// \`\`\`ts
+// const features = await askUserViaChoice("Which features?", ["logging", "metrics", "tracing"])
+// const features = await askUserViaChoice("Which features?", ["logging", "metrics"], ["logging"])
+// \`\`\`
+async function askUserViaChoice(
+    prompt: string,
+    options: string[],
+    defaultValues?: string[],
+): Promise<string[]> {
+    logPose(\`\${prompt} (enter numbers, e.g. 1,3 or 'all')\`)
+    for (let i = 0; i < options.length; i += 1) {
+        console.write(\`\${pad()}  \${Bun.color("cyan", "ansi")}\${i + 1}.\\x1b[39m \${options[i]}\\n\`)
+    }
+    defaultHint(defaultValues)
+    for (;;) {
+        console.write(\`\${pad()}  \${Bun.color("cyan", "ansi")}>\\x1b[39m \`)
+        const reply = await readLine()
+        if (!reply && defaultValues !== undefined) {
+            return defaultValues
+        }
+        if (reply === "all") {
+            return [...options]
+        }
+        const selected = parseNumberList(reply, options)
+        if (selected) {
+            return selected
+        }
+        logWarn(\`Enter numbers 1-\${options.length} separated by commas or spaces\`)
     }
 }
 
@@ -728,6 +942,88 @@ process.on("SIGHUP", () => {
 process.on("exit", cleanup)
 
 //
+// Flags
+//
+// Register CLI flags that double as interactive prompts.
+// Call \`addFlag\` here, then use \`askUserVia*\` in \`main()\`.
+//
+// \`\`\`ts
+// addFlag("env", "Target environment")
+// // In main():
+// //   const env = flags.env ?? await askUserViaSelect("Which environment?", ["staging", "production"])
+// // CLI: ./script.ts --env staging
+// \`\`\`
+
+const _flags: { name: string; desc: string }[] = []
+const flags: Record<string, string | undefined> = {}
+const ARGS: string[] = []
+
+// ### \`addFlag\` — Register a CLI flag
+//
+// Maps a flag name to a key in \`flags\`. When the flag is passed on the CLI,
+// \`flags[name]\` is pre-set and you can skip the interactive prompt.
+//
+// \`\`\`ts
+// addFlag("number", "Which number to use")
+// // Enables: --number <value>
+// \`\`\`
+function addFlag(name: string, desc: string): void {
+    _flags.push({ name, desc })
+}
+
+// ### \`parseFlags\` — Parse registered CLI flags
+//
+// Parses \`--flag value\` pairs from arguments. Unknown flags cause an
+// error; positional arguments are collected into \`ARGS\`. Handles
+// \`-h\`/\`--help\` automatically via \`usage()\`.
+function parseFlags(args: string[]): void {
+    let i = 0
+    while (i < args.length) {
+        const arg = args[i] as string
+        if (arg === "-h" || arg === "--help") {
+            usage()
+            process.exit(0)
+        }
+        if (arg === "--") {
+            ARGS.push(...args.slice(i + 1))
+            break
+        }
+        if (arg.startsWith("--")) {
+            const name = arg.slice(2)
+            const flag = _flags.find((f) => f.name === name)
+            if (!flag) {
+                die(\`Unknown option: \${arg}\`)
+            }
+            const next = args[i + 1]
+            if (next === undefined) {
+                die(\`Option --\${name} requires a value\`)
+            }
+            flags[name] = next
+            i += 2
+            continue
+        }
+        ARGS.push(arg)
+        i += 1
+    }
+}
+
+// ### \`usage\` — Auto-generated help
+//
+// Prints help text from registered flags. Called on \`-h\`/\`--help\`.
+function usage(): void {
+    console.log(\`Usage: \${SCRIPT_NAME} [options]\`)
+    console.log()
+    console.log("Options:")
+    for (const f of _flags) {
+        console.log(\`  --\${f.name.padEnd(20)} \${f.desc}\`)
+    }
+    console.log("  -h, --help             Show this help message")
+}
+
+// TODO: Register your flags
+// addFlag("name", "Description for --help")
+
+//
 // Functions
 //
 
@@ -738,10 +1034,13 @@ process.on("exit", cleanup)
 //
 
 async function main(): Promise<void> {
+    parseFlags(Bun.argv.slice(2))
+
     logFlow("Running ${name}...")
 
     // TODO: Implement main logic
-    // await cmdExec("some-command --flag")
+    // const env = flags.env ?? await askUserViaSelect("Which environment?", ["staging", "production"])
+    // const features = await askUserViaChoice("Which features?", ["logging", "metrics", "tracing"])
 
     logDone("${name} complete.")
 }

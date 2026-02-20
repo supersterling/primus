@@ -1,5 +1,5 @@
 [[entries]]
-hash = "168c22dd3ccb1ef3673108d3a83b80d5c744a15b47ff72b5ce4aea45c177ce2b"
+hash = "439fe1983a3cf96de9d89ce4f6f3fa2183be3efcd6e3ea0cf9c148cc3542e23e"
 source = "scripts/README.md"
 symbol = ""
 target = "scripts:meta/create-sh-script.sh"
