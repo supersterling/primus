@@ -536,6 +536,8 @@ ensure_dep() {
     fi
 }
 
+fmt() { bunx biome check --write --unsafe "$@" > /dev/null 2>&1 || true; }
+
 get_app_name() {
     local pkg="package.json"
     [[ -f "$pkg" ]] || die "No package.json found — run from project root"
@@ -564,12 +566,14 @@ write_client_ts() {
     if [[ "$realtime" == "y" ]]; then
         cat > "$file" <<EOF
 import { realtimeMiddleware } from "@inngest/realtime/middleware"
-import { Inngest } from "inngest"
+import { EventSchemas, Inngest } from "inngest"
 import { env } from "@/lib/env"
 import { logger } from "@/lib/logger"
+import { events } from "@/inngest/${client_id}/events"
 
 export const inngest = new Inngest({
     id: "${app_name}:${client_id}",
+    schemas: new EventSchemas().fromSchema(events),
     middleware: [realtimeMiddleware()],
     checkpointing: true,
     logger,
@@ -580,12 +584,14 @@ export const inngest = new Inngest({
 EOF
     else
         cat > "$file" <<EOF
-import { Inngest } from "inngest"
+import { EventSchemas, Inngest } from "inngest"
 import { env } from "@/lib/env"
 import { logger } from "@/lib/logger"
+import { events } from "@/inngest/${client_id}/events"
 
 export const inngest = new Inngest({
     id: "${app_name}:${client_id}",
+    schemas: new EventSchemas().fromSchema(events),
     checkpointing: true,
     logger,
     eventKey: env.INNGEST_EVENT_KEY,
@@ -602,18 +608,14 @@ write_events_ts() {
     local dir="$2"
     local file="$dir/events.ts"
 
-    cat > "$file" <<EOF
-// Event schemas for the "${client_id}" client.
-// Add events here and reference them in your functions.
-//
-// Example:
-//     export type Events = {
-//         "app/user.created": { data: { userId: string } }
-//     }
+    cat > "$file" <<'EOF'
+import { type EventRecord } from "@/lib/inngest"
 
-export type Events = {
-    // TODO: define events
-}
+// -- Event Map --
+
+const events = {} as const satisfies EventRecord
+
+export { events }
 EOF
     log_pass "Created $file"
 }
@@ -664,6 +666,9 @@ main() {
     mkdir -p "$client_dir/functions"
     log_pass "Created $client_dir/functions/"
     write_route_ts "$CLIENT_ID" "$route_dir"
+
+    fmt "$client_dir/client.ts" "$client_dir/events.ts" "$route_dir/route.ts"
+    log_step "Formatted generated files"
 
     log_done "Client '$CLIENT_ID' created."
 }
