@@ -611,11 +611,41 @@ write_events_ts() {
     cat > "$file" <<'EOF'
 import { type EventRecord } from "@/lib/inngest"
 
-// -- Event Map --
+// # Marker: Event Map
+//
+// New event schemas are inserted above this marker.
+// Event map entries are added to the `events` object below.
+//
+// ## Reference
+//
+// See scripts/app/inngest/create-client-event.sh for details and usage.
 
 const events = {} as const satisfies EventRecord
 
 export { events }
+EOF
+    log_pass "Created $file"
+}
+
+write_functions_ts() {
+    local dir="$1"
+    local file="$dir/functions.ts"
+
+    cat > "$file" <<'EOF'
+import { type InngestFunction } from "inngest"
+
+// # Marker: Function List
+//
+// New function imports are inserted above this marker.
+// Function entries are added to the `functions` array below.
+//
+// ## Reference
+//
+// See scripts/app/inngest/create-client-function.sh for details and usage.
+
+const functions: InngestFunction.Like[] = []
+
+export { functions }
 EOF
     log_pass "Created $file"
 }
@@ -629,7 +659,7 @@ write_route_ts() {
     cat > "$file" <<EOF
 import { serve } from "inngest/next"
 import { inngest } from "@/inngest/${client_id}/client"
-import { functions } from "@/inngest/${client_id}/registry"
+import { functions } from "@/inngest/${client_id}/functions"
 
 export const { GET, POST, PUT } = serve({ client: inngest, functions })
 EOF
@@ -663,11 +693,10 @@ main() {
 
     write_client_ts "$app_name" "$CLIENT_ID" "$client_dir" "$REALTIME"
     write_events_ts "$CLIENT_ID" "$client_dir"
-    mkdir -p "$client_dir/functions"
-    log_pass "Created $client_dir/functions/"
+    write_functions_ts "$client_dir"
     write_route_ts "$CLIENT_ID" "$route_dir"
 
-    fmt "$client_dir/client.ts" "$client_dir/events.ts" "$route_dir/route.ts"
+    fmt "$client_dir/client.ts" "$client_dir/events.ts" "$client_dir/functions.ts" "$route_dir/route.ts"
     log_step "Formatted generated files"
 
     log_done "Client '$CLIENT_ID' created."
