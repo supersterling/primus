@@ -26,6 +26,7 @@ readonly DONE="▶"
 readonly STEP="●"
 readonly FLOW="▷"
 readonly POSE="?"
+readonly EXEC="$"
 readonly WARN="!"
 readonly SCRIPT_NAME="$(basename "$0")"
 readonly SCRIPT_PATH="$(cd "$(dirname "$0")" && pwd)/$SCRIPT_NAME"
@@ -130,41 +131,57 @@ log_pose() { printf '%s\e[36m%s\e[39m %s\n' "$(_pad)" "$POSE" "$*"; }
 
 # ### `ask_user_via_prompt` — Free-text input
 #
-# Displays a cyan **?** prompt, reads a line into `REPLY`.
-# Pass an optional second argument as the default value.
+# First argument is the variable name. If the variable is already set
+# (e.g., from a CLI flag via `add_flag`), the prompt is skipped.
+# Sets both `REPLY` and the named variable.
 #
 # ```bash
-# ask_user_via_prompt "Project name" "my-app"
-# # ? Project name [my-app]
-# #   >
+# ask_user_via_prompt NAME "Project name" "my-app"
+# echo "$NAME"
 # ```
 ask_user_via_prompt() {
-    local default="${2:-}"
+    local varname="$1"
+    local prompt="$2"
+    local default="${3:-}"
+    if [[ -n "${!varname:-}" ]]; then
+        REPLY="${!varname}"
+        return
+    fi
     if [[ -n "$default" ]]; then
-        log_pose "$1 [$default]"
+        log_pose "$prompt [$default]"
     else
-        log_pose "$1"
+        log_pose "$prompt"
     fi
     printf '%s  \e[36m>\e[39m ' "$(_pad)"
     read -r REPLY
     [[ -z "$REPLY" && -n "$default" ]] && REPLY="$default" || true
+    printf -v "$varname" '%s' "$REPLY"
 }
 
 # ### `ask_user_via_confirm` — Yes/no confirmation
 #
-# Prompts with `[Y/n]`, `[y/N]`, or `[y/n]` based on the optional default.
-# Sets `REPLY` to `y` or `n`. Returns 0 for yes, 1 for no — works with `if`.
+# First argument is the variable name. If the variable is already set
+# (e.g., from a CLI flag via `add_flag`), the prompt is skipped.
+# Sets `REPLY` and the named variable to `y` or `n`.
+# Returns 0 for yes, 1 for no — works with `if`.
 #
 # ```bash
-# if ask_user_via_confirm "Deploy to production?" "n"; then
+# if ask_user_via_confirm DEPLOY "Deploy to production?" "n"; then
 #     deploy
 # fi
-# # ? Deploy to production? [y/N]
-# #   >
 # ```
 ask_user_via_confirm() {
-    local prompt="$1"
-    local default="${2:-}"
+    local varname="$1"
+    local prompt="$2"
+    local default="${3:-}"
+    if [[ -n "${!varname:-}" ]]; then
+        REPLY="${!varname}"
+        case "$REPLY" in
+            [yY]) REPLY="y"; printf -v "$varname" '%s' "y"; return 0 ;;
+            [nN]) REPLY="n"; printf -v "$varname" '%s' "n"; return 1 ;;
+            *) die "Invalid value for $varname: $REPLY (expected y or n)" ;;
+        esac
+    fi
     local hint="y/n"
     [[ "$default" == "y" ]] && hint="Y/n"
     [[ "$default" == "n" ]] && hint="y/N"
@@ -174,8 +191,8 @@ ask_user_via_confirm() {
         read -r REPLY
         [[ -z "$REPLY" ]] && REPLY="$default"
         case "$REPLY" in
-            [yY]) REPLY="y"; return 0 ;;
-            [nN]) REPLY="n"; return 1 ;;
+            [yY]) REPLY="y"; printf -v "$varname" '%s' "y"; return 0 ;;
+            [nN]) REPLY="n"; printf -v "$varname" '%s' "n"; return 1 ;;
             *) log_warn "Enter y or n" ;;
         esac
     done
@@ -183,19 +200,26 @@ ask_user_via_confirm() {
 
 # ### `ask_user_via_select` — Numbered menu selection
 #
-# Displays a numbered list, loops until the user picks a valid option.
-# `REPLY` is set to the chosen option's **text**, not the number.
+# First argument is the variable name. If the variable is already set
+# (e.g., from a CLI flag via `add_flag`), the prompt is skipped and
+# the value is validated against the options.
+# Sets both `REPLY` and the named variable to the chosen option's text.
 #
 # ```bash
-# ask_user_via_select "Which environment?" "staging" "production"
-# # ? Which environment?
-# #   1. staging
-# #   2. production
-# #   >
+# ask_user_via_select ENV "Which environment?" "staging" "production"
+# echo "$ENV"
 # ```
 ask_user_via_select() {
+    local varname="$1"; shift
     local prompt="$1"; shift
     local options=("$@")
+    if [[ -n "${!varname:-}" ]]; then
+        REPLY="${!varname}"
+        for opt in "${options[@]}"; do
+            [[ "$opt" == "$REPLY" ]] && return
+        done
+        die "Invalid value for $varname: $REPLY (valid: ${options[*]})"
+    fi
     log_pose "$prompt"
     local i=1
     for opt in "${options[@]}"; do
@@ -207,6 +231,7 @@ ask_user_via_select() {
         read -r REPLY
         if [[ "$REPLY" =~ ^[0-9]+$ ]] && (( REPLY >= 1 && REPLY <= ${#options[@]} )); then
             REPLY="${options[$((REPLY - 1))]}"
+            printf -v "$varname" '%s' "$REPLY"
             return
         fi
         log_warn "Enter a number 1-${#options[@]}"
@@ -245,21 +270,35 @@ log_fail() { printf '%s\e[31m%s\e[39m %s\n' "$(_pad)" "$FAIL" "$*" >&2; }
 # ```
 die() { log_fail "$1"; exit "${2:-1}"; }
 
+# ### `log_exec` — Show the command about to run
+#
+# Bold **$** prefix. Prints the command line so the user can see exactly
+# what is being executed. Called automatically by `cmd_exec`.
+#
+# ```bash
+# log_exec bun install
+# # $ bun install  (bold)
+# ```
+log_exec() { printf '%s\e[1m%s %s\e[22m\n' "$(_pad)" "$EXEC" "$*"; }
+
 # ### `cmd_exec` — Run a command with dimmed, indented output
 #
-# Executes the given command, piping both stdout and stderr through a
-# formatter that dims and indents each line. Preserves the command's exit
-# code via `$PIPESTATUS`. Best used inside a `log_flow` block.
+# Prints the command via `log_exec`, then runs it, piping both stdout
+# and stderr through a formatter that dims and indents each line. Preserves
+# the command's exit code via `$PIPESTATUS`. Best used inside a `log_flow`
+# block.
 #
 # ```bash
 # log_flow "Compiling..."
 # cmd_exec tsc --noEmit
 # log_done "Compiled."
 # # ▷ Compiling...
-# #   src/index.ts(3,1): error TS2304    ← dim + indented
+# #   $ tsc --noEmit              ← bold
+# #     src/index.ts(3,1): error  ← dim + indented
 # # ▶ Compiled.
 # ```
 cmd_exec() {
+    log_exec "$@"
     local pad="$(_pad)  "
     "$@" 2>&1 | while IFS= read -r line; do
         printf '%s\e[2m%s\e[22m\n' "$pad" "$line"
@@ -354,6 +393,7 @@ readonly DONE="▶"
 readonly STEP="●"
 readonly FLOW="▷"
 readonly POSE="?"
+readonly EXEC="\$"
 readonly WARN="!"
 readonly SCRIPT_NAME="\$(basename "\$0")"
 readonly SCRIPT_PATH="\$(cd "\$(dirname "\$0")" && pwd)/\$SCRIPT_NAME"
@@ -458,41 +498,57 @@ log_pose() { printf '%s\e[36m%s\e[39m %s\n' "\$(_pad)" "\$POSE" "\$*"; }
 
 # ### \`ask_user_via_prompt\` — Free-text input
 #
-# Displays a cyan **?** prompt, reads a line into \`REPLY\`.
-# Pass an optional second argument as the default value.
+# First argument is the variable name. If the variable is already set
+# (e.g., from a CLI flag via \`add_flag\`), the prompt is skipped.
+# Sets both \`REPLY\` and the named variable.
 #
 # \`\`\`bash
-# ask_user_via_prompt "Project name" "my-app"
-# # ? Project name [my-app]
-# #   >
+# ask_user_via_prompt NAME "Project name" "my-app"
+# echo "\$NAME"
 # \`\`\`
 ask_user_via_prompt() {
-    local default="\${2:-}"
+    local varname="\$1"
+    local prompt="\$2"
+    local default="\${3:-}"
+    if [[ -n "\${!varname:-}" ]]; then
+        REPLY="\${!varname}"
+        return
+    fi
     if [[ -n "\$default" ]]; then
-        log_pose "\$1 [\$default]"
+        log_pose "\$prompt [\$default]"
     else
-        log_pose "\$1"
+        log_pose "\$prompt"
     fi
     printf '%s  \e[36m>\e[39m ' "\$(_pad)"
     read -r REPLY
     [[ -z "\$REPLY" && -n "\$default" ]] && REPLY="\$default" || true
+    printf -v "\$varname" '%s' "\$REPLY"
 }
 
 # ### \`ask_user_via_confirm\` — Yes/no confirmation
 #
-# Prompts with \`[Y/n]\`, \`[y/N]\`, or \`[y/n]\` based on the optional default.
-# Sets \`REPLY\` to \`y\` or \`n\`. Returns 0 for yes, 1 for no — works with \`if\`.
+# First argument is the variable name. If the variable is already set
+# (e.g., from a CLI flag via \`add_flag\`), the prompt is skipped.
+# Sets \`REPLY\` and the named variable to \`y\` or \`n\`.
+# Returns 0 for yes, 1 for no — works with \`if\`.
 #
 # \`\`\`bash
-# if ask_user_via_confirm "Deploy to production?" "n"; then
+# if ask_user_via_confirm DEPLOY "Deploy to production?" "n"; then
 #     deploy
 # fi
-# # ? Deploy to production? [y/N]
-# #   >
 # \`\`\`
 ask_user_via_confirm() {
-    local prompt="\$1"
-    local default="\${2:-}"
+    local varname="\$1"
+    local prompt="\$2"
+    local default="\${3:-}"
+    if [[ -n "\${!varname:-}" ]]; then
+        REPLY="\${!varname}"
+        case "\$REPLY" in
+            [yY]) REPLY="y"; printf -v "\$varname" '%s' "y"; return 0 ;;
+            [nN]) REPLY="n"; printf -v "\$varname" '%s' "n"; return 1 ;;
+            *) die "Invalid value for \$varname: \$REPLY (expected y or n)" ;;
+        esac
+    fi
     local hint="y/n"
     [[ "\$default" == "y" ]] && hint="Y/n"
     [[ "\$default" == "n" ]] && hint="y/N"
@@ -502,8 +558,8 @@ ask_user_via_confirm() {
         read -r REPLY
         [[ -z "\$REPLY" ]] && REPLY="\$default"
         case "\$REPLY" in
-            [yY]) REPLY="y"; return 0 ;;
-            [nN]) REPLY="n"; return 1 ;;
+            [yY]) REPLY="y"; printf -v "\$varname" '%s' "y"; return 0 ;;
+            [nN]) REPLY="n"; printf -v "\$varname" '%s' "n"; return 1 ;;
             *) log_warn "Enter y or n" ;;
         esac
     done
@@ -511,19 +567,26 @@ ask_user_via_confirm() {
 
 # ### \`ask_user_via_select\` — Numbered menu selection
 #
-# Displays a numbered list, loops until the user picks a valid option.
-# \`REPLY\` is set to the chosen option's **text**, not the number.
+# First argument is the variable name. If the variable is already set
+# (e.g., from a CLI flag via \`add_flag\`), the prompt is skipped and
+# the value is validated against the options.
+# Sets both \`REPLY\` and the named variable to the chosen option's text.
 #
 # \`\`\`bash
-# ask_user_via_select "Which environment?" "staging" "production"
-# # ? Which environment?
-# #   1. staging
-# #   2. production
-# #   >
+# ask_user_via_select ENV "Which environment?" "staging" "production"
+# echo "\$ENV"
 # \`\`\`
 ask_user_via_select() {
+    local varname="\$1"; shift
     local prompt="\$1"; shift
     local options=("\$@")
+    if [[ -n "\${!varname:-}" ]]; then
+        REPLY="\${!varname}"
+        for opt in "\${options[@]}"; do
+            [[ "\$opt" == "\$REPLY" ]] && return
+        done
+        die "Invalid value for \$varname: \$REPLY (valid: \${options[*]})"
+    fi
     log_pose "\$prompt"
     local i=1
     for opt in "\${options[@]}"; do
@@ -535,6 +598,7 @@ ask_user_via_select() {
         read -r REPLY
         if [[ "\$REPLY" =~ ^[0-9]+\$ ]] && (( REPLY >= 1 && REPLY <= \${#options[@]} )); then
             REPLY="\${options[\$((REPLY - 1))]}"
+            printf -v "\$varname" '%s' "\$REPLY"
             return
         fi
         log_warn "Enter a number 1-\${#options[@]}"
@@ -573,21 +637,35 @@ log_fail() { printf '%s\e[31m%s\e[39m %s\n' "\$(_pad)" "\$FAIL" "\$*" >&2; }
 # \`\`\`
 die() { log_fail "\$1"; exit "\${2:-1}"; }
 
+# ### \`log_exec\` — Show the command about to run
+#
+# Bold **\$** prefix. Prints the command line so the user can see exactly
+# what is being executed. Called automatically by \`cmd_exec\`.
+#
+# \`\`\`bash
+# log_exec bun install
+# # \$ bun install  (bold)
+# \`\`\`
+log_exec() { printf '%s\e[1m%s %s\e[22m\n' "\$(_pad)" "\$EXEC" "\$*"; }
+
 # ### \`cmd_exec\` — Run a command with dimmed, indented output
 #
-# Executes the given command, piping both stdout and stderr through a
-# formatter that dims and indents each line. Preserves the command's exit
-# code via \`\$PIPESTATUS\`. Best used inside a \`log_flow\` block.
+# Prints the command via \`log_exec\`, then runs it, piping both stdout
+# and stderr through a formatter that dims and indents each line. Preserves
+# the command's exit code via \`\$PIPESTATUS\`. Best used inside a \`log_flow\`
+# block.
 #
 # \`\`\`bash
 # log_flow "Compiling..."
 # cmd_exec tsc --noEmit
 # log_done "Compiled."
 # # ▷ Compiling...
-# #   src/index.ts(3,1): error TS2304    ← dim + indented
+# #   \$ tsc --noEmit              ← bold
+# #     src/index.ts(3,1): error  ← dim + indented
 # # ▶ Compiled.
 # \`\`\`
 cmd_exec() {
+    log_exec "\$@"
     local pad="\$(_pad)  "
     "\$@" 2>&1 | while IFS= read -r line; do
         printf '%s\e[2m%s\e[22m\n' "\$pad" "\$line"
@@ -616,6 +694,98 @@ trap 'cleanup; log_fail "Hangup (HUP)"; exit 129' HUP
 trap 'cleanup' EXIT
 
 #
+# Flags
+#
+# Register CLI flags that double as interactive prompts.
+# Call \`add_flag\` here, then use \`ask_user_via_*\` with the same
+# variable name in \`main()\`.
+#
+# \`\`\`bash
+# add_flag "env" "ENV" "Target environment"
+# # In main():
+# #   ask_user_via_select ENV "Which environment?" "staging" "production"
+# # CLI: ./script.sh --env staging
+# \`\`\`
+
+declare -a _flag_names=()
+declare -a _flag_vars=()
+declare -a _flag_descs=()
+declare -a ARGS=()
+
+# ### \`add_flag\` — Register a CLI flag
+#
+# Maps a flag name to a variable. When the flag is passed on the CLI,
+# the variable is pre-set and \`ask_user_via_*\` skips the prompt.
+#
+# \`\`\`bash
+# add_flag "number" "NUMBER" "Which number to use"
+# # Enables: --number <value>
+# \`\`\`
+add_flag() {
+    _flag_names+=("\$1")
+    _flag_vars+=("\$2")
+    _flag_descs+=("\$3")
+}
+
+# ### \`parse_flags\` — Parse registered CLI flags
+#
+# Parses \`--flag value\` pairs from arguments. Unknown flags cause an
+# error; positional arguments are collected into \`ARGS\`. Handles
+# \`-h\`/\`--help\` automatically via \`usage()\`.
+#
+# \`\`\`bash
+# main() {
+#     parse_flags "\$@"
+#     echo "Positional: \${ARGS[*]}"
+# }
+# \`\`\`
+parse_flags() {
+    while (( \$# )); do
+        case "\$1" in
+            -h|--help) usage; exit 0 ;;
+            --)
+                shift
+                ARGS+=("\$@")
+                break
+                ;;
+            --*)
+                local flag="\${1#--}"
+                local found=0
+                for i in "\${!_flag_names[@]}"; do
+                    if [[ "\${_flag_names[\$i]}" == "\$flag" ]]; then
+                        (( \$# < 2 )) && die "Option --\$flag requires a value"
+                        printf -v "\${_flag_vars[\$i]}" '%s' "\$2"
+                        found=1
+                        shift 2
+                        break
+                    fi
+                done
+                (( found )) || die "Unknown option: \$1"
+                ;;
+            *)
+                ARGS+=("\$1")
+                shift
+                ;;
+        esac
+    done
+}
+
+# ### \`usage\` — Auto-generated help
+#
+# Prints help text from registered flags. Called on \`-h\`/\`--help\`.
+usage() {
+    printf 'Usage: %s [options]\n\n' "\$SCRIPT_NAME"
+    printf 'Options:\n'
+    for i in "\${!_flag_names[@]}"; do
+        printf '  --%-20s %s\n' "\${_flag_names[\$i]} <value>" "\${_flag_descs[\$i]}"
+    done
+    printf '  -h, --help             Show this help message\n'
+}
+
+# TODO: Register your flags
+# add_flag "name" "VARIABLE" "Description for --help"
+
+#
 # Functions
 #
 
@@ -626,10 +796,12 @@ trap 'cleanup' EXIT
 #
 
 main() {
+    parse_flags "\$@"
+
     log_flow "Running ${name}..."
 
     # TODO: Implement main logic
-    # cmd_exec some-command --flag
+    # ask_user_via_select ENV "Which environment?" "staging" "production"
 
     log_done "${name} complete."
 }
