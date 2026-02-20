@@ -1,4 +1,5 @@
 import process from "node:process"
+import { vercel } from "@t3-oss/env-core/presets-zod"
 import { createEnv } from "@t3-oss/env-nextjs"
 import { z } from "zod"
 
@@ -19,8 +20,11 @@ if (!process.env.NEXT_RUNTIME && isServerRuntime) {
  * Uses @t3-oss/env-nextjs with Zod schemas.
  */
 export const env = createEnv({
+    extends: [vercel()],
     server: {
         NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+        INNGEST_EVENT_KEY: z.string().optional(),
+        INNGEST_SIGNING_KEY: z.string().optional(),
     },
 
     client: {
@@ -29,6 +33,8 @@ export const env = createEnv({
 
     runtimeEnv: {
         NODE_ENV: process.env.NODE_ENV,
+        INNGEST_EVENT_KEY: process.env.INNGEST_EVENT_KEY,
+        INNGEST_SIGNING_KEY: process.env.INNGEST_SIGNING_KEY,
     },
 
     // biome-ignore lint/complexity/noImplicitCoercions: standard idiom for boolean coercion

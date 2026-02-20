@@ -565,22 +565,32 @@ write_client_ts() {
         cat > "$file" <<EOF
 import { realtimeMiddleware } from "@inngest/realtime/middleware"
 import { Inngest } from "inngest"
+import { env } from "@/lib/env"
 import { logger } from "@/lib/logger"
 
 export const inngest = new Inngest({
     id: "${app_name}:${client_id}",
     middleware: [realtimeMiddleware()],
+    checkpointing: true,
     logger,
+    eventKey: env.INNGEST_EVENT_KEY,
+    signingKey: env.INNGEST_SIGNING_KEY,
+    env: env.VERCEL_ENV === "preview" ? env.VERCEL_GIT_COMMIT_REF : undefined,
 })
 EOF
     else
         cat > "$file" <<EOF
 import { Inngest } from "inngest"
+import { env } from "@/lib/env"
 import { logger } from "@/lib/logger"
 
 export const inngest = new Inngest({
     id: "${app_name}:${client_id}",
+    checkpointing: true,
     logger,
+    eventKey: env.INNGEST_EVENT_KEY,
+    signingKey: env.INNGEST_SIGNING_KEY,
+    env: env.VERCEL_ENV === "preview" ? env.VERCEL_GIT_COMMIT_REF : undefined,
 })
 EOF
     fi

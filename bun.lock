@@ -6,6 +6,7 @@
       "name": "primus",
       "dependencies": {
         "@inngest/realtime": "^0.4.6",
+        "@t3-oss/env-core": "^0.13.10",
         "@t3-oss/env-nextjs": "^0.13.10",
         "inngest": "^3.52.2",
         "next": "16.1.6",
