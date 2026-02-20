@@ -25,6 +25,8 @@ readonly FAIL="✘"
 readonly DONE="▶"
 readonly STEP="●"
 readonly FLOW="▷"
+readonly POSE="?"
+readonly WARN="!"
 readonly SCRIPT_NAME="$(basename "$0")"
 readonly SCRIPT_PATH="$(cd "$(dirname "$0")" && pwd)/$SCRIPT_NAME"
 
@@ -42,6 +44,8 @@ readonly SCRIPT_PATH="$(cd "$(dirname "$0")" && pwd)/$SCRIPT_NAME"
 #   ✔ Compiled 42 files
 #     src/index.ts: OK           ← dim (cmd_exec)
 # ▶ Build complete.
+# ? Deploy now?                  ← cyan (ask_user_via_*)
+#   > yes
 # ```
 
 _indent=0
@@ -51,6 +55,16 @@ _indent=0
 # Returns whitespace for the current indent level (2 spaces per level).
 # Internal helper — called by all log functions.
 _pad() { printf '%*s' $(( _indent * 2 )) ''; }
+
+# ### `log_bold` — Bold text
+#
+# Prints bold text at the current indent level. No prefix icon.
+#
+# ```bash
+# log_bold "Project Setup"
+# # Project Setup  (bold)
+# ```
+log_bold() { printf '%s\e[1m%s\e[22m\n' "$(_pad)" "$*"; }
 
 # ### `log_pass` — Success message
 #
@@ -103,15 +117,111 @@ log_flow() { printf '%s\e[30m%s\e[39m %s\n' "$(_pad)" "$FLOW" "$*"; _indent=$(( 
 # ```
 log_step() { printf '%s\e[2;30m%s\e[22;39m %s\n' "$(_pad)" "$STEP" "$*"; }
 
+# ### `log_pose` — Pose a question
+#
+# Cyan **?** prefix. Use when the script needs to prompt the user for input.
+# Typically called via the `ask_user_via_*` family rather than directly.
+#
+# ```bash
+# log_pose "Which environment?"
+# # ? Which environment?
+# ```
+log_pose() { printf '%s\e[36m%s\e[39m %s\n' "$(_pad)" "$POSE" "$*"; }
+
+# ### `ask_user_via_prompt` — Free-text input
+#
+# Displays a cyan **?** prompt, reads a line into `REPLY`.
+# Pass an optional second argument as the default value.
+#
+# ```bash
+# ask_user_via_prompt "Project name" "my-app"
+# # ? Project name [my-app]
+# #   >
+# ```
+ask_user_via_prompt() {
+    local default="${2:-}"
+    if [[ -n "$default" ]]; then
+        log_pose "$1 [$default]"
+    else
+        log_pose "$1"
+    fi
+    printf '%s  \e[36m>\e[39m ' "$(_pad)"
+    read -r REPLY
+    [[ -z "$REPLY" && -n "$default" ]] && REPLY="$default" || true
+}
+
+# ### `ask_user_via_confirm` — Yes/no confirmation
+#
+# Prompts with `[Y/n]`, `[y/N]`, or `[y/n]` based on the optional default.
+# Sets `REPLY` to `y` or `n`. Returns 0 for yes, 1 for no — works with `if`.
+#
+# ```bash
+# if ask_user_via_confirm "Deploy to production?" "n"; then
+#     deploy
+# fi
+# # ? Deploy to production? [y/N]
+# #   >
+# ```
+ask_user_via_confirm() {
+    local prompt="$1"
+    local default="${2:-}"
+    local hint="y/n"
+    [[ "$default" == "y" ]] && hint="Y/n"
+    [[ "$default" == "n" ]] && hint="y/N"
+    while true; do
+        log_pose "$prompt [$hint]"
+        printf '%s  \e[36m>\e[39m ' "$(_pad)"
+        read -r REPLY
+        [[ -z "$REPLY" ]] && REPLY="$default"
+        case "$REPLY" in
+            [yY]) REPLY="y"; return 0 ;;
+            [nN]) REPLY="n"; return 1 ;;
+            *) log_warn "Enter y or n" ;;
+        esac
+    done
+}
+
+# ### `ask_user_via_select` — Numbered menu selection
+#
+# Displays a numbered list, loops until the user picks a valid option.
+# `REPLY` is set to the chosen option's **text**, not the number.
+#
+# ```bash
+# ask_user_via_select "Which environment?" "staging" "production"
+# # ? Which environment?
+# #   1. staging
+# #   2. production
+# #   >
+# ```
+ask_user_via_select() {
+    local prompt="$1"; shift
+    local options=("$@")
+    log_pose "$prompt"
+    local i=1
+    for opt in "${options[@]}"; do
+        printf '%s  \e[36m%d.\e[39m %s\n' "$(_pad)" "$i" "$opt"
+        (( i++ ))
+    done
+    while true; do
+        printf '%s  \e[36m>\e[39m ' "$(_pad)"
+        read -r REPLY
+        if [[ "$REPLY" =~ ^[0-9]+$ ]] && (( REPLY >= 1 && REPLY <= ${#options[@]} )); then
+            REPLY="${options[$((REPLY - 1))]}"
+            return
+        fi
+        log_warn "Enter a number 1-${#options[@]}"
+    done
+}
+
 # ### `log_warn` — Warning message
 #
-# Yellow **Warn:** prefix. Use for non-fatal issues that deserve attention.
+# Yellow **!** prefix. Use for non-fatal issues that deserve attention.
 #
 # ```bash
 # log_warn "Config not found, using defaults"
-# # Warn: Config not found, using defaults
+# # ! Config not found, using defaults
 # ```
-log_warn() { printf '%s\e[1;33mWarn:\e[22;39m %s\n' "$(_pad)" "$*"; }
+log_warn() { printf '%s\e[33m%s\e[39m %s\n' "$(_pad)" "$WARN" "$*"; }
 
 # ### `log_fail` — Error message
 #
@@ -243,6 +353,8 @@ readonly FAIL="✘"
 readonly DONE="▶"
 readonly STEP="●"
 readonly FLOW="▷"
+readonly POSE="?"
+readonly WARN="!"
 readonly SCRIPT_NAME="\$(basename "\$0")"
 readonly SCRIPT_PATH="\$(cd "\$(dirname "\$0")" && pwd)/\$SCRIPT_NAME"
 
@@ -260,6 +372,8 @@ readonly SCRIPT_PATH="\$(cd "\$(dirname "\$0")" && pwd)/\$SCRIPT_NAME"
 #   ✔ Compiled 42 files
 #     src/index.ts: OK           ← dim (cmd_exec)
 # ▶ Build complete.
+# ? Deploy now?                  ← cyan (ask_user_via_*)
+#   > yes
 # \`\`\`
 
 _indent=0
@@ -269,6 +383,16 @@ _indent=0
 # Returns whitespace for the current indent level (2 spaces per level).
 # Internal helper — called by all log functions.
 _pad() { printf '%*s' \$(( _indent * 2 )) ''; }
+
+# ### \`log_bold\` — Bold text
+#
+# Prints bold text at the current indent level. No prefix icon.
+#
+# \`\`\`bash
+# log_bold "Project Setup"
+# # Project Setup  (bold)
+# \`\`\`
+log_bold() { printf '%s\e[1m%s\e[22m\n' "\$(_pad)" "\$*"; }
 
 # ### \`log_pass\` — Success message
 #
@@ -321,15 +445,111 @@ log_flow() { printf '%s\e[30m%s\e[39m %s\n' "\$(_pad)" "\$FLOW" "\$*"; _indent=\
 # \`\`\`
 log_step() { printf '%s\e[2;30m%s\e[22;39m %s\n' "\$(_pad)" "\$STEP" "\$*"; }
 
+# ### \`log_pose\` — Pose a question
+#
+# Cyan **?** prefix. Use when the script needs to prompt the user for input.
+# Typically called via the \`ask_user_via_*\` family rather than directly.
+#
+# \`\`\`bash
+# log_pose "Which environment?"
+# # ? Which environment?
+# \`\`\`
+log_pose() { printf '%s\e[36m%s\e[39m %s\n' "\$(_pad)" "\$POSE" "\$*"; }
+
+# ### \`ask_user_via_prompt\` — Free-text input
+#
+# Displays a cyan **?** prompt, reads a line into \`REPLY\`.
+# Pass an optional second argument as the default value.
+#
+# \`\`\`bash
+# ask_user_via_prompt "Project name" "my-app"
+# # ? Project name [my-app]
+# #   >
+# \`\`\`
+ask_user_via_prompt() {
+    local default="\${2:-}"
+    if [[ -n "\$default" ]]; then
+        log_pose "\$1 [\$default]"
+    else
+        log_pose "\$1"
+    fi
+    printf '%s  \e[36m>\e[39m ' "\$(_pad)"
+    read -r REPLY
+    [[ -z "\$REPLY" && -n "\$default" ]] && REPLY="\$default" || true
+}
+
+# ### \`ask_user_via_confirm\` — Yes/no confirmation
+#
+# Prompts with \`[Y/n]\`, \`[y/N]\`, or \`[y/n]\` based on the optional default.
+# Sets \`REPLY\` to \`y\` or \`n\`. Returns 0 for yes, 1 for no — works with \`if\`.
+#
+# \`\`\`bash
+# if ask_user_via_confirm "Deploy to production?" "n"; then
+#     deploy
+# fi
+# # ? Deploy to production? [y/N]
+# #   >
+# \`\`\`
+ask_user_via_confirm() {
+    local prompt="\$1"
+    local default="\${2:-}"
+    local hint="y/n"
+    [[ "\$default" == "y" ]] && hint="Y/n"
+    [[ "\$default" == "n" ]] && hint="y/N"
+    while true; do
+        log_pose "\$prompt [\$hint]"
+        printf '%s  \e[36m>\e[39m ' "\$(_pad)"
+        read -r REPLY
+        [[ -z "\$REPLY" ]] && REPLY="\$default"
+        case "\$REPLY" in
+            [yY]) REPLY="y"; return 0 ;;
+            [nN]) REPLY="n"; return 1 ;;
+            *) log_warn "Enter y or n" ;;
+        esac
+    done
+}
+
+# ### \`ask_user_via_select\` — Numbered menu selection
+#
+# Displays a numbered list, loops until the user picks a valid option.
+# \`REPLY\` is set to the chosen option's **text**, not the number.
+#
+# \`\`\`bash
+# ask_user_via_select "Which environment?" "staging" "production"
+# # ? Which environment?
+# #   1. staging
+# #   2. production
+# #   >
+# \`\`\`
+ask_user_via_select() {
+    local prompt="\$1"; shift
+    local options=("\$@")
+    log_pose "\$prompt"
+    local i=1
+    for opt in "\${options[@]}"; do
+        printf '%s  \e[36m%d.\e[39m %s\n' "\$(_pad)" "\$i" "\$opt"
+        (( i++ ))
+    done
+    while true; do
+        printf '%s  \e[36m>\e[39m ' "\$(_pad)"
+        read -r REPLY
+        if [[ "\$REPLY" =~ ^[0-9]+\$ ]] && (( REPLY >= 1 && REPLY <= \${#options[@]} )); then
+            REPLY="\${options[\$((REPLY - 1))]}"
+            return
+        fi
+        log_warn "Enter a number 1-\${#options[@]}"
+    done
+}
+
 # ### \`log_warn\` — Warning message
 #
-# Yellow **Warn:** prefix. Use for non-fatal issues that deserve attention.
+# Yellow **!** prefix. Use for non-fatal issues that deserve attention.
 #
 # \`\`\`bash
 # log_warn "Config not found, using defaults"
-# # Warn: Config not found, using defaults
+# # ! Config not found, using defaults
 # \`\`\`
-log_warn() { printf '%s\e[1;33mWarn:\e[22;39m %s\n' "\$(_pad)" "\$*"; }
+log_warn() { printf '%s\e[33m%s\e[39m %s\n' "\$(_pad)" "\$WARN" "\$*"; }
 
 # ### \`log_fail\` — Error message
 #
