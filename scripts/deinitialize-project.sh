@@ -376,6 +376,7 @@ parse_flags() {
     while (( $# )); do
         case "$1" in
             -h|--help) usage; exit 0 ;;
+            -y|--yes) YES="y"; shift ;;
             --)
                 shift
                 ARGS+=("$@")
@@ -412,6 +413,7 @@ usage() {
     for i in "${!_flag_names[@]}"; do
         printf '  --%-20s %s\n' "${_flag_names[$i]} <value>" "${_flag_descs[$i]}"
     done
+    printf '  -y, --yes              Skip confirmation prompt\n'
     printf '  -h, --help             Show this help message\n'
 }
 
@@ -451,6 +453,11 @@ revert_file() {
 
 main() {
     parse_flags "$@"
+
+    if ! ask_user_via_confirm YES "This will remove generated artifacts and revert files. Continue?" "n"; then
+        log_warn "Aborted."
+        exit 0
+    fi
 
     log_flow "Deinitializing project..."
 
