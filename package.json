@@ -11,7 +11,7 @@
     "ts:check": "tsc --noEmit",
     "biome:check": "biome check",
     "biome:fix": "biome check --fix",
-    "env:example": "./scripts/generate-env-example-from-env-ts.sh",
+    "env:example": "./scripts/generate-env-example.ts",
     "prepare": "husky"
   },
   "dependencies": {

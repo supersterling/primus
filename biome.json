@@ -564,10 +564,16 @@
             "linter": {
                 "rules": {
                     "suspicious": {
-                        "noConsole": "off"
+                        "noConsole": "off",
+                        "useAwait": "off"
                     },
                     "correctness": {
-                        "noProcessGlobal": "off"
+                        "noProcessGlobal": "off",
+                        "noUnusedVariables": "off",
+                        "noUnusedFunctionParameters": "off"
+                    },
+                    "performance": {
+                        "noAwaitInLoops": "off"
                     },
                     "style": {
                         "noMagicNumbers": "off",

@@ -1,3 +1,3 @@
 if git diff-tree --no-commit-id --name-only -r HEAD | grep -q 'src/lib/env.ts'; then
-  ./scripts/generate-env-example-from-env-ts.sh
+  ./scripts/generate-env-example.ts
 fi

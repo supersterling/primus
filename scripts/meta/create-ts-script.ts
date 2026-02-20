@@ -28,7 +28,6 @@ const FLOW = "▷"
 const POSE = "?"
 const WARN = "!"
 const SCRIPT_NAME = import.meta.file
-// biome-ignore lint/correctness/noUnusedVariables: standard library constant
 const SCRIPT_PATH = import.meta.path
 
 //
@@ -67,7 +66,6 @@ function pad(): string {
 // logBold("Project Setup")
 // // Project Setup  (bold)
 // ```
-// biome-ignore lint/correctness/noUnusedVariables: standard library function
 function logBold(...args: string[]): void {
     console.write(`${pad()}\x1b[1m${args.join(" ")}\x1b[22m\n`)
 }
@@ -173,7 +171,6 @@ async function readLine(): Promise<string> {
 // // ? Project name [my-app]
 // //   >
 // ```
-// biome-ignore lint/correctness/noUnusedVariables: standard library function
 async function askUserViaPrompt(prompt: string, defaultValue?: string): Promise<string> {
     if (defaultValue !== undefined) {
         logPose(`${prompt} [${defaultValue}]`)
@@ -207,13 +204,11 @@ function confirmHint(defaultValue?: boolean): string {
 // // ? Deploy to production? [y/N]
 // //   >
 // ```
-// biome-ignore lint/correctness/noUnusedVariables: standard library function
 async function askUserViaConfirm(prompt: string, defaultValue?: boolean): Promise<boolean> {
     const hint = confirmHint(defaultValue)
     for (;;) {
         logPose(`${prompt} [${hint}]`)
         console.write(`${pad()}  ${Bun.color("cyan", "ansi")}>\x1b[39m `)
-        // biome-ignore lint/performance/noAwaitInLoops: intentional interactive input
         const reply = (await readLine()).toLowerCase()
         if (!reply && defaultValue !== undefined) {
             return defaultValue
@@ -240,7 +235,6 @@ async function askUserViaConfirm(prompt: string, defaultValue?: boolean): Promis
 // //   2. production
 // //   >
 // ```
-// biome-ignore lint/correctness/noUnusedVariables: standard library function
 async function askUserViaSelect(prompt: string, options: string[]): Promise<string> {
     logPose(prompt)
     for (let i = 0; i < options.length; i += 1) {
@@ -248,7 +242,6 @@ async function askUserViaSelect(prompt: string, options: string[]): Promise<stri
     }
     for (;;) {
         console.write(`${pad()}  ${Bun.color("cyan", "ansi")}>\x1b[39m `)
-        // biome-ignore lint/performance/noAwaitInLoops: intentional interactive input
         const reply = await readLine()
         const num = Number.parseInt(reply, 10)
         if (!Number.isNaN(num) && num >= 1 && num <= options.length) {
@@ -311,7 +304,6 @@ function die(msg: string, code = 1): never {
 // //   src/index.ts(3,1): error TS2304    ← dim + indented
 // // ▶ Compiled.
 // ```
-// biome-ignore lint/correctness/noUnusedVariables: standard library function
 async function cmdExec(cmd: string): Promise<number> {
     const indent = `${pad()}  `
     const result = await $`${{ raw: cmd }}`.nothrow().quiet()
@@ -516,7 +508,9 @@ function logFlow(...args: string[]): void {
 // // ● Compiling sources...
 // \`\`\`
 function logStep(...args: string[]): void {
-    console.write(\`\${pad()}\\x1b[2m\${Bun.color("black", "ansi")}\${STEP}\\x1b[22;39m \${args.join(" ")}\\n\`)
+    console.write(
+        \`\${pad()}\\x1b[2m\${Bun.color("black", "ansi")}\${STEP}\\x1b[22;39m \${args.join(" ")}\\n\`,
+    )
 }
 
 // ### \`logPose\` — Pose a question
@@ -566,6 +560,16 @@ async function askUserViaPrompt(prompt: string, defaultValue?: string): Promise<
     return reply || defaultValue || ""
 }
 
+function confirmHint(defaultValue?: boolean): string {
+    if (defaultValue === true) {
+        return "Y/n"
+    }
+    if (defaultValue === false) {
+        return "y/N"
+    }
+    return "y/n"
+}
+
 // ### \`askUserViaConfirm\` — Yes/no confirmation
 //
 // Prompts with \`[Y/n]\`, \`[y/N]\`, or \`[y/n]\` based on the optional default.
@@ -579,18 +583,20 @@ async function askUserViaPrompt(prompt: string, defaultValue?: string): Promise<
 // //   >
 // \`\`\`
 async function askUserViaConfirm(prompt: string, defaultValue?: boolean): Promise<boolean> {
-    const hint =
-        defaultValue === true ? "Y/n" : defaultValue === false ? "y/N" : "y/n"
-    while (true) {
+    const hint = confirmHint(defaultValue)
+    for (;;) {
         logPose(\`\${prompt} [\${hint}]\`)
         console.write(\`\${pad()}  \${Bun.color("cyan", "ansi")}>\\x1b[39m \`)
-        let reply = await readLine()
+        const reply = (await readLine()).toLowerCase()
         if (!reply && defaultValue !== undefined) {
             return defaultValue
         }
-        reply = reply.toLowerCase()
-        if (reply === "y") return true
-        if (reply === "n") return false
+        if (reply === "y") {
+            return true
+        }
+        if (reply === "n") {
+            return false
+        }
         logWarn("Enter y or n")
     }
 }
@@ -609,10 +615,10 @@ async function askUserViaConfirm(prompt: string, defaultValue?: boolean): Promis
 // \`\`\`
 async function askUserViaSelect(prompt: string, options: string[]): Promise<string> {
     logPose(prompt)
-    for (let i = 0; i < options.length; i++) {
+    for (let i = 0; i < options.length; i += 1) {
         console.write(\`\${pad()}  \${Bun.color("cyan", "ansi")}\${i + 1}.\\x1b[39m \${options[i]}\\n\`)
     }
-    while (true) {
+    for (;;) {
         console.write(\`\${pad()}  \${Bun.color("cyan", "ansi")}>\\x1b[39m \`)
         const reply = await readLine()
         const num = Number.parseInt(reply, 10)
@@ -677,7 +683,7 @@ function die(msg: string, code = 1): never {
 // // ▶ Compiled.
 // \`\`\`
 async function cmdExec(cmd: string): Promise<number> {
-    const indent = pad() + "  "
+    const indent = \`\${pad()}  \`
     const result = await $\`\${{ raw: cmd }}\`.nothrow().quiet()
     for (const line of result.text().split("\\n")) {
         if (line) {
@@ -704,9 +710,21 @@ function cleanup(): void {
     _cleaned = true
 }
 
-process.on("SIGINT", () => { cleanup(); logFail("Interrupted (INT)"); process.exit(130) })
-process.on("SIGTERM", () => { cleanup(); logFail("Terminated (TERM)"); process.exit(143) })
-process.on("SIGHUP", () => { cleanup(); logFail("Hangup (HUP)"); process.exit(129) })
+process.on("SIGINT", () => {
+    cleanup()
+    logFail("Interrupted (INT)")
+    process.exit(130)
+})
+process.on("SIGTERM", () => {
+    cleanup()
+    logFail("Terminated (TERM)")
+    process.exit(143)
+})
+process.on("SIGHUP", () => {
+    cleanup()
+    logFail("Hangup (HUP)")
+    process.exit(129)
+})
 process.on("exit", cleanup)
 
 //
