@@ -1,5 +1,5 @@
 [[entries]]
-hash = "c8ae334817baebe3ea840cb8b4bc26ae9b7dc406790c992ff5d7697c68233159"
+hash = "f90832b41e1ad806594460f9bc038c3e30230304ff0377d8b6ac97f2c6815287"
 source = "scripts/README.md"
 symbol = ""
 target = "scripts:meta/create-sh-script.sh"
@@ -53,7 +53,7 @@ symbol = "log_step"
 target = "scripts:meta/create-sh-script.sh"
 
 [[entries]]
-hash = "084caf0905fc9629696cb3ad739351ad83e86250b8a59b7774a730bcdc6a26c6"
+hash = "8cb24e770a9276f4aa8e3dd5e76a54edf0b86fe33b1424e4800acb02b8d713a7"
 source = "scripts/README.md"
 symbol = "log_warn"
 target = "scripts:meta/create-sh-script.sh"

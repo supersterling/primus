@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# = test-ask-user.sh
+# = initialize-project.sh
 #
 # == Description
 #
-# RPG character creator to test ask_user_via_* functions
+# Check prerequisites and install project dependencies
 #
 # == Metadata
 #
@@ -12,7 +12,7 @@
 #
 # == Usage
 #
-# ./scripts/test-ask-user.sh [options]
+# ./scripts/initialize-project.sh [options]
 
 set -euo pipefail
 
@@ -55,6 +55,16 @@ _indent=0
 # Returns whitespace for the current indent level (2 spaces per level).
 # Internal helper — called by all log functions.
 _pad() { printf '%*s' $(( _indent * 2 )) ''; }
+
+# ### `log_bold` — Bold text
+#
+# Prints bold text at the current indent level. No prefix icon.
+#
+# ```bash
+# log_bold "Project Setup"
+# # Project Setup  (bold)
+# ```
+log_bold() { printf '%s\e[1m%s\e[22m\n' "$(_pad)" "$*"; }
 
 # ### `log_pass` — Success message
 #
@@ -205,11 +215,11 @@ ask_user_via_select() {
 
 # ### `log_warn` — Warning message
 #
-# Yellow **Warn:** prefix. Use for non-fatal issues that deserve attention.
+# Yellow **!** prefix. Use for non-fatal issues that deserve attention.
 #
 # ```bash
 # log_warn "Config not found, using defaults"
-# # Warn: Config not found, using defaults
+# # ! Config not found, using defaults
 # ```
 log_warn() { printf '%s\e[33m%s\e[39m %s\n' "$(_pad)" "$WARN" "$*"; }
 
@@ -281,16 +291,17 @@ trap 'cleanup' EXIT
 # Functions
 #
 
-print_sheet() {
-    local name="$1" class="$2" weapon="$3"
-    printf '\n'
-    printf '  \e[36m╔══════════════════════════════╗\e[39m\n'
-    printf '  \e[36m║\e[39m  \e[1m%-26s\e[22m  \e[36m║\e[39m\n' "$name"
-    printf '  \e[36m╠══════════════════════════════╣\e[39m\n'
-    printf '  \e[36m║\e[39m  Class:  %-20s\e[36m║\e[39m\n' "$class"
-    printf '  \e[36m║\e[39m  Weapon: %-20s\e[36m║\e[39m\n' "$weapon"
-    printf '  \e[36m╚══════════════════════════════╝\e[39m\n'
-    printf '\n'
+# ### `require_cmd`
+#
+# Assert a command exists on PATH, or die with install hint.
+require_cmd() {
+    local cmd="$1"
+    local hint="${2:-}"
+    if ! command -v "$cmd" &>/dev/null; then
+        [[ -n "$hint" ]] && die "Required command '$cmd' not found. $hint" || true
+        die "Required command '$cmd' not found."
+    fi
+    log_pass "$cmd found ($(command -v "$cmd"))"
 }
 
 #
@@ -298,29 +309,30 @@ print_sheet() {
 #
 
 main() {
-    log_flow "Character Creator"
+    log_flow "Initializing project..."
 
-    ask_user_via_prompt "Hero name" "Dovahkiin"
-    local name="$REPLY"
-    log_pass "Name: $name"
+    # Prerequisites
+    log_flow "Checking prerequisites..."
+    require_cmd bun "Install: https://bun.sh"
+    require_cmd docref "Install: cargo install docref"
+    log_done "Prerequisites satisfied."
 
-    ask_user_via_select "Pick a class" "Warrior" "Mage" "Rogue" "Bard"
-    local class="$REPLY"
-    log_pass "Class: $class"
+    # Install dependencies
+    log_flow "Installing dependencies..."
+    cmd_exec bun install
+    log_done "Dependencies installed."
 
-    ask_user_via_select "Choose your weapon" "Greatsword" "Staff of Chaos" "Twin Daggers" "Lute of Doom"
-    local weapon="$REPLY"
-    log_pass "Weapon: $weapon"
-
-    print_sheet "$name" "$class" "$weapon"
-
-    if ask_user_via_confirm "Accept this character?" "y"; then
-        log_pass "$name enters the world."
+    # Environment
+    log_flow "Setting up environment..."
+    if [[ -f .env.local ]]; then
+        log_pass ".env.local already exists"
     else
-        log_fail "$name was erased from existence."
+        cp .env.example .env.local
+        log_pass "Copied .env.example → .env.local"
     fi
+    log_done "Environment ready."
 
-    log_done "Character Creator complete."
+    log_done "Project initialized."
 }
 
 main "$@"
