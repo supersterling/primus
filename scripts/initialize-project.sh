@@ -452,6 +452,14 @@ main() {
     cmd_exec bun install
     log_done "Dependencies installed."
 
+    # shadcn/ui
+    log_flow "Initializing shadcn/ui..."
+    cmd_exec bunx shadcn@latest init --defaults
+    log_pass "shadcn initialized"
+    cmd_exec bunx shadcn@latest add --all
+    log_pass "All components added"
+    log_done "shadcn/ui ready."
+
     # Environment
     log_flow "Setting up environment..."
     if [[ -f .env.local ]]; then
