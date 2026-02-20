@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
+import "@/lib/env";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  reactStrictMode: true,
+  typedRoutes: true
 };
 
 export default nextConfig;
