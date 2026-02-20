@@ -1,5 +1,5 @@
 [[entries]]
-hash = "f90832b41e1ad806594460f9bc038c3e30230304ff0377d8b6ac97f2c6815287"
+hash = "168c22dd3ccb1ef3673108d3a83b80d5c744a15b47ff72b5ce4aea45c177ce2b"
 source = "scripts/README.md"
 symbol = ""
 target = "scripts:meta/create-sh-script.sh"
@@ -11,7 +11,7 @@ symbol = "cleanup"
 target = "scripts:meta/create-sh-script.sh"
 
 [[entries]]
-hash = "03202484f6d31ed47a1fbb30daacf1db3100fabd3e202d6862978e805402ce09"
+hash = "ea74e522246c6094db3f94403d749da2b41f352404a5bfafb8897b6ac22ce4e9"
 source = "scripts/README.md"
 symbol = "cmd_exec"
 target = "scripts:meta/create-sh-script.sh"
