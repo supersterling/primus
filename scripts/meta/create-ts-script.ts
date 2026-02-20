@@ -25,7 +25,10 @@ const FAIL = "✘"
 const DONE = "▶"
 const STEP = "●"
 const FLOW = "▷"
+const POSE = "?"
+const WARN = "!"
 const SCRIPT_NAME = import.meta.file
+// biome-ignore lint/correctness/noUnusedVariables: standard library constant
 const SCRIPT_PATH = import.meta.path
 
 //
@@ -42,6 +45,8 @@ const SCRIPT_PATH = import.meta.path
 //   ✔ Compiled 42 files
 //     src/index.ts: OK           ← dim (cmdExec)
 // ▶ Build complete.
+// ? Deploy now?                  ← cyan (askUserVia*)
+//   > yes
 // ```
 
 let _indent = 0
@@ -52,6 +57,19 @@ let _indent = 0
 // Internal helper — called by all log functions.
 function pad(): string {
     return " ".repeat(_indent * 2)
+}
+
+// ### `logBold` — Bold text
+//
+// Prints bold text at the current indent level. No prefix icon.
+//
+// ```ts
+// logBold("Project Setup")
+// // Project Setup  (bold)
+// ```
+// biome-ignore lint/correctness/noUnusedVariables: standard library function
+function logBold(...args: string[]): void {
+    console.write(`${pad()}\x1b[1m${args.join(" ")}\x1b[22m\n`)
 }
 
 // ### `logPass` — Success message
@@ -119,18 +137,137 @@ function logStep(...args: string[]): void {
     )
 }
 
+// ### `logPose` — Pose a question
+//
+// Cyan **?** prefix. Use when the script needs to prompt the user for input.
+// Typically called via the `askUserVia*` family rather than directly.
+//
+// ```ts
+// logPose("Which environment?")
+// // ? Which environment?
+// ```
+function logPose(...args: string[]): void {
+    console.write(`${pad()}${Bun.color("cyan", "ansi")}${POSE}\x1b[39m ${args.join(" ")}\n`)
+}
+
+// ### `readLine` — Read a line from stdin
+//
+// Internal helper for the `askUserVia*` functions. Lazily creates a stdin
+// reader on first call. Returns the trimmed input string.
+let _stdinReader: ReadableStreamDefaultReader<Uint8Array> | undefined
+const _decoder = new TextDecoder()
+
+async function readLine(): Promise<string> {
+    _stdinReader ??= Bun.stdin.stream().getReader()
+    const { value } = await _stdinReader.read()
+    return value ? _decoder.decode(value).trim() : ""
+}
+
+// ### `askUserViaPrompt` — Free-text input
+//
+// Displays a cyan **?** prompt, reads a line into a string.
+// Pass an optional second argument as the default value.
+//
+// ```ts
+// const name = await askUserViaPrompt("Project name", "my-app")
+// // ? Project name [my-app]
+// //   >
+// ```
+// biome-ignore lint/correctness/noUnusedVariables: standard library function
+async function askUserViaPrompt(prompt: string, defaultValue?: string): Promise<string> {
+    if (defaultValue !== undefined) {
+        logPose(`${prompt} [${defaultValue}]`)
+    } else {
+        logPose(prompt)
+    }
+    console.write(`${pad()}  ${Bun.color("cyan", "ansi")}>\x1b[39m `)
+    const reply = await readLine()
+    return reply || defaultValue || ""
+}
+
+function confirmHint(defaultValue?: boolean): string {
+    if (defaultValue === true) {
+        return "Y/n"
+    }
+    if (defaultValue === false) {
+        return "y/N"
+    }
+    return "y/n"
+}
+
+// ### `askUserViaConfirm` — Yes/no confirmation
+//
+// Prompts with `[Y/n]`, `[y/N]`, or `[y/n]` based on the optional default.
+// Returns `true` for yes, `false` for no.
+//
+// ```ts
+// if (await askUserViaConfirm("Deploy to production?", false)) {
+//     deploy()
+// }
+// // ? Deploy to production? [y/N]
+// //   >
+// ```
+// biome-ignore lint/correctness/noUnusedVariables: standard library function
+async function askUserViaConfirm(prompt: string, defaultValue?: boolean): Promise<boolean> {
+    const hint = confirmHint(defaultValue)
+    for (;;) {
+        logPose(`${prompt} [${hint}]`)
+        console.write(`${pad()}  ${Bun.color("cyan", "ansi")}>\x1b[39m `)
+        // biome-ignore lint/performance/noAwaitInLoops: intentional interactive input
+        const reply = (await readLine()).toLowerCase()
+        if (!reply && defaultValue !== undefined) {
+            return defaultValue
+        }
+        if (reply === "y") {
+            return true
+        }
+        if (reply === "n") {
+            return false
+        }
+        logWarn("Enter y or n")
+    }
+}
+
+// ### `askUserViaSelect` — Numbered menu selection
+//
+// Displays a numbered list, loops until the user picks a valid option.
+// Returns the chosen option's **text**, not the number.
+//
+// ```ts
+// const env = await askUserViaSelect("Which environment?", ["staging", "production"])
+// // ? Which environment?
+// //   1. staging
+// //   2. production
+// //   >
+// ```
+// biome-ignore lint/correctness/noUnusedVariables: standard library function
+async function askUserViaSelect(prompt: string, options: string[]): Promise<string> {
+    logPose(prompt)
+    for (let i = 0; i < options.length; i += 1) {
+        console.write(`${pad()}  ${Bun.color("cyan", "ansi")}${i + 1}.\x1b[39m ${options[i]}\n`)
+    }
+    for (;;) {
+        console.write(`${pad()}  ${Bun.color("cyan", "ansi")}>\x1b[39m `)
+        // biome-ignore lint/performance/noAwaitInLoops: intentional interactive input
+        const reply = await readLine()
+        const num = Number.parseInt(reply, 10)
+        if (!Number.isNaN(num) && num >= 1 && num <= options.length) {
+            return options[num - 1] as string
+        }
+        logWarn(`Enter a number 1-${options.length}`)
+    }
+}
+
 // ### `logWarn` — Warning message
 //
-// Yellow **Warn:** prefix. Use for non-fatal issues that deserve attention.
+// Yellow **!** prefix. Use for non-fatal issues that deserve attention.
 //
 // ```ts
 // logWarn("Config not found, using defaults")
-// // Warn: Config not found, using defaults
+// // ! Config not found, using defaults
 // ```
 function logWarn(...args: string[]): void {
-    console.write(
-        `${pad()}\x1b[1m${Bun.color("yellow", "ansi")}Warn:\x1b[22;39m ${args.join(" ")}\n`,
-    )
+    console.write(`${pad()}${Bun.color("yellow", "ansi")}${WARN}\x1b[39m ${args.join(" ")}\n`)
 }
 
 // ### `logFail` — Error message
@@ -174,6 +311,7 @@ function die(msg: string, code = 1): never {
 // //   src/index.ts(3,1): error TS2304    ← dim + indented
 // // ▶ Compiled.
 // ```
+// biome-ignore lint/correctness/noUnusedVariables: standard library function
 async function cmdExec(cmd: string): Promise<number> {
     const indent = `${pad()}  `
     const result = await $`${{ raw: cmd }}`.nothrow().quiet()
@@ -273,6 +411,8 @@ const FAIL = "✘"
 const DONE = "▶"
 const STEP = "●"
 const FLOW = "▷"
+const POSE = "?"
+const WARN = "!"
 const SCRIPT_NAME = import.meta.file
 const SCRIPT_PATH = import.meta.path
 
@@ -290,6 +430,8 @@ const SCRIPT_PATH = import.meta.path
 //   ✔ Compiled 42 files
 //     src/index.ts: OK           ← dim (cmdExec)
 // ▶ Build complete.
+// ? Deploy now?                  ← cyan (askUserVia*)
+//   > yes
 // \`\`\`
 
 let _indent = 0
@@ -300,6 +442,18 @@ let _indent = 0
 // Internal helper — called by all log functions.
 function pad(): string {
     return " ".repeat(_indent * 2)
+}
+
+// ### \`logBold\` — Bold text
+//
+// Prints bold text at the current indent level. No prefix icon.
+//
+// \`\`\`ts
+// logBold("Project Setup")
+// // Project Setup  (bold)
+// \`\`\`
+function logBold(...args: string[]): void {
+    console.write(\`\${pad()}\\x1b[1m\${args.join(" ")}\\x1b[22m\\n\`)
 }
 
 // ### \`logPass\` — Success message
@@ -365,16 +519,120 @@ function logStep(...args: string[]): void {
     console.write(\`\${pad()}\\x1b[2m\${Bun.color("black", "ansi")}\${STEP}\\x1b[22;39m \${args.join(" ")}\\n\`)
 }
 
+// ### \`logPose\` — Pose a question
+//
+// Cyan **?** prefix. Use when the script needs to prompt the user for input.
+// Typically called via the \`askUserVia*\` family rather than directly.
+//
+// \`\`\`ts
+// logPose("Which environment?")
+// // ? Which environment?
+// \`\`\`
+function logPose(...args: string[]): void {
+    console.write(\`\${pad()}\${Bun.color("cyan", "ansi")}\${POSE}\\x1b[39m \${args.join(" ")}\\n\`)
+}
+
+// ### \`readLine\` — Read a line from stdin
+//
+// Internal helper for the \`askUserVia*\` functions. Lazily creates a stdin
+// reader on first call. Returns the trimmed input string.
+let _stdinReader: ReadableStreamDefaultReader<Uint8Array> | undefined
+const _decoder = new TextDecoder()
+
+async function readLine(): Promise<string> {
+    _stdinReader ??= Bun.stdin.stream().getReader()
+    const { value } = await _stdinReader.read()
+    return value ? _decoder.decode(value).trim() : ""
+}
+
+// ### \`askUserViaPrompt\` — Free-text input
+//
+// Displays a cyan **?** prompt, reads a line into a string.
+// Pass an optional second argument as the default value.
+//
+// \`\`\`ts
+// const name = await askUserViaPrompt("Project name", "my-app")
+// // ? Project name [my-app]
+// //   >
+// \`\`\`
+async function askUserViaPrompt(prompt: string, defaultValue?: string): Promise<string> {
+    if (defaultValue !== undefined) {
+        logPose(\`\${prompt} [\${defaultValue}]\`)
+    } else {
+        logPose(prompt)
+    }
+    console.write(\`\${pad()}  \${Bun.color("cyan", "ansi")}>\\x1b[39m \`)
+    const reply = await readLine()
+    return reply || defaultValue || ""
+}
+
+// ### \`askUserViaConfirm\` — Yes/no confirmation
+//
+// Prompts with \`[Y/n]\`, \`[y/N]\`, or \`[y/n]\` based on the optional default.
+// Returns \`true\` for yes, \`false\` for no.
+//
+// \`\`\`ts
+// if (await askUserViaConfirm("Deploy to production?", false)) {
+//     deploy()
+// }
+// // ? Deploy to production? [y/N]
+// //   >
+// \`\`\`
+async function askUserViaConfirm(prompt: string, defaultValue?: boolean): Promise<boolean> {
+    const hint =
+        defaultValue === true ? "Y/n" : defaultValue === false ? "y/N" : "y/n"
+    while (true) {
+        logPose(\`\${prompt} [\${hint}]\`)
+        console.write(\`\${pad()}  \${Bun.color("cyan", "ansi")}>\\x1b[39m \`)
+        let reply = await readLine()
+        if (!reply && defaultValue !== undefined) {
+            return defaultValue
+        }
+        reply = reply.toLowerCase()
+        if (reply === "y") return true
+        if (reply === "n") return false
+        logWarn("Enter y or n")
+    }
+}
+
+// ### \`askUserViaSelect\` — Numbered menu selection
+//
+// Displays a numbered list, loops until the user picks a valid option.
+// Returns the chosen option's **text**, not the number.
+//
+// \`\`\`ts
+// const env = await askUserViaSelect("Which environment?", ["staging", "production"])
+// // ? Which environment?
+// //   1. staging
+// //   2. production
+// //   >
+// \`\`\`
+async function askUserViaSelect(prompt: string, options: string[]): Promise<string> {
+    logPose(prompt)
+    for (let i = 0; i < options.length; i++) {
+        console.write(\`\${pad()}  \${Bun.color("cyan", "ansi")}\${i + 1}.\\x1b[39m \${options[i]}\\n\`)
+    }
+    while (true) {
+        console.write(\`\${pad()}  \${Bun.color("cyan", "ansi")}>\\x1b[39m \`)
+        const reply = await readLine()
+        const num = Number.parseInt(reply, 10)
+        if (!Number.isNaN(num) && num >= 1 && num <= options.length) {
+            return options[num - 1] as string
+        }
+        logWarn(\`Enter a number 1-\${options.length}\`)
+    }
+}
+
 // ### \`logWarn\` — Warning message
 //
-// Yellow **Warn:** prefix. Use for non-fatal issues that deserve attention.
+// Yellow **!** prefix. Use for non-fatal issues that deserve attention.
 //
 // \`\`\`ts
 // logWarn("Config not found, using defaults")
-// // Warn: Config not found, using defaults
+// // ! Config not found, using defaults
 // \`\`\`
 function logWarn(...args: string[]): void {
-    console.write(\`\${pad()}\\x1b[1m\${Bun.color("yellow", "ansi")}Warn:\\x1b[22;39m \${args.join(" ")}\\n\`)
+    console.write(\`\${pad()}\${Bun.color("yellow", "ansi")}\${WARN}\\x1b[39m \${args.join(" ")}\\n\`)
 }
 
 // ### \`logFail\` — Error message
@@ -478,6 +736,7 @@ await main()
 // Main
 //
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: CLI argument parsing
 async function main(): Promise<void> {
     const args = Bun.argv.slice(2)
     let author = ""
