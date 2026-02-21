@@ -115,16 +115,12 @@ No markers needed. The AST is the source of truth.
 
 ## Empty Templates
 
-Written as string literals (not AST-constructed). Guarantees exact format match with `create-client.sh` output.
+Written as string literals (not AST-constructed). Used when resetting a registry file after removing the last entry.
 
 ### Functions empty template
 
 ```ts
 import { type InngestFunction } from "inngest"
-
-// # Marker: Function List
-//
-// ...reference comment...
 
 const functions: InngestFunction.Like[] = []
 
@@ -136,16 +132,12 @@ export { functions }
 ```ts
 import { type EventRecord } from "@/lib/inngest"
 
-// # Marker: Event Map
-//
-// ...reference comment...
-
 const events = {} as const satisfies EventRecord
 
 export { events }
 ```
 
-Note: The `// # Marker` comments remain in empty templates for human readability and as reference to the scripts. They are NOT used for AST operations.
+No marker comments — the AST is the source of truth. Markers were only needed by the old awk approach.
 
 ## Naming Conventions
 

@@ -217,19 +217,10 @@ bun scripts/utils/manage-inngest-registries.ts functions list --file src/inngest
 
 **Step 2: Implement `functionsInsert`**
 
-The empty functions template. This is written as a string literal to guarantee format match with `create-client.sh`:
+The empty functions template. Written as a string literal for reset-to-empty. No marker comments — the AST is the source of truth:
 
 ```ts
 const FUNCTIONS_EMPTY_TEMPLATE = `import { type InngestFunction } from "inngest"
-
-// # Marker: Function List
-//
-// New function imports are inserted above this marker.
-// Function entries are added to the \`functions\` array below.
-//
-// ## Reference
-//
-// See scripts/app/inngest/create-client-function.sh for details and usage.
 
 const functions: InngestFunction.Like[] = []
 
@@ -267,15 +258,6 @@ function functionsInsert(file: string, path: string, client: string): void {
     if (isEmptyArray) {
         // Rewrite the entire file: first function replaces empty template
         const content = `import ${camel} from "${importPath}"
-
-// # Marker: Function List
-//
-// New function imports are inserted above this marker.
-// Function entries are added to the \`functions\` array below.
-//
-// ## Reference
-//
-// See scripts/app/inngest/create-client-function.sh for details and usage.
 
 const functions = [${camel}]
 
@@ -566,19 +548,10 @@ bun scripts/utils/manage-inngest-registries.ts events list --file src/inngest/co
 
 **Step 2: Implement `eventsInsert`**
 
-Add the events empty template constant:
+Add the events empty template constant (no marker comments — AST is the source of truth):
 
 ```ts
 const EVENTS_EMPTY_TEMPLATE = `import { type EventRecord } from "@/lib/inngest"
-
-// # Marker: Event Map
-//
-// New event schemas are inserted above this marker.
-// Event map entries are added to the \`events\` object below.
-//
-// ## Reference
-//
-// See scripts/app/inngest/create-client-event.sh for details and usage.
 
 const events = {} as const satisfies EventRecord
 
