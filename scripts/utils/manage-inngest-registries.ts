@@ -2,6 +2,8 @@ import { parseArgs } from "node:util"
 import { Project, type SourceFile } from "ts-morph"
 
 const SEGMENT_SPLIT = /[/-]/
+const FUNCTIONS_IMPORT_PATH = /^@\/inngest\/[^/]+\/functions\/(.+)$/
+const FUNCTIONS_IMPORT_PREFIX = /^@\/inngest\/[^/]+\/functions\//
 
 //
 // Naming
@@ -40,16 +42,115 @@ function die(message: string): never {
 // Functions operations
 //
 
+const FUNCTIONS_EMPTY_TEMPLATE = `import { type InngestFunction } from "inngest"
+
+const functions: InngestFunction.Like[] = []
+
+export { functions }
+`
+
 function functionsList(file: string): void {
-    die("Not implemented: functions list")
+    const source = loadFile(file)
+    const imports = source.getImportDeclarations()
+
+    for (const imp of imports) {
+        const specifier = imp.getModuleSpecifierValue()
+        const match = specifier.match(FUNCTIONS_IMPORT_PATH)
+        if (match) {
+            process.stdout.write(`${match[1]}\n`)
+        }
+    }
 }
 
 function functionsInsert(file: string, path: string, client: string): void {
-    die("Not implemented: functions insert")
+    const camel = toCamelCase(path)
+    const importPath = `@/inngest/${client}/functions/${path}`
+    const source = loadFile(file)
+
+    const existing = source.getImportDeclaration((d) => d.getModuleSpecifierValue() === importPath)
+    if (existing) {
+        die(`Function '${path}' already exists in ${file}`)
+    }
+
+    const functionsVar = source.getVariableDeclaration("functions")
+    if (!functionsVar) {
+        die(`No 'functions' variable found in ${file}`)
+    }
+
+    const initializer = functionsVar.getInitializer()
+    if (!initializer) {
+        die(`No initializer for 'functions' in ${file}`)
+    }
+
+    const isEmptyArray = initializer.getText().replace(/\s/g, "") === "[]"
+
+    if (isEmptyArray) {
+        const content = `import ${camel} from "${importPath}"
+
+const functions = [${camel}]
+
+export { functions }
+`
+        source.replaceWithText(content)
+    } else {
+        source.addImportDeclaration({
+            defaultImport: camel,
+            moduleSpecifier: importPath,
+        })
+
+        const arrayText = initializer.getText()
+        const inner = arrayText.slice(1, -1).trim()
+        const entries = inner
+            ? inner
+                  .split(",")
+                  .map((e) => e.trim())
+                  .filter(Boolean)
+            : []
+        entries.push(camel)
+        functionsVar.setInitializer(`[${entries.join(", ")}]`)
+    }
+
+    source.saveSync()
 }
 
 function functionsRemove(file: string, path: string): void {
-    die("Not implemented: functions remove")
+    const camel = toCamelCase(path)
+    const source = loadFile(file)
+
+    const imp = source.getImportDeclaration(
+        (d) =>
+            d.getModuleSpecifierValue().match(FUNCTIONS_IMPORT_PREFIX) !== null &&
+            d.getModuleSpecifierValue().endsWith(`/${path}`),
+    )
+    if (!imp) {
+        die(`Function '${path}' not found in ${file}`)
+    }
+    imp.remove()
+
+    const functionsVar = source.getVariableDeclaration("functions")
+    if (!functionsVar) {
+        die(`No 'functions' variable found in ${file}`)
+    }
+
+    const initializer = functionsVar.getInitializer()
+    if (!initializer) {
+        die(`No initializer for 'functions' in ${file}`)
+    }
+
+    const arrayText = initializer.getText()
+    const inner = arrayText.slice(1, -1).trim()
+    const entries = inner
+        .split(",")
+        .map((e) => e.trim())
+        .filter((e) => e !== "" && e !== camel)
+
+    if (entries.length === 0) {
+        source.replaceWithText(FUNCTIONS_EMPTY_TEMPLATE)
+    } else {
+        functionsVar.setInitializer(`[${entries.join(", ")}]`)
+    }
+
+    source.saveSync()
 }
 
 //
