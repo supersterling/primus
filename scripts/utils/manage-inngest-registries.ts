@@ -4,6 +4,11 @@ import { Project, type SourceFile } from "ts-morph"
 const SEGMENT_SPLIT = /[/-]/
 const FUNCTIONS_IMPORT_PATH = /^@\/inngest\/[^/]+\/functions\/(.+)$/
 const FUNCTIONS_IMPORT_PREFIX = /^@\/inngest\/[^/]+\/functions\//
+const CREATE_EVENT_CALL = /^createEvent\(\s*"([^"]+)"/
+const EMPTY_OBJECT = /\{\s*\}/
+const EVENTS_OBJ_SUFFIX = /\}\s*as const satisfies EventRecord$/
+const EVENTS_OBJ_PREFIX = /^\{/
+const TRAILING_COMMA = /,(\s*\})/
 
 //
 // Naming
@@ -157,16 +162,175 @@ function functionsRemove(file: string, path: string): void {
 // Events operations
 //
 
+const EVENTS_EMPTY_TEMPLATE = `import { type EventRecord } from "@/lib/inngest"
+
+const events = {} as const satisfies EventRecord
+
+export { events }
+`
+
+function ensureEventsImports(source: SourceFile): void {
+    const libImport = source.getImportDeclaration(
+        (d) => d.getModuleSpecifierValue() === "@/lib/inngest",
+    )
+    if (libImport) {
+        const names = libImport.getNamedImports().map((n) => n.getName())
+        if (!names.includes("createEvent")) {
+            libImport.addNamedImport("createEvent")
+        }
+        if (!names.includes("InferEventPayload")) {
+            libImport.addNamedImport({ name: "InferEventPayload", isTypeOnly: true })
+        }
+    } else {
+        source.addImportDeclaration({
+            namedImports: [
+                { name: "createEvent" },
+                { name: "EventRecord", isTypeOnly: true },
+                { name: "InferEventPayload", isTypeOnly: true },
+            ],
+            moduleSpecifier: "@/lib/inngest",
+        })
+    }
+
+    const hasZod = source.getImportDeclaration((d) => d.getModuleSpecifierValue() === "zod")
+    if (!hasZod) {
+        source.addImportDeclaration({
+            namedImports: ["z"],
+            moduleSpecifier: "zod",
+        })
+    }
+}
+
+function addEventsProperty(
+    eventsVar: ReturnType<SourceFile["getVariableDeclaration"]>,
+    pascal: string,
+    file: string,
+): void {
+    if (!eventsVar) {
+        die(`No 'events' variable found in ${file}`)
+    }
+    const initializer = eventsVar.getInitializer()
+    if (!initializer) {
+        die(`No initializer for 'events' in ${file}`)
+    }
+    const objText = initializer.getText()
+    const propEntry = `[${pascal}Schema.name]: ${pascal}Schema.data`
+    if (EMPTY_OBJECT.test(objText)) {
+        eventsVar.setInitializer(`{ ${propEntry} } as const satisfies EventRecord`)
+    } else {
+        const inner = objText.replace(EVENTS_OBJ_SUFFIX, "").replace(EVENTS_OBJ_PREFIX, "").trim()
+        eventsVar.setInitializer(`{ ${inner}, ${propEntry} } as const satisfies EventRecord`)
+    }
+}
+
 function eventsList(file: string): void {
-    die("Not implemented: events list")
+    const source = loadFile(file)
+
+    for (const decl of source.getVariableDeclarations()) {
+        const init = decl.getInitializer()
+        if (!init) {
+            continue
+        }
+        const match = init.getText().match(CREATE_EVENT_CALL)
+        if (match) {
+            process.stdout.write(`${match[1]}\n`)
+        }
+    }
 }
 
 function eventsInsert(file: string, id: string): void {
-    die("Not implemented: events insert")
+    const pascal = toPascalCase(id)
+    const source = loadFile(file)
+
+    const existing = source.getVariableDeclaration(`${pascal}Schema`)
+    if (existing) {
+        die(`Event '${id}' already exists in ${file}`)
+    }
+
+    const eventsVar = source.getVariableDeclaration("events")
+    if (!eventsVar) {
+        die(`No 'events' variable found in ${file}`)
+    }
+    const eventsStatement = eventsVar.getVariableStatement()
+    if (!eventsStatement) {
+        die(`No 'events' statement found in ${file}`)
+    }
+
+    ensureEventsImports(source)
+
+    const insertIndex = eventsStatement.getChildIndex()
+    source.insertStatements(insertIndex, [
+        `const ${pascal}Schema = createEvent("${id}", z.object({}))`,
+        `type ${pascal} = InferEventPayload<typeof ${pascal}Schema>`,
+    ])
+
+    addEventsProperty(eventsVar, pascal, file)
+
+    const typeExport = source.getExportDeclaration((d) => d.isTypeOnly())
+    if (typeExport) {
+        typeExport.addNamedExport(pascal)
+    } else {
+        source.addExportDeclaration({
+            isTypeOnly: true,
+            namedExports: [pascal],
+        })
+    }
+
+    source.saveSync()
 }
 
 function eventsRemove(file: string, id: string): void {
-    die("Not implemented: events remove")
+    const pascal = toPascalCase(id)
+    const source = loadFile(file)
+
+    // Remove schema variable
+    const schemaVar = source.getVariableDeclaration(`${pascal}Schema`)
+    if (!schemaVar) {
+        die(`Event '${id}' not found in ${file}`)
+    }
+    schemaVar.getVariableStatement()?.remove()
+
+    // Remove type alias
+    source.getTypeAlias(pascal)?.remove()
+
+    // Remove property from events object
+    const eventsVar = source.getVariableDeclaration("events")
+    if (!eventsVar) {
+        die(`No 'events' variable found in ${file}`)
+    }
+
+    const initializer = eventsVar.getInitializer()
+    if (initializer) {
+        const propPattern = new RegExp(
+            `\\[${pascal}Schema\\.name\\]:\\s*${pascal}Schema\\.data,?\\s*`,
+        )
+        const cleaned = initializer.getText().replace(propPattern, "").replace(TRAILING_COMMA, "$1")
+        eventsVar.setInitializer(cleaned)
+    }
+
+    // Remove from type export
+    const typeExport = source.getExportDeclaration((d) => d.isTypeOnly())
+    if (typeExport) {
+        typeExport
+            .getNamedExports()
+            .find((e) => e.getName() === pascal)
+            ?.remove()
+        if (typeExport.getNamedExports().length === 0) {
+            typeExport.remove()
+        }
+    }
+
+    // Reset to empty template if no events remain
+    const hasEvents = source.getVariableDeclarations().some((d) => {
+        const init = d.getInitializer()
+        return init && CREATE_EVENT_CALL.test(init.getText())
+    })
+
+    if (!hasEvents) {
+        source.replaceWithText(EVENTS_EMPTY_TEMPLATE)
+    }
+
+    source.saveSync()
 }
 
 //
