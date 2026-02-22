@@ -12,7 +12,7 @@
 #
 # == Usage
 #
-# ./scripts/app/inngest/create-client-event.sh --client core --id app/user-created --name "User Created" --desc "Fired when a new user registers"
+# ./scripts/app/inngest/create-client-event.sh --client core --id app/user-created
 # ./scripts/app/inngest/create-client-event.sh  # interactive prompt
 
 set -euo pipefail
@@ -188,8 +188,6 @@ usage() {
 
 add_flag "client" "CLIENT_ID" "Client ID (kebab-case, e.g. core)"
 add_flag "id" "EVENT_ID" "Event ID (slash-delimited kebab-case, e.g. app/user-created)"
-add_flag "name" "EVENT_NAME" "Human-readable event name"
-add_flag "desc" "EVENT_DESC" "Event description"
 
 #
 # Functions
@@ -224,81 +222,6 @@ validate_event_id() {
     fi
 }
 
-# Convert event ID to PascalCase.
-# e.g. app/user-created → AppUserCreated
-id_to_pascal() {
-    local id="$1"
-    printf '%s' "$id" | awk -F'[/-]' '{
-        for (i=1; i<=NF; i++) {
-            printf "%s%s", toupper(substr($i,1,1)), substr($i,2)
-        }
-    }'
-}
-
-# Check whether events.ts is the empty template (no event definitions yet).
-is_fresh_events_file() {
-    local file="$1"
-    grep -q 'const events = {} as const satisfies EventRecord' "$file"
-}
-
-# Write events.ts from scratch for the first event.
-write_first_event() {
-    local file="$1"
-    local event_id="$2"
-    local event_name="$3"
-    local event_desc="$4"
-    local pascal="$5"
-
-    cat > "$file" <<EOF
-import { createEvent, type EventRecord, type InferEventPayload } from "@/lib/inngest"
-import { z } from "zod"
-
-// -- ${event_id} --
-/**
- * ${event_name} — ${event_desc}
- */
-const ${pascal}Schema = createEvent("${event_id}", z.object({}))
-type ${pascal} = InferEventPayload<typeof ${pascal}Schema>
-
-// -- Event Map --
-
-const events = {
-    [${pascal}Schema.name]: ${pascal}Schema.data,
-} as const satisfies EventRecord
-
-export { events }
-export type { ${pascal} }
-EOF
-}
-
-# Insert a new event into an existing events.ts that already has events.
-insert_event() {
-    local file="$1"
-    local event_id="$2"
-    local event_name="$3"
-    local event_desc="$4"
-    local pascal="$5"
-
-    awk -v eid="$event_id" -v ename="$event_name" -v edesc="$event_desc" -v pascal="$pascal" '
-        /^\/\/ -- Event Map --/ {
-            print "// -- " eid " --"
-            print "/**"
-            print " * " ename " \342\200\224 " edesc
-            print " */"
-            print "const " pascal "Schema = createEvent(\"" eid "\", z.object({}))"
-            print "type " pascal " = InferEventPayload<typeof " pascal "Schema>"
-            print ""
-        }
-        /^\} as const satisfies EventRecord/ {
-            print "    [" pascal "Schema.name]: " pascal "Schema.data,"
-        }
-        /^export type \{/ {
-            sub(/ \}/, ", " pascal " }")
-        }
-        { print }
-    ' "$file" > "$file.tmp" && mv "$file.tmp" "$file"
-}
-
 #
 # Main
 #
@@ -324,28 +247,15 @@ main() {
     ask_user_via_prompt EVENT_ID "Event ID (slash-delimited kebab-case, e.g. app/user-created)"
     validate_event_id "$EVENT_ID"
 
-    # Check event doesn't already exist
-    if grep -q "\"$EVENT_ID\"" "$events_file"; then
-        die "Event '$EVENT_ID' already exists in $events_file"
-    fi
-
-    ask_user_via_prompt EVENT_NAME "Event name (human-readable)"
-    ask_user_via_prompt EVENT_DESC "Event description"
-
-    local pascal
-    pascal="$(id_to_pascal "$EVENT_ID")"
-
     ensure_dep "zod"
 
     log_flow "Adding event '$EVENT_ID' to client '$CLIENT_ID'..."
 
-    if is_fresh_events_file "$events_file"; then
-        write_first_event "$events_file" "$EVENT_ID" "$EVENT_NAME" "$EVENT_DESC" "$pascal"
-        log_pass "Wrote $events_file (first event)"
-    else
-        insert_event "$events_file" "$EVENT_ID" "$EVENT_NAME" "$EVENT_DESC" "$pascal"
-        log_pass "Updated $events_file"
+    if ! output=$(bun scripts/utils/manage-inngest-registries.ts events insert \
+        --file "$events_file" --id "$EVENT_ID" 2>&1); then
+        die "$output"
     fi
+    log_pass "Updated $events_file"
 
     fmt "$events_file"
 

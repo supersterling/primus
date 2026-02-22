@@ -216,6 +216,7 @@ usage() {
 
 add_flag "client" "CLIENT_ID" "Client ID (kebab-case, e.g. core)"
 add_flag "id" "EVENT_ID" "Event ID to remove (e.g. app/user-created)"
+add_flag "confirm" "CONFIRM" "Confirm removal (y/n)"
 
 #
 # Functions
@@ -233,72 +234,6 @@ discover_clients() {
     done
     (( ${#clients[@]} )) || die "No inngest clients found in $dir"
     printf '%s\n' "${clients[@]}"
-}
-
-# Convert event ID to PascalCase.
-# e.g. app/user-created → AppUserCreated
-id_to_pascal() {
-    local id="$1"
-    printf '%s' "$id" | awk -F'[/-]' '{
-        for (i=1; i<=NF; i++) {
-            printf "%s%s", toupper(substr($i,1,1)), substr($i,2)
-        }
-    }'
-}
-
-# Extract event IDs from events.ts by parsing "// -- EVENT_ID --" markers.
-# Excludes the "// -- Event Map --" separator.
-discover_events() {
-    local file="$1"
-    grep '^// -- ' "$file" | grep -v 'Event Map' | sed 's|^// -- \(.*\) --$|\1|'
-}
-
-# Remove the schema block for an event and its entries from the events record and type export.
-remove_event_block() {
-    local file="$1"
-    local event_id="$2"
-    local pascal="$3"
-    local marker="// -- ${event_id} --"
-
-    awk -v marker="$marker" -v pascal="$pascal" '
-        $0 == marker { skip=1; next }
-        skip && /^\/\/ -- / { skip=0 }
-        skip { next }
-        index($0, pascal "Schema.name") > 0 { next }
-        /^export type \{/ {
-            if (gsub(", " pascal, "") == 0) {
-                if (gsub(pascal ", ", "") == 0) {
-                    gsub(pascal, "")
-                }
-            }
-            if ($0 ~ /^export type \{[[:space:]]*\}$/) next
-        }
-        { print }
-    ' "$file" > "$file.tmp" && mv "$file.tmp" "$file"
-
-    # Clean up double blank lines
-    awk 'NF || !blank { print } { blank = !NF }' "$file" > "$file.tmp" && mv "$file.tmp" "$file"
-}
-
-# Check if any events remain after removal (markers other than Event Map).
-has_remaining_events() {
-    local file="$1"
-    grep '^// -- ' "$file" | grep -qv 'Event Map'
-}
-
-# Reset events.ts to the empty template when the last event is removed.
-reset_events_file() {
-    local file="$1"
-
-    cat > "$file" <<'EOF'
-import { type EventRecord } from "@/lib/inngest"
-
-// -- Event Map --
-
-const events = {} as const satisfies EventRecord
-
-export { events }
-EOF
 }
 
 #
@@ -324,7 +259,8 @@ main() {
 
     # Discover events in this client
     local events
-    mapfile -t events < <(discover_events "$events_file")
+    mapfile -t events < <(bun scripts/utils/manage-inngest-registries.ts events list \
+        --file "$events_file")
     (( ${#events[@]} )) || die "No events found in $events_file"
 
     if (( ${#events[@]} == 1 )); then
@@ -334,29 +270,18 @@ main() {
         ask_user_via_select EVENT_ID "Which event to remove?" "${events[@]}"
     fi
 
-    # Verify the event actually exists
-    if ! grep -q "\"$EVENT_ID\"" "$events_file"; then
-        die "Event '$EVENT_ID' not found in $events_file"
-    fi
-
     if ! ask_user_via_confirm CONFIRM "Remove event '$EVENT_ID' from client '$CLIENT_ID'?" "n"; then
         log_dull "Aborted."
         return
     fi
 
-    local pascal
-    pascal="$(id_to_pascal "$EVENT_ID")"
-
     log_flow "Removing event '$EVENT_ID' from client '$CLIENT_ID'..."
 
-    remove_event_block "$events_file" "$EVENT_ID" "$pascal"
-
-    if has_remaining_events "$events_file"; then
-        log_pass "Updated $events_file"
-    else
-        reset_events_file "$events_file"
-        log_pass "Reset $events_file (no events remaining)"
+    if ! output=$(bun scripts/utils/manage-inngest-registries.ts events remove \
+        --file "$events_file" --id "$EVENT_ID" 2>&1); then
+        die "$output"
     fi
+    log_pass "Updated $events_file"
 
     fmt "$events_file"
 

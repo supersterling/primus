@@ -209,13 +209,6 @@ discover_clients() {
     printf '%s\n' "${clients[@]}"
 }
 
-require_pattern() {
-    local file="$1" pattern="$2" label="$3"
-    if ! grep -q "$pattern" "$file"; then
-        die "Missing required pattern in $file: $label"
-    fi
-}
-
 # Validate that each segment of a slash-delimited path is kebab-case.
 validate_fn_path() {
     local value="$1"
@@ -239,21 +232,6 @@ validate_events_exist() {
     fi
 }
 
-# Convert slash-delimited kebab-case to camelCase.
-# e.g. sync/process-batch → syncProcessBatch
-id_to_camel() {
-    local id="$1"
-    printf '%s' "$id" | awk -F'[/-]' '{
-        for (i=1; i<=NF; i++) {
-            if (i == 1) {
-                printf "%s", $i
-            } else {
-                printf "%s%s", toupper(substr($i,1,1)), substr($i,2)
-            }
-        }
-    }'
-}
-
 # Build the trigger argument for inngest.createFunction().
 # Produces either a single object or an array of objects.
 build_trigger() {
@@ -272,12 +250,6 @@ build_trigger() {
     else
         printf '[%s]' "$(IFS=,; printf '%s' "${triggers[*]}" | sed 's/,/, /g')"
     fi
-}
-
-# Check whether functions.ts has no function definitions yet.
-is_fresh_functions_file() {
-    local file="$1"
-    ! grep -q '^// -- .* --$' "$file"
 }
 
 write_function_ts() {
@@ -303,84 +275,6 @@ export default inngest.createFunction(
 )
 EOF
     log_pass "Created $file"
-}
-
-# Rewrite functions.ts from scratch when adding the first function.
-# No type annotation needed — TypeScript infers from the element.
-write_first_function_barrel() {
-    local file="$1"
-    local client_id="$2"
-    local fn_path="$3"
-    local camel="$4"
-
-    cat > "$file" <<EOF
-// -- ${fn_path} --
-import ${camel} from "@/inngest/${client_id}/functions/${fn_path}"
-
-// # Marker: Function List
-//
-// New function imports are inserted above this marker.
-// Function entries are added to the \`functions\` array below.
-//
-// ## Reference
-//
-// See scripts/app/inngest/create-client-function.sh for details and usage.
-
-const functions = [
-    ${camel},
-]
-
-export { functions }
-EOF
-    log_pass "Updated $file (first function)"
-}
-
-# Insert a new function into an existing functions.ts that already has functions.
-# Handles both multi-line arrays (^]$) and biome-formatted single-line arrays.
-insert_function() {
-    local file="$1"
-    local client_id="$2"
-    local fn_path="$3"
-    local camel="$4"
-
-    require_pattern "$file" '// # Marker: Function List' 'Function List marker'
-
-    awk -v path="$fn_path" -v client="$client_id" -v camel="$camel" '
-        /^\/\/ # Marker: Function List$/ {
-            print "// -- " path " --"
-            print "import " camel " from \"@/inngest/" client "/functions/" path "\""
-            print ""
-        }
-        /^const functions = \[/ {
-            # Single-line array: extract contents, rebuild as multi-line
-            if (/\]$/) {
-                # Strip "const functions = [" prefix and "]" suffix
-                inner = $0
-                sub(/^const functions = \[/, "", inner)
-                sub(/\]$/, "", inner)
-                print "const functions = ["
-                # Split existing entries by comma
-                n = split(inner, entries, /,[[:space:]]*/)
-                for (i = 1; i <= n; i++) {
-                    gsub(/^[[:space:]]+|[[:space:]]+$/, "", entries[i])
-                    if (entries[i] != "") {
-                        print "    " entries[i] ","
-                    }
-                }
-                print "    " camel ","
-                print "]"
-                next
-            }
-        }
-        /^\]$/ {
-            print "    " camel ","
-        }
-        { print }
-    ' "$file" > "$file.tmp" && mv "$file.tmp" "$file"
-
-    if ! grep -q "import ${camel} from" "$file"; then
-        die "Failed to insert function '$fn_path' — file may be corrupted"
-    fi
 }
 
 #
@@ -434,9 +328,6 @@ main() {
         validate_events_exist "$events_file" $FN_EVENTS
     fi
 
-    local camel
-    camel="$(id_to_camel "$FN_PATH")"
-
     local trigger
     trigger="$(build_trigger "$FN_EVENTS" "$FN_CRON")"
 
@@ -444,11 +335,11 @@ main() {
 
     write_function_ts "$CLIENT_ID" "$FN_PATH" "$trigger"
 
-    if is_fresh_functions_file "$functions_file"; then
-        write_first_function_barrel "$functions_file" "$CLIENT_ID" "$FN_PATH" "$camel"
-    else
-        insert_function "$functions_file" "$CLIENT_ID" "$FN_PATH" "$camel"
+    if ! output=$(bun scripts/utils/manage-inngest-registries.ts functions insert \
+        --file "$functions_file" --path "$FN_PATH" --client "$CLIENT_ID" 2>&1); then
+        die "$output"
     fi
+    log_pass "Updated $functions_file"
 
     fmt "$fn_file" "$functions_file"
     log_step "Formatted generated files"

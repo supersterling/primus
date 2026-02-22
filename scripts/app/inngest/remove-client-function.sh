@@ -236,94 +236,6 @@ discover_clients() {
     printf '%s\n' "${clients[@]}"
 }
 
-require_pattern() {
-    local file="$1" pattern="$2" label="$3"
-    if ! grep -q "$pattern" "$file"; then
-        die "Missing required pattern in $file: $label"
-    fi
-}
-
-# Convert slash-delimited kebab-case to camelCase.
-# e.g. sync/process-batch → syncProcessBatch
-id_to_camel() {
-    local id="$1"
-    printf '%s' "$id" | awk -F'[/-]' '{
-        for (i=1; i<=NF; i++) {
-            if (i == 1) {
-                printf "%s", $i
-            } else {
-                printf "%s%s", toupper(substr($i,1,1)), substr($i,2)
-            }
-        }
-    }'
-}
-
-# Extract function paths from functions.ts by parsing "// -- PATH --" markers.
-discover_functions() {
-    local file="$1"
-    grep '^// -- .* --$' "$file" | sed 's|^// -- \(.*\) --$|\1|'
-}
-
-# Remove a function's import and array entry from functions.ts.
-remove_function_entry() {
-    local file="$1"
-    local fn_path="$2"
-    local camel="$3"
-    local marker="// -- ${fn_path} --"
-
-    require_pattern "$file" "$marker" "function marker for $fn_path"
-
-    awk -v marker="$marker" -v camel="$camel" '
-        $0 == marker { skip=1; next }
-        skip && (/^\/\/ -- / || /^\/\/ # Marker:/) { skip=0 }
-        skip { next }
-        $0 ~ "^import " camel " from " { next }
-        index($0, camel ",") > 0 && /^[[:space:]]/ { next }
-        /^const functions = \[/ && /\]$/ {
-            # Single-line array: remove this camel entry
-            gsub(camel ", ", "", $0)
-            gsub(", " camel, "", $0)
-            gsub(camel, "", $0)
-        }
-        { print }
-    ' "$file" > "$file.tmp" && mv "$file.tmp" "$file"
-
-    # Clean up double blank lines
-    awk 'NF || !blank { print } { blank = !NF }' "$file" > "$file.tmp" && mv "$file.tmp" "$file"
-
-    if grep -q "import ${camel} from" "$file"; then
-        die "Failed to remove function '$fn_path' — file may be corrupted"
-    fi
-}
-
-# Check if any functions remain after removal.
-has_remaining_functions() {
-    local file="$1"
-    grep -q '^// -- .* --$' "$file"
-}
-
-# Reset functions.ts to the empty template.
-reset_functions_file() {
-    local file="$1"
-
-    cat > "$file" <<'EOF'
-import { type InngestFunction } from "inngest"
-
-// # Marker: Function List
-//
-// New function imports are inserted above this marker.
-// Function entries are added to the `functions` array below.
-//
-// ## Reference
-//
-// See scripts/app/inngest/create-client-function.sh for details and usage.
-
-const functions: InngestFunction.Like[] = []
-
-export { functions }
-EOF
-}
-
 # Prune empty parent directories up to stop point.
 prune_empty_parents() {
     local dir="$1"
@@ -358,7 +270,8 @@ main() {
 
     # Discover functions in this client
     local fns
-    mapfile -t fns < <(discover_functions "$functions_file")
+    mapfile -t fns < <(bun scripts/utils/manage-inngest-registries.ts functions list \
+        --file "$functions_file")
     (( ${#fns[@]} )) || die "No functions found in $functions_file"
 
     if (( ${#fns[@]} == 1 )); then
@@ -373,9 +286,6 @@ main() {
         return
     fi
 
-    local camel
-    camel="$(id_to_camel "$FN_PATH")"
-
     local fn_file="src/inngest/$CLIENT_ID/functions/$FN_PATH.ts"
 
     log_flow "Removing function '$FN_PATH' from client '$CLIENT_ID'..."
@@ -388,15 +298,12 @@ main() {
         log_dull "Not found: $fn_file (skipping)"
     fi
 
-    # Update functions.ts
-    remove_function_entry "$functions_file" "$FN_PATH" "$camel"
-
-    if has_remaining_functions "$functions_file"; then
-        log_pass "Updated $functions_file"
-    else
-        reset_functions_file "$functions_file"
-        log_pass "Reset $functions_file (no functions remaining)"
+    # Update functions.ts via AST utility
+    if ! output=$(bun scripts/utils/manage-inngest-registries.ts functions remove \
+        --file "$functions_file" --path "$FN_PATH" 2>&1); then
+        die "$output"
     fi
+    log_pass "Updated $functions_file"
 
     # Prune empty parent directories
     local fn_dir
