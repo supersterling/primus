@@ -269,7 +269,7 @@ export const id = "${fn_path}" as const
 export default inngest.createFunction(
     { id },
     ${trigger},
-    async ({ event, step }) => {
+    async ({ event, step, publish, logger }) => {
         // TODO: implement
     },
 )

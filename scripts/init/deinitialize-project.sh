@@ -574,6 +574,7 @@ main() {
         log_step "No skills to unregister"
     fi
     remove_path .agents
+    remove_path skills-lock.json
     # Remove skill symlinks/dirs left behind by each agent provider,
     # then prune the parent dir if it's now empty.
     local agent_dirs=(
@@ -602,6 +603,25 @@ main() {
     remove_path src/lib/utils.ts
     remove_path components.json
     log_done "Artifacts removed."
+
+    # Remove inngest clients
+    if [[ -d src/inngest ]]; then
+        log_flow "Removing inngest clients..."
+        for client_dir in src/inngest/*/; do
+            [[ -d "$client_dir" ]] || continue
+            local client
+            client="$(basename "$client_dir")"
+            remove_path "src/inngest/$client"
+            remove_path "src/app/api/inngest/$client"
+        done
+        # Prune empty parent directories
+        for parent in src/inngest src/app/api/inngest src/app/api; do
+            if [[ -d "$parent" ]] && [[ -z "$(ls -A "$parent")" ]]; then
+                remove_path "$parent"
+            fi
+        done
+        log_done "Inngest clients removed."
+    fi
 
     # Revert modified files
     log_flow "Reverting modified files..."
