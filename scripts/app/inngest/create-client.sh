@@ -180,46 +180,6 @@ ask_user_via_prompt() {
     printf -v "$varname" '%s' "$REPLY"
 }
 
-# ### `ask_user_via_confirm` — Yes/no confirmation
-#
-# First argument is the variable name. If the variable is already set
-# (e.g., from a CLI flag via `add_flag`), the prompt is skipped.
-# Sets `REPLY` and the named variable to `y` or `n`.
-# Returns 0 for yes, 1 for no — works with `if`.
-#
-# ```bash
-# if ask_user_via_confirm DEPLOY "Deploy to production?" "n"; then
-#     deploy
-# fi
-# ```
-ask_user_via_confirm() {
-    local varname="$1"
-    local prompt="$2"
-    local default="${3:-}"
-    if [[ -n "${!varname:-}" ]]; then
-        REPLY="${!varname}"
-        case "$REPLY" in
-            [yY]) REPLY="y"; printf -v "$varname" '%s' "y"; return 0 ;;
-            [nN]) REPLY="n"; printf -v "$varname" '%s' "n"; return 1 ;;
-            *) die "Invalid value for $varname: $REPLY (expected y or n)" ;;
-        esac
-    fi
-    local hint="y/n"
-    [[ "$default" == "y" ]] && hint="Y/n"
-    [[ "$default" == "n" ]] && hint="y/N"
-    while true; do
-        log_pose "$prompt [$hint]"
-        printf '%s  \e[36m>\e[39m ' "$(_pad)"
-        read -r REPLY
-        [[ -z "$REPLY" ]] && REPLY="$default"
-        case "$REPLY" in
-            [yY]) REPLY="y"; printf -v "$varname" '%s' "y"; return 0 ;;
-            [nN]) REPLY="n"; printf -v "$varname" '%s' "n"; return 1 ;;
-            *) log_warn "Enter y or n" ;;
-        esac
-    done
-}
-
 # ### `ask_user_via_select` — Numbered menu selection
 #
 # First argument is the variable name. If the variable is already set
@@ -522,7 +482,6 @@ usage() {
 }
 
 add_flag "id" "CLIENT_ID" "Client ID (kebab-case, e.g. core)"
-add_flag "realtime" "REALTIME" "Enable realtime support (y/n)"
 
 #
 # Functions
@@ -558,14 +517,13 @@ write_client_ts() {
     local app_name="$1"
     local client_id="$2"
     local dir="$3"
-    local realtime="$4"
     local file="$dir/client.ts"
 
     mkdir -p "$dir"
 
-    if [[ "$realtime" == "y" ]]; then
-        cat > "$file" <<EOF
+    cat > "$file" <<EOF
 import { realtimeMiddleware } from "@inngest/realtime/middleware"
+import { endpointAdapter } from "inngest/next"
 import { EventSchemas, Inngest } from "inngest"
 import { env } from "@/lib/env"
 import { logger } from "@/lib/logger"
@@ -576,30 +534,13 @@ export const inngest = new Inngest({
     schemas: new EventSchemas().fromSchema(events),
     middleware: [realtimeMiddleware()],
     checkpointing: true,
+    endpointAdapter,
     logger,
     eventKey: env.INNGEST_EVENT_KEY,
     signingKey: env.INNGEST_SIGNING_KEY,
     env: env.VERCEL_ENV === "preview" ? env.VERCEL_GIT_COMMIT_REF : undefined,
 })
 EOF
-    else
-        cat > "$file" <<EOF
-import { EventSchemas, Inngest } from "inngest"
-import { env } from "@/lib/env"
-import { logger } from "@/lib/logger"
-import { events } from "@/inngest/${client_id}/events"
-
-export const inngest = new Inngest({
-    id: "${app_name}:${client_id}",
-    schemas: new EventSchemas().fromSchema(events),
-    checkpointing: true,
-    logger,
-    eventKey: env.INNGEST_EVENT_KEY,
-    signingKey: env.INNGEST_SIGNING_KEY,
-    env: env.VERCEL_ENV === "preview" ? env.VERCEL_GIT_COMMIT_REF : undefined,
-})
-EOF
-    fi
     log_pass "Created $file"
 }
 
@@ -610,15 +551,6 @@ write_events_ts() {
 
     cat > "$file" <<'EOF'
 import { type EventRecord } from "@/lib/inngest"
-
-// # Marker: Event Map
-//
-// New event schemas are inserted above this marker.
-// Event map entries are added to the `events` object below.
-//
-// ## Reference
-//
-// See scripts/app/inngest/create-client-event.sh for details and usage.
 
 const events = {} as const satisfies EventRecord
 
@@ -633,15 +565,6 @@ write_functions_ts() {
 
     cat > "$file" <<'EOF'
 import { type InngestFunction } from "inngest"
-
-// # Marker: Function List
-//
-// New function imports are inserted above this marker.
-// Function entries are added to the `functions` array below.
-//
-// ## Reference
-//
-// See scripts/app/inngest/create-client-function.sh for details and usage.
 
 const functions: InngestFunction.Like[] = []
 
@@ -684,14 +607,12 @@ main() {
 
     [[ -d "$client_dir" ]] && die "Client directory already exists: $client_dir"
 
-    ask_user_via_confirm REALTIME "Enable realtime support?" "y" || true
-
     ensure_dep "inngest"
-    [[ "$REALTIME" == "y" ]] && ensure_dep "@inngest/realtime" || true
+    ensure_dep "@inngest/realtime"
 
     log_flow "Creating inngest client '$CLIENT_ID' (app: $app_name)..."
 
-    write_client_ts "$app_name" "$CLIENT_ID" "$client_dir" "$REALTIME"
+    write_client_ts "$app_name" "$CLIENT_ID" "$client_dir"
     write_events_ts "$CLIENT_ID" "$client_dir"
     write_functions_ts "$client_dir"
     write_route_ts "$CLIENT_ID" "$route_dir"
