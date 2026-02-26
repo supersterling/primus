@@ -1,34 +1,16 @@
-import {
-    ClerkProvider,
-    SignedIn,
-    SignedOut,
-    SignInButton,
-    SignUpButton,
-    UserButton,
-} from "@clerk/nextjs"
+import { ClerkProvider, SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs"
 import { type Metadata } from "next"
-import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google"
+import { Geist_Mono } from "next/font/google"
+import { TerminalClock } from "@/components/terminal-clock"
 import "./globals.css"
-
-const geistSans = Geist({
-    variable: "--font-geist-sans",
-    subsets: ["latin"],
-})
 
 const geistMono = Geist_Mono({
     variable: "--font-geist-mono",
     subsets: ["latin"],
 })
 
-const instrumentSerif = Instrument_Serif({
-    variable: "--font-instrument-serif",
-    subsets: ["latin"],
-    weight: "400",
-    style: ["normal", "italic"],
-})
-
 export const metadata: Metadata = {
-    title: "primus",
+    title: "PRIMUS",
     description:
         "An opinionated Next.js template with the best of Vercel, Inngest, and modern tooling.",
 }
@@ -41,34 +23,40 @@ export default function RootLayout({
     return (
         <ClerkProvider>
             <html lang="en">
-                <body
-                    className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} antialiased`}
-                >
-                    <header className="flex items-center justify-between border-border/40 border-b px-6 py-3">
-                        <span className="font-serif text-foreground text-lg italic">primus</span>
-                        <nav className="flex items-center gap-2">
+                <body className={`${geistMono.variable} antialiased`}>
+                    <header className="flex items-center justify-between border-border border-b bg-panel px-4 py-2 font-mono text-[11px] uppercase tracking-widest">
+                        <div className="flex items-center gap-3">
+                            <span className="inline-block h-3.5 w-1 bg-accent" />
+                            <span className="font-bold text-foreground">PRIMUS</span>
+                            <span className="text-border">│</span>
+                            <span className="text-green">SYS:ONLINE</span>
+                            <span className="text-border">│</span>
+                            <SignedOut>
+                                <span className="text-dim">AUTH:--</span>
+                            </SignedOut>
+                            <SignedIn>
+                                <span className="text-green">AUTH:OK</span>
+                            </SignedIn>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <span className="hidden text-muted-foreground sm:inline">
+                                <TerminalClock />
+                            </span>
+                            <span className="hidden text-border sm:inline">│</span>
                             <SignedOut>
                                 <SignInButton>
                                     <button
-                                        className="rounded-md px-3 py-1.5 text-muted-foreground text-sm transition-colors hover:text-foreground"
+                                        className="text-accent transition-colors hover:text-foreground"
                                         type="button"
                                     >
-                                        Sign in
+                                        LOGIN ▶
                                     </button>
                                 </SignInButton>
-                                <SignUpButton>
-                                    <button
-                                        className="rounded-md bg-primary px-3 py-1.5 text-primary-foreground text-sm transition-colors hover:bg-primary/90"
-                                        type="button"
-                                    >
-                                        Get started
-                                    </button>
-                                </SignUpButton>
                             </SignedOut>
                             <SignedIn>
                                 <UserButton />
                             </SignedIn>
-                        </nav>
+                        </div>
                     </header>
                     {children}
                 </body>
