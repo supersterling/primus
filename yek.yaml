@@ -10,11 +10,17 @@ ignore_patterns:
   - ".next/**"
   - ".vercel/**"
   - "src/components/ui/**"
-  - ".agents/skills/**"
-  - ".pi/skills/**"
-  - ".claude/skills/**"
-  - ".factory/skills/**"
-  - ".goose/skills/**"
+  - "docs/references/**"
+  - ".agents/skills/*/references/**"
+  - ".agents/skills/*/scripts/**"
+  - ".agents/skills/*/assets/**"
+  - ".agents/skills/*/rules/**"
+  - ".pi/skills/*/references/**"
+  - ".pi/skills/*/scripts/**"
+  - ".pi/skills/*/assets/**"
+  - ".claude/skills/*/references/**"
+  - ".factory/skills/*/references/**"
+  - ".goose/skills/*/references/**"
 
 priority_rules:
   - score: 99
