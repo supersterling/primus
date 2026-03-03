@@ -5,6 +5,7 @@
         "./.grit/error-handling/require-explicit-error-cause.grit",
         "./.grit/error-handling/require-logger-call-before-throw.grit",
         "./.grit/error-handling/require-logger-call-before-result-fail.grit",
+        "./.grit/error-handling/require-logger-call-before-result-pass.grit",
         "./.grit/error-handling/request-result-fail-over-throw.grit",
         "./.grit/imports/require-absolute-imports-with-at-prefix.grit",
         "./.grit/database/require-explicit-column-selection.grit",

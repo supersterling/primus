@@ -1,0 +1,21 @@
+language js
+
+// Require a logger call immediately before every result.pass() call.
+
+`result.pass($...)` as $pass where {
+	not (or {
+		$pass <: after `logger.$method($...)` where {
+			$method <: or { "error", "warn", "info", "debug" }
+		},
+		$pass <: after `logger.$method($...);` where {
+			$method <: or { "error", "warn", "info", "debug" }
+		},
+		$pass <: after `await logger.$method($...)` where {
+			$method <: or { "error", "warn", "info", "debug" }
+		},
+		$pass <: after `await logger.$method($...);` where {
+			$method <: or { "error", "warn", "info", "debug" }
+		}
+	}),
+	register_diagnostic(span=$pass, message="Log before you pass. Unobserved successes are invisible.", severity="error")
+}
