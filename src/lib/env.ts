@@ -22,6 +22,7 @@ if (!process.env.NEXT_RUNTIME && isServerRuntime) {
 export const env = createEnv({
     extends: [vercel()],
     server: {
+        DATABASE_URL: z.url().describe("PostgreSQL connection string"),
         NODE_ENV: z
             .enum(["development", "test", "production"])
             .default("development")
@@ -42,6 +43,7 @@ export const env = createEnv({
     },
 
     runtimeEnv: {
+        DATABASE_URL: process.env.DATABASE_URL,
         NODE_ENV: process.env.NODE_ENV,
         INNGEST_DEV: process.env.INNGEST_DEV,
         INNGEST_EVENT_KEY: process.env.INNGEST_EVENT_KEY,
