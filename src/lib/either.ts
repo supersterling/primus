@@ -3,7 +3,7 @@
  *
  * Exports two namespace objects:
  *
- *   - `result` — Result<T, E> for fallible operations (pass, fail, trycatch, wrap, is)
+ *   - `result` — Result<T, E> for fallible operations (pass, fail, trycatch, is)
  *   - `option` — Option<T> for nullable values (some, none)
  *
  * Designed around two principles:
@@ -25,7 +25,7 @@
  *
  * const parsed = result.trycatch(() => JSON.parse(raw))
  * if (!parsed.ok) {
- *     throw result.wrap(parsed.error, "config parse failed")
+ *     throw new Error("config parse failed", { cause: parsed.error })
  * }
  * const config = parsed.value
  *
@@ -201,7 +201,7 @@ function onReject(e: unknown): Fail<Error> {
  *     return r.json()
  * })
  * if (!res.ok) {
- *     throw wrap(res.error, "api call failed")
+ *     throw new Error("api call failed", { cause: res.error })
  * }
  *
  * // Also catches sync throws during promise construction:
@@ -235,31 +235,6 @@ function trycatch<T>(fn: () => T | Promise<T>): Result<T> | Promise<Result<T>> {
     } catch (e) {
         return onReject(e)
     }
-}
-
-/**
- * Create a new Error with the given message and attach the original
- * error as the cause. Preserves the full cause chain for debugging.
- * The new error captures its own stack trace at the wrap() call site.
- *
- * @example
- * ```ts
- * const result = trycatch(() => db.query(sql))
- * if (!result.ok) {
- *     throw wrap(result.error, "failed to load user preferences")
- *     // Error: failed to load user preferences
- *     //   at loadPrefs (prefs.ts:42)
- *     // [cause]: Error: connection refused
- *     //   at query (db.ts:17)
- * }
- * ```
- */
-function wrap(error: Error, message: string): Error {
-    const wrapped = new Error(message, { cause: error })
-    if (Error.captureStackTrace) {
-        Error.captureStackTrace(wrapped, wrap)
-    }
-    return wrapped
 }
 
 /**
@@ -318,10 +293,10 @@ function is<E extends Error>(
  *
  * @example
  * ```ts
- * // Sync — catch, wrap, throw
+ * // Sync — catch, throw with cause
  * const parsed = result.trycatch(() => JSON.parse(raw))
  * if (!parsed.ok) {
- *     throw result.wrap(parsed.error, "config parse failed")
+ *     throw new Error("config parse failed", { cause: parsed.error })
  * }
  * const config = parsed.value
  *
@@ -336,9 +311,9 @@ function is<E extends Error>(
  * if (!res.ok) {
  *     const http = result.is(res.error, HttpError)
  *     if (http !== option.none && http.status === 404) {
- *         return result.fail(result.wrap(res.error, "user not found"))
+ *         return result.fail(new Error("user not found", { cause: res.error }))
  *     }
- *     throw result.wrap(res.error, "fetch failed")
+ *     throw new Error("fetch failed", { cause: res.error })
  * }
  * const user = res.value
  *
@@ -346,13 +321,13 @@ function is<E extends Error>(
  * function findUser(id: string): Result<User> {
  *     const user = users.get(id)
  *     if (user === option.none) {
- *         return result.fail(new Error(`user ${id} not found`))
+ *         return result.fail(new Error(`user ${id} not found`, { cause: undefined }))
  *     }
  *     return result.pass(user)
  * }
  * ```
  */
-const result = { pass, fail, trycatch, wrap, is } as const
+const result = { pass, fail, trycatch, is } as const
 
 /**
  * Option namespace — nullable values.

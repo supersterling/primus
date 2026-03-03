@@ -1,0 +1,12 @@
+language js
+
+// Require explicit cause on every new Error().
+// Excluded: either.ts (it IS the error primitive — must use new Error internally).
+
+file($name, $body) where {
+	not ($name <: r".*either\.ts$"),
+	$body <: contains `new Error($...)` as $match where {
+		not ($match <: contains `{ cause: $_ }`),
+		register_diagnostic(span=$match, message="Add `{ cause: undefined }` to `new Error()`. Explicit cause documents there is no error chain.", severity="error")
+	}
+}

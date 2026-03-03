@@ -1,6 +1,6 @@
 language js
 
-// Ban IIFEs. Extract to named functions or use top-level await.
+// Require named functions over IIFEs.
 
 or {
 	`($callee)()` as $match where {
@@ -10,7 +10,7 @@ or {
 			`function $_ ($...) { $_ }`, `function ($...) { $_ }`,
 			`async function $_ ($...) { $_ }`, `async function ($...) { $_ }`
 		},
-		register_diagnostic(span=$match, message="IIFEs are banned. Extract to a named function or use top-level await. See .claude/rules/code-style.md", severity="error")
+		register_diagnostic(span=$match, message="Use a named function. IIFEs obscure intent and can't be tested.", severity="error")
 	},
 	`($callee)($...)` as $match where {
 		$callee <: or {
@@ -19,7 +19,7 @@ or {
 			`function $_ ($...) { $_ }`, `function ($...) { $_ }`,
 			`async function $_ ($...) { $_ }`, `async function ($...) { $_ }`
 		},
-		register_diagnostic(span=$match, message="IIFEs are banned. Extract to a named function or use top-level await. See .claude/rules/code-style.md", severity="error")
+		register_diagnostic(span=$match, message="Use a named function. IIFEs obscure intent and can't be tested.", severity="error")
 	},
 	`await ($callee)()` as $match where {
 		$callee <: or {
@@ -28,7 +28,7 @@ or {
 			`function $_ ($...) { $_ }`, `function ($...) { $_ }`,
 			`async function $_ ($...) { $_ }`, `async function ($...) { $_ }`
 		},
-		register_diagnostic(span=$match, message="IIFEs are banned. Extract to a named function or use top-level await. See .claude/rules/code-style.md", severity="error")
+		register_diagnostic(span=$match, message="Use a named function. IIFEs obscure intent and can't be tested.", severity="error")
 	},
 	`await ($callee)($...)` as $match where {
 		$callee <: or {
@@ -37,6 +37,6 @@ or {
 			`function $_ ($...) { $_ }`, `function ($...) { $_ }`,
 			`async function $_ ($...) { $_ }`, `async function ($...) { $_ }`
 		},
-		register_diagnostic(span=$match, message="IIFEs are banned. Extract to a named function or use top-level await. See .claude/rules/code-style.md", severity="error")
+		register_diagnostic(span=$match, message="Use a named function. IIFEs obscure intent and can't be tested.", severity="error")
 	}
 }

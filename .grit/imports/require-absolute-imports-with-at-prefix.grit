@@ -1,0 +1,8 @@
+language js
+
+// Require absolute imports with @/ prefix.
+
+`import $specifiers from $path` as $match where {
+	or { $path <: `"../$_"`, $path <: `"./$_"` },
+	register_diagnostic(span=$match, message="Use `@/` imports. Relative paths break when files move.", severity="error")
+}

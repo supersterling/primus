@@ -1,0 +1,12 @@
+language js
+
+// Require ternary expressions to be assigned to a variable.
+
+`$cond ? $then : $else` as $ternary where {
+	not (or {
+		$ternary <: within `const $_ = $_`,
+		$ternary <: within `let $_ = $_`,
+		$ternary <: within `return $_`
+	}),
+	register_diagnostic(span=$ternary, message="Assign the ternary to a variable. Inline ternaries hide branching logic.", severity="error")
+}

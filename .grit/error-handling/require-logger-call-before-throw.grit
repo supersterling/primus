@@ -1,6 +1,6 @@
 language js
 
-// Require logger call immediately before every throw statement.
+// Require a logger call immediately before every throw statement.
 
 `throw $expr` as $throw_stmt where {
 	not (or {
@@ -17,5 +17,5 @@ language js
 			$method <: or { "error", "warn", "info", "debug" }
 		}
 	}),
-	register_diagnostic(span=$throw_stmt, message="Missing logger before throw. Add `logger.warn()` on the preceding line. Use `import { logger } from \"@/lib/logger\"`", severity="error")
+	register_diagnostic(span=$throw_stmt, message="Log before you throw. Silent failures are invisible.", severity="error")
 }

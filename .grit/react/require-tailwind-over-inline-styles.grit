@@ -1,0 +1,7 @@
+language js
+
+// Require Tailwind classes over inline style props.
+
+`style={$_}` as $style_prop where {
+	register_diagnostic(span=$style_prop, message="Use Tailwind classes. `style={{}}` bypasses the design system.", severity="error")
+}

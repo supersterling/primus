@@ -1,0 +1,56 @@
+language js
+
+// Require result.trycatch() for all error handling.
+// Excluded: either.ts (it IS the trycatch primitive — must use try/catch internally).
+
+file($name, $body) where {
+	not ($name <: r".*either\.ts$"),
+	$body <: contains or {
+		`try { $_ } catch ($param) { $_ } finally { $_ }` as $match where {
+			register_diagnostic(span=$match, message="Use `result.trycatch(fn)`. `try/catch` breaks the error-as-value pattern.", severity="error")
+		},
+		`try { $_ } catch { $_ } finally { $_ }` as $match where {
+			register_diagnostic(span=$match, message="Use `result.trycatch(fn)`. `try/catch` breaks the error-as-value pattern.", severity="error")
+		},
+		`try { $_ } catch ($param) { $_ }` as $match where {
+			register_diagnostic(span=$match, message="Use `result.trycatch(fn)`. `try/catch` breaks the error-as-value pattern.", severity="error")
+		},
+		`try { $_ } catch { $_ }` as $match where {
+			register_diagnostic(span=$match, message="Use `result.trycatch(fn)`. `try/catch` breaks the error-as-value pattern.", severity="error")
+		},
+		`try { $_ } finally { $_ }` as $match where {
+			register_diagnostic(span=$match, message="Use `AsyncDisposableStack` or `DisposableStack`. `try/finally` breaks the error-as-value pattern.", severity="error")
+		},
+		`await result.trycatch($...)` as $match where {
+			not ($match <: within `const $_ = $_`),
+			not ($match <: within `let $_ = $_`),
+			not ($match <: within `var $_ = $_`),
+			not ($match <: within `$_ = $_`),
+			not ($match <: within `return $_`),
+			not ($match <: within `void $_`),
+			register_diagnostic(span=$match, message="Assign `result.trycatch()` to a variable and check `if (!res.ok)`. Discarding the result hides failures.", severity="error")
+		},
+		`result.trycatch($...)` as $match where {
+			not ($match <: within `const $_ = $_`),
+			not ($match <: within `let $_ = $_`),
+			not ($match <: within `var $_ = $_`),
+			not ($match <: within `$_ = $_`),
+			not ($match <: within `return $_`),
+			not ($match <: within `void $_`),
+			not ($match <: within `await $_`),
+			register_diagnostic(span=$match, message="Assign `result.trycatch()` to a variable and check `if (!res.ok)`. Discarding the result hides failures.", severity="error")
+		},
+		`return await result.trycatch($...)` as $match where {
+			register_diagnostic(span=$match, message="Assign `result.trycatch()`, check `if (!res.ok)`, then return. Returning it directly skips error handling.", severity="error")
+		},
+		`return result.trycatch($...)` as $match where {
+			register_diagnostic(span=$match, message="Assign `result.trycatch()`, check `if (!res.ok)`, then return. Returning it directly skips error handling.", severity="error")
+		},
+		`void result.trycatch($...)` as $match where {
+			register_diagnostic(span=$match, message="Assign `result.trycatch()` and check `if (!res.ok)`. Voiding it hides failures.", severity="error")
+		},
+		`void (await result.trycatch($...))` as $match where {
+			register_diagnostic(span=$match, message="Assign `result.trycatch()` and check `if (!res.ok)`. Voiding it hides failures.", severity="error")
+		}
+	}
+}

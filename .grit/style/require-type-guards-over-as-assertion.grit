@@ -1,0 +1,38 @@
+language js
+
+// Require type guards over `as` type assertions.
+// Allows: `as const`, assertions to browser/DOM types.
+
+or {
+	`$_ as const`,
+	`$_ as $type` where {
+		$type <: or {
+			`HTMLElement`, `HTMLInputElement`, `HTMLButtonElement`, `HTMLAnchorElement`,
+			`HTMLDivElement`, `HTMLSpanElement`, `HTMLFormElement`, `HTMLSelectElement`,
+			`HTMLOptionElement`, `HTMLTextAreaElement`, `HTMLImageElement`, `HTMLVideoElement`,
+			`HTMLAudioElement`, `HTMLCanvasElement`, `HTMLIFrameElement`, `HTMLTableElement`,
+			`HTMLTableRowElement`, `HTMLTableCellElement`, `HTMLLIElement`, `HTMLUListElement`,
+			`HTMLOListElement`, `HTMLHeadingElement`, `HTMLParagraphElement`, `HTMLPreElement`,
+			`HTMLLabelElement`, `HTMLFieldSetElement`, `HTMLLegendElement`, `HTMLDetailsElement`,
+			`HTMLDialogElement`, `HTMLProgressElement`, `HTMLMeterElement`, `HTMLScriptElement`,
+			`HTMLStyleElement`, `HTMLLinkElement`, `HTMLMetaElement`, `HTMLBaseElement`,
+			`HTMLTitleElement`, `HTMLBodyElement`, `HTMLHeadElement`, `HTMLHtmlElement`,
+			`SVGElement`, `SVGSVGElement`,
+			`Event`, `MouseEvent`, `KeyboardEvent`, `TouchEvent`, `PointerEvent`, `WheelEvent`,
+			`DragEvent`, `FocusEvent`, `InputEvent`, `CompositionEvent`, `AnimationEvent`,
+			`TransitionEvent`, `ClipboardEvent`, `StorageEvent`, `HashChangeEvent`, `PopStateEvent`,
+			`BeforeUnloadEvent`, `MessageEvent`, `ErrorEvent`, `ProgressEvent`, `SubmitEvent`,
+			`FormDataEvent`, `CustomEvent`,
+			`Element`, `Document`, `Window`, `EventTarget`, `Node`, `NodeList`, `HTMLCollection`,
+			`DOMTokenList`, `CSSStyleDeclaration`, `File`, `FileList`, `Blob`, `FormData`,
+			`URLSearchParams`, `Headers`, `Request`, `Response`, `AbortController`, `AbortSignal`,
+			`IntersectionObserver`, `MutationObserver`, `ResizeObserver`, `PerformanceObserver`,
+			`MediaQueryList`, `Selection`, `Range`, `DOMRect`, `DOMRectReadOnly`, `DOMPoint`,
+			`DOMPointReadOnly`, `DOMMatrix`, `DOMMatrixReadOnly`,
+			`CustomEvent<$_>`, `MessageEvent<$_>`
+		}
+	},
+	`$_expression as $_target_type` as $assertion where {
+		register_diagnostic(span=$assertion, message="Use type guards. `as Type` lies to the compiler.", severity="error")
+	}
+}

@@ -1,0 +1,7 @@
+language js
+
+// Require explicit nullability handling over nullish coalescing.
+
+`$_ ?? $_` as $nullish where {
+	register_diagnostic(span=$nullish, message="Fix the source of nullability. `??` hides the problem, it doesn't solve it.", severity="error")
+}

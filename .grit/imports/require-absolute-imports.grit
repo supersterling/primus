@@ -1,8 +1,0 @@
-language js
-
-// Ban relative imports. Use absolute imports with @/ prefix.
-
-`import $specifiers from $path` as $match where {
-	or { $path <: `"../$_"`, $path <: `"./$_"` },
-	register_diagnostic(span=$match, message="Relative imports are banned. Replace `./` or `../` paths with `@/` prefix. See .claude/rules/code-style.md", severity="error")
-}

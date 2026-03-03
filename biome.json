@@ -1,18 +1,18 @@
 {
     "$schema": "https://biomejs.dev/schemas/2.4.2/schema.json",
     "plugins": [
-        "./.grit/error-handling/no-try-catch.grit",
-        "./.grit/error-handling/require-error-cause.grit",
-        "./.grit/error-handling/require-logger-before-throw.grit",
-        "./.grit/error-handling/prefer-result-fail.grit",
-        "./.grit/imports/require-absolute-imports.grit",
-        "./.grit/database/no-implicit-select-all.grit",
-        "./.grit/react/require-explicit-fragment.grit",
-        "./.grit/style/no-immediately-invoked-function-expressions.grit",
-        "./.grit/style/no-as-type-assertion.grit",
-        "./.grit/style/no-nullish-coalescing.grit",
-        "./.grit/react/no-inline-style.grit",
-        "./.grit/react/no-inline-ternary.grit"
+        "./.grit/error-handling/require-result-trycatch-for-error-handling.grit",
+        "./.grit/error-handling/require-explicit-error-cause.grit",
+        "./.grit/error-handling/require-logger-call-before-throw.grit",
+        "./.grit/error-handling/request-result-fail-over-throw.grit",
+        "./.grit/imports/require-absolute-imports-with-at-prefix.grit",
+        "./.grit/database/require-explicit-column-selection.grit",
+        "./.grit/react/require-named-fragment-over-shorthand.grit",
+        "./.grit/style/require-named-function-over-iife.grit",
+        "./.grit/style/require-type-guards-over-as-assertion.grit",
+        "./.grit/style/require-explicit-nullability-handling.grit",
+        "./.grit/react/require-tailwind-over-inline-styles.grit",
+        "./.grit/react/require-variable-assignment-for-ternary.grit"
     ],
     "vcs": {
         "enabled": true,
