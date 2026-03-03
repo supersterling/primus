@@ -7,7 +7,7 @@ export default inngest.createFunction(
     { id, triggers: [appHelloWorld] },
     async ({ event, step, logger }) => {
         const greeting = await step.run("greet", () => {
-            logger.info("Greeting user", { name: event.data.name })
+            logger.info({ name: event.data.name }, "Greeting user")
             return `Hello, ${event.data.name}!`
         })
 
@@ -18,7 +18,7 @@ export default inngest.createFunction(
         })
 
         const farewell = await step.run("farewell", () => {
-            logger.info("Farewell user", { name: event.data.name })
+            logger.info({ name: event.data.name }, "Farewell user")
             return `Goodbye, ${event.data.name}!`
         })
 
