@@ -51,9 +51,7 @@ export function RealtimeDisplay({ token, startedAt }: RealtimeDisplayProps) {
         token: token as Parameters<typeof useInngestSubscription>[0]["token"],
     })
 
-    const isDone = state === "closed" || state === "closing"
     const isActive = state === "active"
-    const elapsed = useElapsed(startedAt, isDone)
 
     // Accumulate messages with real client-side arrival timestamps
     const [feed, setFeed] = useState<FeedMessage[]>([])
@@ -84,12 +82,18 @@ export function RealtimeDisplay({ token, startedAt }: RealtimeDisplayProps) {
         }
     }, [data])
 
+    // All 2 messages received = function is done, stop the timer
+    const allReceived = feed.length >= 2
+    const isDone = state === "closed" || state === "closing" || allReceived
+    const elapsed = useElapsed(startedAt, isDone)
+
     const bottomRef = useRef<HTMLDivElement>(null)
+    // biome-ignore lint/correctness/useExhaustiveDependencies: re-scroll on each new message
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" })
-    }, [])
+    }, [feed.length])
 
-    const isWaiting = isActive && feed.length < 2
+    const isWaiting = isActive && !allReceived
 
     return (
         <div className="space-y-3">
