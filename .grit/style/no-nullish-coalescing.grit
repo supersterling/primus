@@ -1,0 +1,8 @@
+language js
+
+// Bans the nullish coalescing operator (??).
+// Fallbacks hide missing data. Fix the source of optionality instead.
+
+`$_ ?? $_` as $nullish where {
+	register_diagnostic(span=$nullish, message="Nullish coalescing (??) banned. Do NOT replace with a ternary—that's the same problem. Investigate WHY this value is nullable and fix the source.", severity="error")
+}

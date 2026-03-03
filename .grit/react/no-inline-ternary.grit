@@ -1,0 +1,16 @@
+language js
+
+// Bans ternary expressions that are not directly assigned to const/let or returned.
+// Ternaries as expressions hide branching logic. Extract to named variables.
+
+`$cond ? $then : $else` as $ternary where {
+	not (or {
+		// Allowed: const x = cond ? a : b (including nested ternaries)
+		$ternary <: within `const $_ = $_` ,
+		// Allowed: let x = cond ? a : b (including nested ternaries)
+		$ternary <: within `let $_ = $_` ,
+		// Allowed: return cond ? a : b
+		$ternary <: within `return $_`
+	}),
+	register_diagnostic(span=$ternary, message="Inline ternary banned. Extract to a named variable: `const result = cond ? a : b`.", severity="error")
+}

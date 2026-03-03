@@ -8,7 +8,11 @@
         "./.grit/imports/require-absolute-imports.grit",
         "./.grit/database/no-implicit-select-all.grit",
         "./.grit/react/require-explicit-fragment.grit",
-        "./.grit/style/no-immediately-invoked-function-expressions.grit"
+        "./.grit/style/no-immediately-invoked-function-expressions.grit",
+        "./.grit/style/no-as-type-assertion.grit",
+        "./.grit/style/no-nullish-coalescing.grit",
+        "./.grit/react/no-inline-style.grit",
+        "./.grit/react/no-inline-ternary.grit"
     ],
     "vcs": {
         "enabled": true,
