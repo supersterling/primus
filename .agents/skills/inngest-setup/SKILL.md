@@ -290,7 +290,24 @@ If your app runs on a non-standard port (not 3000), make sure the dev server can
 
 **Port Conflicts**: If port 8288 is in use, specify a different port: `-p 9999`
 
-**Auto-discovery Not Working**: Use manual URL specification: `-u http://localhost:YOUR_PORT/api/inngest`
+**Auto-discovery Not Working**: Use manual URL specification: `-u http://localhost:YOUR_PORT/api/inngest`. If your serve route is at a non-standard path (e.g. `/api/inngest/core`), add `inngest.json` to the project root instead:
+
+```json
+{
+    "sdk-url": ["http://localhost:3000/api/inngest/core"],
+    "no-discovery": true
+}
+```
+
+Install `inngest-cli` as a devDependency for a clean dev script:
+
+```json
+{
+    "scripts": { "dev:inngest": "bun --bun inngest-cli dev" },
+    "devDependencies": { "inngest-cli": "^1.17.1" },
+    "trustedDependencies": ["inngest-cli"]
+}
+```
 
 **Signature Verification Errors**: Ensure `INNGEST_SIGNING_KEY` is set correctly in production
 

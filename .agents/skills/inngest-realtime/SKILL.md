@@ -160,33 +160,6 @@ export const reviewDocument = inngest.createFunction(
 )
 ```
 
-## Local Dev
-
-If your serve route is not at `/api/inngest`, auto-discovery won't work. Add `inngest.json` to the project root:
-
-```json
-{
-    "sdk-url": ["http://localhost:3000/api/inngest/core"],
-    "no-discovery": true
-}
-```
-
-Then add a dev script:
-
-```json
-{
-    "scripts": {
-        "dev:inngest": "bun --bun inngest-cli dev"
-    },
-    "devDependencies": {
-        "inngest-cli": "^1.17.1"
-    },
-    "trustedDependencies": ["inngest-cli"]
-}
-```
-
-Run `bun run dev` and `bun run dev:inngest` in separate terminals.
-
 ## Gotchas
 
 **`NESTING_STEPS` warning** — `publish` uses step machinery internally. Calling it outside a `step.run` causes a false-positive `NESTING_STEPS` warning on the next step. Always call `publish` inside `step.run`. The warning message itself acknowledges this can be a false positive and the function still executes correctly.
