@@ -10,10 +10,15 @@ import { Label } from "@/components/ui/label"
 
 type Token = Awaited<ReturnType<typeof triggerHelloWorld>>
 
+type Run = {
+    token: Token
+    startedAt: number
+}
+
 export default function HelloWorldPage() {
     const inputId = useId()
     const [name, setName] = useState("")
-    const [token, setToken] = useState<Token | null>(null)
+    const [run, setRun] = useState<Run | null>(null)
     const [isPending, startTransition] = useTransition()
 
     const handleNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,10 +31,11 @@ export default function HelloWorldPage() {
             return
         }
 
-        setToken(null)
+        setRun(null)
         startTransition(async () => {
-            const t = await triggerHelloWorld(name.trim())
-            setToken(t)
+            const startedAt = Date.now()
+            const token = await triggerHelloWorld(name.trim())
+            setRun({ token, startedAt })
         })
     }
 
@@ -38,8 +44,9 @@ export default function HelloWorldPage() {
             <div className="mb-6">
                 <h1 className="font-bold text-2xl">Hello World</h1>
                 <p className="mt-1 text-muted-foreground text-sm">
-                    Triggers the <code className="font-mono text-xs">app/hello-world</code> Inngest
-                    function and streams the response back in realtime.
+                    Fires <code className="font-mono text-xs">app/hello-world</code>, streams a
+                    greeting immediately, sleeps 3 seconds, then streams a farewell — all via
+                    Inngest Realtime.
                 </p>
             </div>
 
@@ -60,11 +67,11 @@ export default function HelloWorldPage() {
                     </Button>
                 </form>
 
-                {Boolean(token) && (
-                    <div className="space-y-2">
-                        <p className="font-medium text-sm">Realtime</p>
-                        <RealtimeDisplay token={token as Realtime.Subscribe.Token} />
-                    </div>
+                {run !== null && (
+                    <RealtimeDisplay
+                        token={run?.token as Realtime.Subscribe.Token}
+                        startedAt={run?.startedAt ?? 0}
+                    />
                 )}
             </div>
         </div>
