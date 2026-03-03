@@ -2,6 +2,23 @@
 
 Custom lint rules enforced via Biome's GritQL plugin system.
 
+## Naming
+
+Rule files use long, descriptive names that describe the **required behavior**, not what's banned.
+
+- `require-*` — error severity, bans a pattern by requiring the correct alternative
+- `request-*` — warning severity, nudges toward a preferred pattern
+
+```
+require-result-trycatch-for-error-handling.grit   ✅
+no-try-catch.grit                                  ❌ (describes the ban, not the requirement)
+
+request-result-fail-over-throw.grit               ✅
+prefer-result-fail.grit                            ❌ (ambiguous severity)
+```
+
+Files are grouped into subdirectories by concern: `database/`, `error-handling/`, `imports/`, `react/`, `style/`.
+
 ## Message Voice
 
 Rule diagnostic messages follow a consistent two-sentence style:
