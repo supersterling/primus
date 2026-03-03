@@ -1,0 +1,21 @@
+language js
+
+// Require a logger call immediately before every result.fail() call.
+
+`result.fail($...)` as $fail where {
+	not (or {
+		$fail <: after `logger.$method($...)` where {
+			$method <: or { "error", "warn", "info", "debug" }
+		},
+		$fail <: after `logger.$method($...);` where {
+			$method <: or { "error", "warn", "info", "debug" }
+		},
+		$fail <: after `await logger.$method($...)` where {
+			$method <: or { "error", "warn", "info", "debug" }
+		},
+		$fail <: after `await logger.$method($...);` where {
+			$method <: or { "error", "warn", "info", "debug" }
+		}
+	}),
+	register_diagnostic(span=$fail, message="Log before you fail. Silent failures are invisible.", severity="error")
+}
