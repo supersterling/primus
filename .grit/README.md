@@ -10,10 +10,10 @@ Rule files use long, descriptive names that describe the **required behavior**, 
 - `request-*` — warning severity, nudges toward a preferred pattern
 
 ```
-require-result-trycatch-for-error-handling.grit   ✓ (describes the requirement)
+require-result-trycatch-for-error-handling.grit    ✓ (describes the requirement)
 no-try-catch.grit                                  ✗ (describes the ban, not the requirement)
 
-request-result-fail-over-throw.grit               ✓ (explicit severity)
+request-result-fail-over-throw.grit                ✓ (explicit severity)
 prefer-result-fail.grit                            ✗ (ambiguous severity)
 ```
 
