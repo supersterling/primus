@@ -26,7 +26,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <SidebarMenu>
                         <SidebarMenuItem>
                             <SidebarMenuButton asChild>
-                                <Link href="/app">
+                                <Link href="/">
                                     <ChessKing aria-hidden="true" />
                                     <span className="font-serif text-lg">Primus</span>
                                 </Link>
