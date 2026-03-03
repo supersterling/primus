@@ -313,7 +313,7 @@
                 "noEnum": "error",
                 "noExportedImports": "error",
                 "noHeadElement": "off",
-                "noImplicitBoolean": "error",
+                "noImplicitBoolean": "off",
                 "noInferrableTypes": "error",
                 "noMagicNumbers": "error",
                 "noNamespace": "error",
