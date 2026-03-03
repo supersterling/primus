@@ -1,7 +1,6 @@
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs"
 import { ChessKing, LayoutDashboard, Settings } from "lucide-react"
 import Link from "next/link"
-import { PathnameBreadcrumb } from "@/components/pathname-breadcrumb"
 import { Button } from "@/components/ui/button"
 import {
     Sidebar,
@@ -66,7 +65,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <header className="flex items-center justify-between border-b px-4 py-2">
                     <div className="flex items-center gap-2">
                         <SidebarTrigger />
-                        <PathnameBreadcrumb />
                     </div>
                     <div className="flex items-center gap-2">
                         <SignedOut>
