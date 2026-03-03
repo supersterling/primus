@@ -1,0 +1,16 @@
+# The Backend IdentificationLink object
+
+Contains information about any identifications that might be linked to the email address.
+
+## Properties
+
+| Property                 | Type     | Description                                                                          |
+| ------------------------ | -------- | ------------------------------------------------------------------------------------ |
+| <a id="id"></a> `id`     | `string` | The unique identifier for the identification link.                                   |
+| <a id="type"></a> `type` | `string` | The type of the identification link, e.g., `"email_address"`, `"phone_number"`, etc. |
+
+---
+
+## Sitemap
+
+[Overview of all docs pages](https://clerk.com/docs/llms.txt)

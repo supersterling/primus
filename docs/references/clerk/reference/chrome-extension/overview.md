@@ -1,0 +1,76 @@
+# Clerk Chrome Extension SDK
+
+The Clerk Chrome Extension SDK gives you access to prebuilt components, React hooks, and helpers to make user authentication easier. Refer to the [`quickstart guide`](https://clerk.com/docs/chrome-extension/getting-started/quickstart.md) to get started.
+
+## Authentication options
+
+When creating your Clerk application in the Clerk Dashboard, your authentication options will depend on how you configure your Chrome Extension. You can configure your Chrome Extension to behave as one of the following:
+
+- **Popup** - Opens as a popup. This is the default behavior.
+- **Side Panel** - Opens in a side panel
+- **Sync Host** - Deployed alongside a web app that uses [Sync Host](https://clerk.com/docs/guides/sessions/sync-host.md).
+
+See the following table to determine the authentication options available for each configuration.
+
+|                     | Popup | Side Panel | Sync Host |
+| ------------------- | ----- | ---------- | --------- |
+| Email + OTP         | ✅     | ✅          | ✅         |
+| Email + Link        |       |            | ✅         |
+| Email + Password    | ✅     | ✅          | ✅         |
+| Username + Password | ✅     | ✅          | ✅         |
+| SMS + OTP           | ✅     | ✅          | ✅         |
+| OAuth               |       |            | ✅         |
+| Google One Tap      |       |            | ✅         |
+| SAML                |       |            | ✅         |
+| Passkeys            | ✅     | ✅          | ✅         |
+| Web3                |       |            | ✅         |
+
+> Our Chrome Extension SDK currently does not fully support Sync Host on side panels. Currently, if a user authenticates in your web app, they need to close and reopen the side panel to update their auth status.
+
+## Sync auth status between your Chrome Extension and web app
+
+Clerk allows you to sync the authentication state from your web app to your Chrome Extension using the Sync Host feature. When a user authenticates in your web app, they will also be authenticated in your Chrome Extension. See [the dedicated guide](https://clerk.com/docs/guides/sessions/sync-host.md) for more information.
+
+## `createClerkClient()`
+
+It's recommended to use `createClerkClient()` for Chrome Extension's that need to interact with Clerk in a content script.
+
+The `createClerkClient()` helper initializes a new Clerk instance on demand and refreshes the session token if there is a valid, signed-in user. It can be used in a [content script](https://developer.chrome.com/docs/extensions/develop/concepts/content-scripts) or a [background service worker](https://developer.chrome.com/docs/extensions/develop/concepts/service-workers/basics) to access a user's information or session token. [`Learn more about createClerkClient()`](https://clerk.com/docs/reference/chrome-extension/create-clerk-client.md).
+
+## Add React Router
+
+[Learn how to add React Router to your Chrome Extension](https://clerk.com/docs/guides/development/add-react-router.md) to enable routing in your application.
+
+## Deploy your extension to production
+
+See [`the Chrome Extension deployment guide`](https://clerk.com/docs/guides/development/deployment/chrome-extension.md) for information about deploying your extension to production.
+
+## Configure a consistent CRX ID
+
+A Chrome Extension can be identified by its unique CRX ID, similar to how a website can be identified by its domain. The CRX ID rotates by default, which can cause errors with the Clerk integration. [Learn how to configure a consistent CRX ID](https://clerk.com/docs/guides/development/configure-consistent-crx-id.md) so that your extension will have a stable, unchanging key.
+
+## Frequently asked questions (FAQ)
+
+### Can I use Clerk in a content script?
+
+Unfortunately, no. Clerk has strict security restrictions on the allowed origins for requests from the application or extension to Clerk's API. Since a content script could run on any domain, there is no way to enforce origin restrictions.
+
+### Why can't I use OAuth, SAML, or email links with the extension popup or side panel?
+
+OAuth and SAML require a redirect back from the Identity Provider (IdP), which is not currently supported by Google Chrome.
+
+Email links require the popup to remain open while the user checks their email, copies the link, and returns to paste it. Since popups close as soon as a user clicks outside of them, this flow is not possible. The sign-in status resets when the popup closes.
+
+### Why aren't options like Google One Tap or Web3 available in a popup or side panel?
+
+Chrome Extensions can't load code from remote sources. Features like Google One Tap, Web3, and some other authentication options require loading remote code to function. This functionality is removed from the Chrome Extension SDK to ensure extensions using Clerk are not rejected by the Chrome Web Store.
+
+### Why is bot protection not supported in the Chrome Extension SDK?
+
+Clerk uses [Cloudflare](https://developers.cloudflare.com/waf/reference/cloudflare-challenges/#mobile-device-emulation) for bot detection, which isn't supported in non-browser environments like Chrome Extension. Because of this limitation, ensure bot protection is disabled in the Clerk Dashboard. [Learn more about bot protection](https://clerk.com/docs/guides/secure/bot-protection.md).
+
+---
+
+## Sitemap
+
+[Overview of all docs pages](https://clerk.com/docs/llms.txt)

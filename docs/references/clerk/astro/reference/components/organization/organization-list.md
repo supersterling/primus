@@ -1,0 +1,46 @@
+# <OrganizationList /> component
+
+The `<OrganizationList />` component displays Organization-related memberships and automatic [invitations](https://clerk.com/docs/guides/organizations/add-members/verified-domains.md#automatic-invitations) and [suggestions](https://clerk.com/docs/guides/organizations/add-members/verified-domains.md#automatic-suggestions) for the user.
+
+## Example
+
+The following example includes a basic implementation of the `<OrganizationList />` component. You can use this as a starting point for your own implementation.
+
+```astro {{ filename: '/pages/organizations.astro' }}
+---
+import { OrganizationList } from '@clerk/astro/components'
+---
+
+<OrganizationList
+  afterCreateOrganizationUrl="/organization/:slug"
+  afterSelectPersonalUrl="/user/:id"
+  afterSelectOrganizationUrl="/organization/:slug"
+/>
+```
+
+## Properties
+
+The `<OrganizationList />` component accepts the following properties, all of which are **optional**:
+
+| Name                       | Type                                      | Description                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| -------------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| afterCreateOrganizationUrl | ((org: Organization) => string) | string | The full URL or path to navigate to after creating a new Organization.                                                                                                                                                                                                                                                                                                                                                              |
+| afterSelectOrganizationUrl | ((org: Organization) => string) | string | The full URL or path to navigate to after selecting an Organization. Defaults to undefined.                                                                                                                                                                                                                                                                                                                                         |
+| afterSelectPersonalUrl     | ((org: Organization) => string) | string | The full URL or path to navigate to after selecting the Personal AccountPersonal Accounts are individual workspaces that allow users to operate independently without belonging to an Organization. Learn more about Personal Accounts.. Defaults to undefined.                                                                                                                                                                     |
+| appearance                 | Appearance | undefined                   | Optional object to style your components. Will only affect Clerk components and not Account Portal pages.                                                                                                                                                                                                                                                                                                                           |
+| fallback?                  | ReactNode                                 | An optional element to be rendered while the component is mounting.                                                                                                                                                                                                                                                                                                                                                                 |
+| hidePersonal               | boolean                                   | A boolean that controls whether <OrganizationList /> will include the user's Personal AccountPersonal Accounts are individual workspaces that allow users to operate independently without belonging to an Organization. Learn more about Personal Accounts. in the Organization list. Setting this to true will hide the Personal Account option, and users will only be able to switch between Organizations. Defaults to false. |
+| hideSlug                   | boolean                                   | A boolean that controls whether the optional slug field in the Organization creation screen is hidden. Defaults to false.                                                                                                                                                                                                                                                                                                           |
+| skipInvitationScreen       | boolean | undefined                      | A boolean that controls whether the screen for sending invitations after an Organization is created is hidden. When undefined, Clerk will automatically hide the screen if the number of max allowed members is equal to 1. Defaults to false.                                                                                                                                                                                      |
+
+## Customization
+
+To learn about how to customize Clerk components, see the [`customization documentation`](https://clerk.com/docs/astro/guides/customizing-clerk/appearance-prop/overview.md).
+
+[org-ref]: /docs/reference/javascript/organization
+
+---
+
+## Sitemap
+
+[Overview of all docs pages](https://clerk.com/docs/llms.txt)

@@ -1,0 +1,17 @@
+# SignInInitialValues
+
+The type for the `initialValues` prop that is used to pre-populate the sign-in form.
+
+## Properties
+
+| Name          | Type                | Description                              |
+| ------------- | ------------------- | ---------------------------------------- |
+| emailAddress? | string | undefined | The email address of the user.           |
+| username?     | string | undefined | The username of the user.                |
+| phoneNumber?  | string | undefined | The user's phone number in E.164 format. |
+
+---
+
+## Sitemap
+
+[Overview of all docs pages](https://clerk.com/docs/llms.txt)

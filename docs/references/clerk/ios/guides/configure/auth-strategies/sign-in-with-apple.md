@@ -1,0 +1,50 @@
+# Sign in with Apple
+
+This guide will teach you how to add native [Sign in with Apple](https://developer.apple.com/sign-in-with-apple/) to your Clerk apps on Apple platforms.
+
+> Apple Sign-In works on both iOS Simulators and physical devices. However, physical devices provide full functionality including biometric authentication (Face ID/Touch ID), while simulators have limited support. Always test on a physical device before releasing to production.
+
+1. ## Add your Native Application
+
+   Add your iOS application to the [**Native applications**](https://dashboard.clerk.com/~/native-applications) page in the Clerk Dashboard. You will need your iOS app's **App ID Prefix** and **Bundle ID**.
+2. ## Enable Apple as a social connection
+
+   1. In the Clerk Dashboard, navigate to the [**SSO connections**](https://dashboard.clerk.com/~/user-authentication/sso-connections) page.
+   2. Select **Add connection** and select **For all users**.
+   3. Select **Apple** from the provider list.
+   4. Ensure that **Enable for sign-up and sign-in** is toggled on.
+
+   > Apple provides a privacy feature called [Hide My Email](https://support.apple.com/en-us/HT210425#hideemail), allowing users to sign in to your app with Apple without disclosing their actual email addresses. Instead, your instance receives an app-specific email address that forwards any emails to the user's real address. To be able to send emails properly to users with hidden addresses, you must configure an additional setting in the Apple Developer portal. See [Configure Email Source for Apple Private Relay](https://clerk.com/docs/guides/configure/auth-strategies/social-connections/apple.md#configure-email-source-for-apple-private-relay){{ target: '_blank' }} for more information.
+3. ## Add the Sign in with Apple capability to your app
+
+   [Add the Sign in with Apple capability to your app](https://developer.apple.com/documentation/xcode/configuring-sign-in-with-apple#Add-the-Sign-in-with-Apple-capability-to-your-app).
+
+   > If you are using Clerk's prebuilt components, you don't need to do anything else and can stop here. The `SignInWithApple` button will appear in your `AuthView` automatically.
+   > If you are building a custom flow, continue to follow the steps below.
+4. ## Build your sign-in flow
+
+   Use `clerk.auth.signInWithApple()` to start the native Sign in with Apple flow:
+
+   ```swift
+   try await clerk.auth.signInWithApple()
+   ```
+
+## Troubleshooting
+
+### I’m not receiving the user’s first and last name from Apple
+
+Apple only provides `fullName` the very first time a user authorizes your app with Sign in with Apple. On subsequent sign-ins (or if the user already authorized your app in the past), Apple does not resend the name.
+
+If you expected a name and didn’t receive one, check the following:
+
+- **First-time authorization only:** If this isn’t the user’s first authorization for this app, Apple will not return `fullName`. You should store the name the first time you receive it and treat it as optional after that. Deleting the user from Clerk does not reset this on Apple’s side.
+- **Requested scopes:** Make sure your Sign in with Apple request includes the `fullName` scope (and `email`, if you need it). If `fullName` wasn’t requested, Apple won’t prompt the user to share it.
+- **User denied name sharing:** If the user chooses not to share their name, Apple won’t provide it. Make sure your UI can collect a name as a fallback.
+
+To test the first-time flow again, delete the user from Clerk, revoke the app’s authorization in iOS (Settings → Apple ID → **Sign in with Apple** → your app → **Delete**), and sign in again.
+
+---
+
+## Sitemap
+
+[Overview of all docs pages](https://clerk.com/docs/llms.txt)

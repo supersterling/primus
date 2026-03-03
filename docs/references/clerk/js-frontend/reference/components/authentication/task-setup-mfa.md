@@ -1,0 +1,165 @@
+# <TaskSetupMFA /> component
+
+![The <TaskSetupMFA /> component renders a UI for resolving the setup-mfa session task.](https://clerk.com/docs/images/ui-components/task-setup-mfa.png){{ style: { maxWidth: '460px' } }}
+
+The `<TaskSetupMFA />` component renders a UI for resolving the `setup-mfa` session task. You can further customize your `<TaskSetupMFA />` component by passing additional [`properties`](https://clerk.com/docs/js-frontend/reference/components/authentication/task-setup-mfa.md#properties) at the time of rendering.
+
+> The `<TaskSetupMFA/>` is only available in the following SDKs versions:
+>
+> - Next.js (@clerk/nextjs) - **v6.38.0 or higher**
+> - React (@clerk/clerk-react) - **v5.61.0 or higher**
+> - React Router (@clerk/react-router) - **v2.4.6 or higher**
+> - TanStack React Start (@clerk/tanstack-react-start) - **v0.29.4 or higher**
+> - Clerk.js (@clerk/clerk-js) - **v5.124.0 or higher**
+
+> The `<TaskSetupMFA/>` component cannot render when a user doesn't have current session tasks.
+
+## When to use `<TaskSetupMFA />`
+
+Clerk's sign-in flows, such as the [Sign-in Account Portal page](https://clerk.com/docs/guides/account-portal/overview.md#sign-in), [`<SignInButton />`](https://clerk.com/docs/reference/components/unstyled/sign-in-button.md), and [`<SignIn />`](https://clerk.com/docs/js-frontend/reference/components/authentication/sign-in.md) component, automatically handle the `setup-mfa` session task flow for you, including rendering the `<TaskSetupMFA />` component when needed.
+
+If you want to customize the route where the `<TaskSetupMFA />` component is rendered or customize its appearance, you can host it yourself within your application.
+
+## Usage with JavaScript
+
+You first need to set the `taskUrls` option on the [`clerk.load()`](https://clerk.com/docs/reference/javascript/clerk.md#load) method so that users are redirected to the page where you host the `<TaskSetupMFA />` component when they have a pending `setup-mfa` session task.
+
+```js {{ filename: 'main.ts', collapsible: true }}
+import { Clerk } from '@clerk/clerk-js'
+
+const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
+
+const clerk = new Clerk(clerkPubKey)
+await clerk.load({
+  taskUrls: {
+    'setup-mfa': '/session-tasks/setup-mfa',
+  },
+})
+```
+
+The following methods available on an instance of the [`Clerk`](https://clerk.com/docs/reference/javascript/clerk.md) class are used to render and control the `<TaskSetupMFA />` component:
+
+- [`mountTaskSetupMFA()`](https://clerk.com/docs/js-frontend/reference/components/authentication/task-setup-mfa.md#mount-task-setup-mfa)
+- [`unmountTaskSetupMFA()`](https://clerk.com/docs/js-frontend/reference/components/authentication/task-setup-mfa.md#unmount-task-setup-mfa)
+
+The following examples assume that you have followed the [`quickstart`](https://clerk.com/docs/js-frontend/getting-started/quickstart.md) in order to add Clerk to your JavaScript application.
+
+### `mountTaskSetupMFA()`
+
+Render the `<TaskSetupMFA />` component to an HTML `<div>` element.
+
+```typescript
+function mountTaskSetupMFA(node: HTMLDivElement, props?: TaskSetupMFAProps): void
+```
+
+#### `mountTaskSetupMFA()` params
+
+| Name   | Type              | Description                                                          |
+| ------ | ----------------- | -------------------------------------------------------------------- |
+| node   | HTMLDivElement    | The <div> element used to render in the <TaskSetupMFA /> component |
+| props? | TaskSetupMFAProps | The properties to pass to the <TaskSetupMFA /> component.           |
+
+#### `mountTaskSetupMFA()` usage
+
+```typescript {{ filename: 'main.ts', mark: [26] }}
+import { Clerk } from '@clerk/clerk-js'
+
+const pubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
+
+const clerk = new Clerk(pubKey)
+await clerk.load()
+
+if (clerk.isSignedIn) {
+  // Mount user button component
+  document.getElementById('signed-in').innerHTML = `
+          <div id="user-button"></div>
+        `
+
+  const userbuttonDiv = document.getElementById('user-button')
+
+  clerk.mountUserButton(userbuttonDiv)
+} else if (clerk.session?.currentTask) {
+  switch (clerk.session.currentTask.key) {
+    case 'setup-mfa': {
+      document.getElementById('app').innerHTML = `
+              <div id="task-setup-mfa"></div>
+            `
+
+      const taskSetupMfaDiv = document.getElementById('task-setup-mfa')
+
+      clerk.mountTaskSetupMFA(taskSetupMfaDiv)
+    }
+  }
+}
+```
+
+### `unmountTaskSetupMFA()`
+
+Unmount and run cleanup on an existing `<TaskSetupMFA />` component instance.
+
+```typescript
+function unmountTaskSetupMFA(node: HTMLDivElement): void
+```
+
+#### `unmountTaskSetupMFA()` params
+
+| Name | Type           | Description                                                                 |
+| ---- | -------------- | --------------------------------------------------------------------------- |
+| node | HTMLDivElement | The container <div> element with a rendered <SignUp /> component instance |
+
+#### `unmountTaskSetupMFA()` usage
+
+```typescript {{ filename: 'main.ts', mark: [30] }}
+import { Clerk } from '@clerk/clerk-js'
+
+const pubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
+
+const clerk = new Clerk(pubKey)
+await clerk.load()
+
+if (clerk.isSignedIn) {
+  // Mount user button component
+  document.getElementById('signed-in').innerHTML = `
+          <div id="user-button"></div>
+        `
+
+  const userbuttonDiv = document.getElementById('user-button')
+
+  clerk.mountUserButton(userbuttonDiv)
+} else if (clerk.session?.currentTask) {
+  switch (clerk.session.currentTask.key) {
+    case 'setup-mfa': {
+      document.getElementById('app').innerHTML = `
+              <div id="task-setup-mfa"></div>
+            `
+
+      const taskSetupMfaDiv = document.getElementById('task-setup-mfa')
+
+      clerk.mountTaskSetupMFA(taskSetupMfaDiv)
+
+      // ...
+
+      clerk.unmountTaskSetupMFA(taskSetupMfaDiv)
+    }
+  }
+}
+```
+
+## Properties
+
+| Name                | Type                    | Description                                                                                               |
+| ------------------- | ----------------------- | --------------------------------------------------------------------------------------------------------- |
+| redirectUrlComplete | string                  | The full URL or path to navigate to after successfully completing the task.                               |
+| appearance?         | Appearance | undefined | Optional object to style your components. Will only affect Clerk components and not Account Portal pages. |
+
+## Customization
+
+To learn about how to customize Clerk components, see the [`customization documentation`](https://clerk.com/docs/js-frontend/guides/customizing-clerk/appearance-prop/overview.md).
+
+If Clerk's prebuilt components don't meet your specific needs or if you require more control over the logic, you can rebuild the existing Clerk flows using the Clerk API. For more information, see the [custom flow guides](https://clerk.com/docs/guides/development/custom-flows/overview.md).
+
+---
+
+## Sitemap
+
+[Overview of all docs pages](https://clerk.com/docs/llms.txt)

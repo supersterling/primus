@@ -1,0 +1,173 @@
+# Get Started with Drizzle and D1 in existing project
+
+<Prerequisites>
+  - **dotenv** - package for managing environment variables - [read here](https://www.npmjs.com/package/dotenv)
+  - **tsx** - package for running TypeScript files - [read here](https://tsx.is/)
+  - **Cloudflare D1** - Serverless SQL database to query from your Workers and Pages projects - [read here](https://developers.cloudflare.com/d1/)
+  - **wrangler** - Cloudflare Developer Platform command-line interface - [read here](https://developers.cloudflare.com/workers/wrangler)
+</Prerequisites>
+
+#### Step 1 - Install required package
+
+#### Step 2 - Setup wrangler.toml
+
+You would need to have a `wrangler.toml` file for D1 database and will look something like this:
+```toml
+name = "YOUR PROJECT NAME"
+main = "src/index.ts"
+compatibility_date = "2022-11-07"
+node_compat = true
+
+[[ d1_databases ]]
+binding = "DB"
+database_name = "YOUR DB NAME"
+database_id = "YOUR DB ID"
+migrations_dir = "drizzle"
+```
+
+#### Step 3 - Setup Drizzle config file
+
+**Drizzle config** - a configuration file that is used by [Drizzle Kit](/docs/kit-overview) and contains all the information about your database connection, migration folder and schema files.
+
+Create a `drizzle.config.ts` file in the root of your project and add the following content:
+
+```typescript
+import 'dotenv/config';
+import { defineConfig } from 'drizzle-kit';
+
+export default defineConfig({
+  out: './drizzle',
+  schema: './src/db/schema.ts',
+  dialect: 'sqlite',
+  driver: 'd1-http',
+  dbCredentials: {
+    accountId: process.env.CLOUDFLARE_ACCOUNT_ID!,
+    databaseId: process.env.CLOUDFLARE_DATABASE_ID!,
+    token: process.env.CLOUDFLARE_D1_TOKEN!,
+  },
+});
+```
+> **Info:** You can check [our tutorial](/docs/guides/d1-http-with-drizzle-kit) on how to get env variables from CloudFlare
+
+#### Step 4 - Introspect your database
+
+#### Step 5 - Transfer code to your actual schema file
+
+#### Step 6 - Connect Drizzle ORM to the database
+
+```typescript
+import { drizzle } from 'drizzle-orm/d1';
+
+export interface Env {
+  <BINDING_NAME>: D1Database;
+}
+export default {
+  async fetch(request: Request, env: Env) {
+    const db = drizzle(env.<BINDING_NAME>);
+  },
+};
+```
+
+#### Step 7 - Query the database
+
+```typescript
+import { drizzle } from 'drizzle-orm/d1';
+
+export interface Env {
+  <BINDING_NAME>: D1Database;
+}
+export default {
+  async fetch(request: Request, env: Env) {
+    const db = drizzle(env.<BINDING_NAME>);
+
+    const user: typeof usersTable.$inferInsert = {
+      name: 'John',
+      age: 30,
+      email: 'john@example.com',
+    };
+
+    await db.insert(usersTable).values(user);
+    console.log('New user created!');
+
+    const users = await db.select().from(usersTable);
+    console.log('Getting all users from the database: ', users);
+    /*
+    const users: {
+      id: number;
+      name: string;
+      age: number;
+      email: string;
+    }[]
+    */
+
+    await db
+      .update(usersTable)
+      .set({
+        age: 31,
+      })
+      .where(eq(usersTable.email, user.email));
+    console.log('User info updated!');
+
+    await db.delete(usersTable).where(eq(usersTable.email, user.email));
+    console.log('User deleted!');
+
+    return Response.json(users);
+  },
+};
+```
+
+#### Step 8 - Run index.ts file
+
+#### Step 9 - Update your table schema (optional)
+
+#### Step 10 - Applying changes to the database (optional)
+
+#### Step 11 - Query the database with a new field (optional)
+
+```typescript
+import 'dotenv/config';
+import { eq } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/sqlite-cloud';
+import { usersTable } from './db/schema';
+
+async function main() {
+  const db = drizzle(env.<BINDING_NAME>);
+
+  const user: typeof usersTable.$inferInsert = {
+    name: 'John',
+    age: 30,
+    email: 'john@example.com',
+    phone: '123-456-7890',
+  };
+
+  await db.insert(usersTable).values(user);
+  console.log('New user created!');
+
+  const users = await db.select().from(usersTable);
+  console.log('Getting all users from the database: ', users);
+  /*
+  const users: {
+    id: number;
+    name: string;
+    age: number;
+    email: string;
+    phone: string | null;
+  }[]
+  */
+
+  await db
+    .update(usersTable)
+    .set({
+      age: 31,
+    })
+    .where(eq(usersTable.email, user.email));
+  console.log('User info updated!');
+
+  await db.delete(usersTable).where(eq(usersTable.email, user.email));
+  console.log('User deleted!');
+
+  return Response.json(users);
+}
+
+main();
+```

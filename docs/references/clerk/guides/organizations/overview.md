@@ -1,0 +1,50 @@
+# Organizations
+
+Organizations let you group users with Roles and Permissions. This lets you build multi-tenant B2B apps like Slack (workspaces), Linear (teams), or Vercel (projects) where users switch between different team contexts.
+
+Users can belong to multiple Organizations, and Clerk provides the Organization context (memberships, Roles, and the Active Organization) in each session. You can then use this context to control what data to show and what actions to allow.
+
+> To explore Organizations in Clerk, check out the [demo apps](https://github.com/clerk/orgs).
+
+## How do Organizations work?
+
+Organizations live within your Clerk application. Each application can contain multiple Organizations, and each Organization can have multiple users. You define [Roles and Permissions](https://clerk.com/docs/guides/organizations/control-access/roles-and-permissions.md) once at the application level, and they apply across all Organizations within that application.
+
+![Relationship between Clerk Organization, users, Roles and Permissions](https://clerk.com/docs/images/orgs/relationship-diagram.jpg)
+
+The Organization that a user is currently viewing is called the **Active Organization**. The Active Organization determines which Organization-specific data the user can access and which Role and related Permissions they have within the Organization.
+
+Clerk measures Organization usage through **Monthly Retained Organizations (MROs)**. An MRO is an Organization with at least two members, where at least one member is a Monthly Retained User. Free plans include up to 50 MROs in development and 100 in production. To increase these limits, refer to the [pricing page](https://clerk.com/pricing){{ target: '_blank' }}.
+
+## Core workflow
+
+The core workflow when working with Organizations can follow something along the lines of:
+
+1. **Create**: You can create Organizations [in the Clerk Dashboard](https://dashboard.clerk.com/~/organizations), or end users can create them in your application through prebuilt components or APIs. Each Organization has a profile, settings, and [metadata](https://clerk.com/docs/guides/organizations/metadata.md). Users can belong to multiple Organizations and switch between them with the [`<OrganizationSwitcher/>`](https://clerk.com/docs/nextjs/reference/components/organization/organization-switcher.md) component. Learn more about [creating and managing Organizations](https://clerk.com/docs/guides/organizations/create-and-manage.md).
+
+2. **Add members**: You can add members to Organizations in different ways depending on your needs:
+
+   - [**Invitations**](https://clerk.com/docs/guides/organizations/add-members/invitations.md) for bottom-up adoption, where individual users invite teammates with precise control over roles.
+   - [**Verified Domains**](https://clerk.com/docs/guides/organizations/add-members/verified-domains.md) for company-wide rollouts, where Clerk automatically invites users with matching email domains (who can join immediately) or suggests they join (requiring admin approval).
+   - [**Enterprise Connections**](https://clerk.com/docs/guides/organizations/add-members/sso.md) (SAML or OIDC) for top-down deployments managed by IT with centralized authentication through an Identity Provider (IdP).
+
+   You can combine these approaches: use manual invitations for external contractors alongside domain-based enrollment for employees. The Active Organization determines which members and Roles apply to the current context.
+
+3. **Control access**: You can manage access to content or entire pages using Roles and Permissions. Default admin and member Roles cover common cases, while custom Roles and Permissions provide fine-grained access for more complex needs. You can perform authorization checks in both frontend and backend code.
+
+Beyond these core steps, you can also monitor Organization health and growth with analytics in the Clerk Dashboard. This helps you spot which Organizations are growing, staying active, or dropping off, so you know what's working and where you might need attention.
+
+## Next steps
+
+Now that you understand what Organizations are and how they work, you can:
+
+- [Configure Organization settings](https://clerk.com/docs/guides/organizations/configure.md): Learn how to configure Organization settings.
+- [Create and manage Organizations](https://clerk.com/docs/guides/organizations/create-and-manage.md): Learn how to create and manage Organizations to see metadata in action.
+- [Invite members to Organizations](https://clerk.com/docs/guides/organizations/add-members/invitations.md): Learn how to invite members to Organizations.
+- [Set up Roles and Permissions](https://clerk.com/docs/guides/organizations/control-access/roles-and-permissions.md): Learn how to set up Roles and Permissions to control what invited users can access.
+
+---
+
+## Sitemap
+
+[Overview of all docs pages](https://clerk.com/docs/llms.txt)

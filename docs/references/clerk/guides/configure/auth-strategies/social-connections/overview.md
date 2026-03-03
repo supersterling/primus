@@ -1,0 +1,214 @@
+# Social connections (OAuth)
+
+Social connections, also known as OAuth connections in Clerk, allow users to gain access to your application by using their existing credentials from an Identity Provider (IdP), like Google or Microsoft. For example, if you enable Google as a social provider, then when a user wants to sign in to your application, they can select Google and use their Google account to sign in.
+
+> When using social connections, the sign-up and sign-in flows are equivalent. If a user doesn't have an account and tries to sign in, an account will be made for them, and vice versa.
+
+The easiest way to add social connections to your Clerk app is by using [`prebuilt components`](https://clerk.com/docs/nextjs/reference/components/overview.md). If prebuilt components don't meet your specific needs or if you require more control over the logic, you can [rebuild the existing Clerk flows using the Clerk API](https://clerk.com/docs/guides/development/custom-flows/authentication/oauth-connections.md).
+
+## Before you start
+
+- You need to create a Clerk application in the [Clerk Dashboard](https://dashboard.clerk.com/). For more information, check out the [setup guide](https://clerk.com/docs/getting-started/quickstart/setup-clerk.md).
+- You need to install the correct SDK for your application. For more information, see the [quickstart guides](https://clerk.com/docs/getting-started/quickstart/overview.md).
+
+## Enable a social connection
+
+### Development instances
+
+For **development** instances, Clerk uses **pre-configured shared** OAuth credentials and redirect URIs to make the development flow as smooth as possible. This means that you can enable most social providers **without additional configuration**.
+
+To enable a social connection:
+
+1. In the Clerk Dashboard, navigate to the [**SSO connections**](https://dashboard.clerk.com/~/user-authentication/sso-connections) page.
+2. Select the **Add connection** button, and select **For all users**.
+3. Select the provider you want to use.
+
+### Production instances
+
+For **production** instances, you will need to configure the provider with custom OAuth credentials. See the social provider's [dedicated guide](https://clerk.com/docs/guides/configure/auth-strategies/social-connections/overview.md) for more information.
+
+## Configure additional OAuth scopes
+
+Each OAuth provider requires a specific set of scopes that are necessary for proper authentication with Clerk. These essential scopes are pre-configured and automatically included by Clerk. They typically include permissions for basic profile information and email access, which are fundamental for user authentication and account creation.
+
+In addition to the core scopes, you can specify additional scopes supported by the provider. These scopes can be used to access additional user data from the provider.
+
+To add additional OAuth scopes, when you are [enabling a new social connection](#enable-a-social-connection), enable **Use custom credentials**. The **Scopes** field will appear.
+
+## Request additional OAuth scopes after sign-up
+
+Clerk allows you to request additional OAuth scopes even after a user has signed up.
+
+Pass the [`additionalOAuthScopes`](https://clerk.com/docs/nextjs/reference/components/user/user-profile.md) prop to the [`<UserProfile/>`](https://clerk.com/docs/nextjs/reference/components/user/user-profile.md) or [`<UserButton />`](https://clerk.com/docs/nextjs/reference/components/user/user-button.md) component, with any additional OAuth scope you would like per provider. The user will be prompted to reconnect their account on their user profile page.
+
+Use the following tabs to see how to add additional OAuth scopes to the `<UserProfile/>` and `<UserButton/>` components.
+
+**<UserProfile />**
+
+```tsx {{ filename: 'app/page.tsx' }}
+<UserProfile
+  additionalOAuthScopes={{
+    google: ['foo', 'bar'],
+    github: ['qux'],
+  }}
+/>
+```
+
+**<UserButton />**
+
+```tsx {{ filename: 'app/page.tsx' }}
+<UserButton
+  userProfileProps={{
+    additionalOAuthScopes: {
+      google: ['foo', 'bar'],
+      github: ['qux'],
+    },
+  }}
+/>
+```
+
+## Get an OAuth access token for a social provider
+
+You can use a social provider's OAuth access token to access user data from that provider in addition to their data from Clerk.
+
+Use the [`getUserOauthAccessToken()`](https://clerk.com/docs/reference/backend/user/get-user-oauth-access-token.md) method to get the user's OAuth access token. **This method must be used in a server environment, and cannot be run on the client.**
+
+> Clerk does not automatically keep OAuth access tokens fresh behind the scenes. When you request an access token using [the relevant backend API endpoint](https://clerk.com/docs/reference/backend-api/tag/oauth-access-tokens/post/oauth_applications/access_tokens/verify.md){{ target: '_blank' }}, Clerk will attempt to obtain a fresh access token as well as a new refresh token. However, this process occurs only when you initiate the request; Clerk does not proactively refresh tokens on your behalf.
+
+The following example demonstrates how to retrieve the OAuth access token for a user and use it to fetch user data from the Notion API. It assumes:
+
+- You have already [enabled the Notion social connection in the Clerk Dashboard](https://clerk.com/docs/guides/configure/auth-strategies/social-connections/notion.md).
+- The user has already connected their Notion account to your application.
+- The user has the correct permissions to access the Notion API.
+
+**If your SDK isn't listed, you can use the comments in the example to help you adapt it to your SDK.**
+
+**Next.js**
+
+```tsx {{ filename: 'app/api/notion/route.tsx' }}
+import { auth, clerkClient } from '@clerk/nextjs/server'
+import { NextResponse } from 'next/server'
+
+export async function GET() {
+  // The `Auth` object gives you access to properties like `isAuthenticated` and `userId`
+  // Accessing the `Auth` object differs depending on the SDK you're using
+  // https://clerk.com/docs/reference/backend/types/auth-object#how-to-access-the-auth-object
+  const { isAuthenticated, userId } = await auth()
+
+  // Protect the route from unauthenticated users
+  if (!isAuthenticated) {
+    return NextResponse.json({ message: 'User not found' })
+  }
+
+  const provider = 'notion'
+
+  // Initialize the JS Backend SDK
+  // This varies depending on the SDK you're using
+  // https://clerk.com/docs/js-backend/getting-started/quickstart
+  const client = await clerkClient()
+
+  // Use the `getUserOauthAccessToken()` method to get the user's OAuth access token
+  const clerkResponse = await client.users.getUserOauthAccessToken(userId, provider)
+  const accessToken = clerkResponse.data[0].token || ''
+  if (!accessToken) {
+    return NextResponse.json({ message: 'Access token not found' }, { status: 401 })
+  }
+
+  // Fetch the user data from the Notion API
+  // This endpoint fetches a list of users
+  // https://developers.notion.com/reference/get-users
+  const notionUrl = 'https://api.notion.com/v1/users'
+
+  const notionResponse = await fetch(notionUrl, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Notion-Version': '2022-06-28',
+    },
+  })
+
+  // Handle the response from the Notion API
+  const notionData = await notionResponse.json()
+
+  return NextResponse.json({ message: notionData })
+}
+```
+
+## Add a social connection after sign-up
+
+For each social provider, you can disable the option to sign up and sign in to your application using the provider. This is especially useful for users that want to connect their OAuth account _after_ authentication.
+
+For example, say your application wants to read a user's GitHub repository data but doesn't want to allow the user to authenticate with their GitHub account. The user can sign up with their email and password, or whatever authentication method you choose, and then afterwards, connect their GitHub account to your application through their user profile. The easiest way to enable this for your users is by using the [`<UserProfile />`](https://clerk.com/docs/nextjs/reference/components/user/user-profile.md) component. If you prefer to build a custom user interface, see how to [build a social connection flow using the Clerk API](https://clerk.com/docs/guides/development/custom-flows/authentication/oauth-connections.md).
+
+To configure the option for users to sign up and sign in with a social provider:
+
+1. In the Clerk Dashboard, navigate to the [**SSO connections**](https://dashboard.clerk.com/~/user-authentication/sso-connections) page.
+2. Select the social provider you want to configure.
+3. Enable or disable **Enable for sign-up and sign-in**.
+4. Save the changes.
+
+## Connecting to social providers while signed in
+
+When signed in, a user can connect to further social providers. There is no need to perform another sign-up.
+
+When using the [Account Portal](https://clerk.com/docs/guides/account-portal/overview.md) pages, users can see which providers they have already connected to and which ones they can still connect to on their [user profile page](https://clerk.com/docs/guides/account-portal/overview.md#user-profile).
+
+When using the [`prebuilt components`](https://clerk.com/docs/nextjs/reference/components/overview.md), you can use the [`<UserProfile/>`](https://clerk.com/docs/nextjs/reference/components/user/user-profile.md) component to allow users to connect to further social providers.
+
+## OAuth for native applications
+
+Currently, the prebuilt components are not supported in native applications, but you can use the Clerk API to [build a custom flow for authenticating with social connections](https://clerk.com/docs/guides/development/custom-flows/authentication/oauth-connections.md).
+
+Clerk ensures that security critical nonces are passed only to allowlisted URLs when the SSO flow is completed in native browsers or webviews. For maximum security in your **production** instances, you need to allowlist your custom redirect URLs via the [Clerk Dashboard](https://dashboard.clerk.com/) or the [Clerk Backend API](https://clerk.com/docs/reference/backend/redirect-urls/create-redirect-url.md).
+
+To allowlist a redirect URL via the Clerk Dashboard:
+
+1. In the Clerk Dashboard, navigate to the [**Native applications**](https://dashboard.clerk.com/~/native-applications) page.
+2. Scroll down to the **Allowlist for mobile SSO redirect** section and add your redirect URLs.
+
+> By default, Clerk uses `{bundleIdentifier}://callback` as the redirect URL.
+
+## OAuth for Apple native applications
+
+You can use [Sign in with Apple](https://developer.apple.com/sign-in-with-apple/) to offer a native authentication experience in your iOS, watchOS, macOS or tvOS apps.
+
+Instead of the typical OAuth flow that performs redirects in a browser context, you can utilize Apple's native authorization and provide the openID token and grant code to Clerk. Clerk ensures that the user will be verified in a secure and reliable way with the information that Apple has provided about the user.
+
+For additional information on how to configure Apple as a social provider for your Clerk instance, see the [dedicated guide](https://clerk.com/docs/guides/configure/auth-strategies/social-connections/apple.md).
+
+## Supported social providers
+
+Clerk provides a wide range of social providers to ease your user's sign-up and sign-in processes. Select a provider to learn how to configure it for your Clerk app.
+
+- [Apple](https://clerk.com/docs/guides/configure/auth-strategies/social-connections/apple.md): Add Apple as an authentication provider for your Clerk app.
+- [Atlassian](https://clerk.com/docs/guides/configure/auth-strategies/social-connections/atlassian.md): Add Atlassian as an authentication provider for your Clerk app.
+- [Bitbucket](https://clerk.com/docs/guides/configure/auth-strategies/social-connections/bitbucket.md): Add Bitbucket as an authentication provider for your Clerk app.
+- [Box](https://clerk.com/docs/guides/configure/auth-strategies/social-connections/box.md): Add Box as an authentication provider for your Clerk app.
+- [Coinbase](https://clerk.com/docs/guides/configure/auth-strategies/social-connections/coinbase.md): Add Coinbase as an authentication provider for your Clerk app.
+- [Discord](https://clerk.com/docs/guides/configure/auth-strategies/social-connections/discord.md): Add Discord as an authentication provider for your Clerk app.
+- [Dropbox](https://clerk.com/docs/guides/configure/auth-strategies/social-connections/dropbox.md): Add Dropbox as an authentication provider for your Clerk app.
+- [Facebook](https://clerk.com/docs/guides/configure/auth-strategies/social-connections/facebook.md): Add Facebook as an authentication provider for your Clerk app.
+- [GitHub](https://clerk.com/docs/guides/configure/auth-strategies/social-connections/github.md): Add GitHub as an authentication provider for your Clerk app.
+- [GitLab](https://clerk.com/docs/guides/configure/auth-strategies/social-connections/gitlab.md): Add GitLab as an authentication provider for your Clerk app.
+- [Google](https://clerk.com/docs/guides/configure/auth-strategies/social-connections/google.md): Add Google as an authentication provider for your Clerk app.
+- [HubSpot](https://clerk.com/docs/guides/configure/auth-strategies/social-connections/hubspot.md): Add HubSpot as an authentication provider for your Clerk app.
+- [Hugging Face](https://clerk.com/docs/guides/configure/auth-strategies/social-connections/hugging-face.md): Add Hugging Face as an authentication provider for your Clerk app.
+- [LINE](https://clerk.com/docs/guides/configure/auth-strategies/social-connections/line.md): Add LINE as an authentication provider for your Clerk app.
+- [Linear](https://clerk.com/docs/guides/configure/auth-strategies/social-connections/linear.md): Add Linear as an authentication provider for your Clerk app.
+- [LinkedIn](https://clerk.com/docs/guides/configure/auth-strategies/social-connections/linkedin-oidc.md): Add LinkedIn as an authentication provider for your Clerk app.
+- [Microsoft](https://clerk.com/docs/guides/configure/auth-strategies/social-connections/microsoft.md): Add Microsoft as an authentication provider for your Clerk app.
+- [Notion](https://clerk.com/docs/guides/configure/auth-strategies/social-connections/notion.md): Add Notion as an authentication provider for your Clerk app.
+- [Slack](https://clerk.com/docs/guides/configure/auth-strategies/social-connections/slack.md): Add Slack as an authentication provider for your Clerk app.
+- [Spotify](https://clerk.com/docs/guides/configure/auth-strategies/social-connections/spotify.md): Add Spotify as an authentication provider for your Clerk app.
+- [TikTok](https://clerk.com/docs/guides/configure/auth-strategies/social-connections/tiktok.md): Add TikTok as an authentication provider for your Clerk app.
+- [Twitch](https://clerk.com/docs/guides/configure/auth-strategies/social-connections/twitch.md): Add Twitch as an authentication provider for your Clerk app.
+- [Vercel](https://clerk.com/docs/guides/configure/auth-strategies/social-connections/vercel.md): Add Vercel as an authentication provider for your Clerk app.
+- [X/Twitter v2](https://clerk.com/docs/guides/configure/auth-strategies/social-connections/x-twitter.md): Add X (Twitter v2) as an authentication provider for your Clerk app.
+- [Xero](https://clerk.com/docs/guides/configure/auth-strategies/social-connections/xero.md): Add Xero as an authentication provider for your Clerk app.
+
+Don't see the provider you're looking for? You can [configure a custom OIDC-compatible provider](https://clerk.com/docs/guides/configure/auth-strategies/social-connections/custom-provider.md) or [request a new one](https://feedback.clerk.com/roadmap/f9045ac8-0c8e-4f30-b84f-8d551b0767b9?_gl=1*1ywoqdy*_gcl_au*OTUwODgxMjg2LjE3MTI1OTEwNzMuMTczNjk0NTcxMC4xNzE1MTk4MTEyLjE3MTUxOTgxMTI.).
+
+---
+
+## Sitemap
+
+[Overview of all docs pages](https://clerk.com/docs/llms.txt)

@@ -1,0 +1,35 @@
+# Machine Authentication
+
+Machine authentication (often referred to as "machine-to-machine", or "M2M" authentication) is a way to authenticate machines, such as servers, applications, and devices, to ensure that they are who they say they are. This is in contrast to user authentication, which verifies the identity of a human user. Clerk currently supports **three types of machine authentication tokens**:
+
+- [OAuth access tokens](#o-auth-access-tokens)
+- [M2M (machine-to-machine) tokens](#m2-m-tokens)
+- [API keys](#api-keys)
+
+## OAuth access tokens
+
+[OAuth](https://oauth.net/2/) is a widely adopted standard designed to provide a secure way for users to grant third-party applications limited access to their data and resources without providing their login credentials directly. While OAuth includes several different flows that serve different purposes, Clerk primarily supports the [authorization code flow](https://clerk.com/blog/how-oauth-works#the-o-auth-authorization-code-flow-in-action), which returns an OAuth access token that can be used by a machine to authenticate requests to Clerk's API on behalf of a user.
+
+To learn more about machine authentication with OAuth access tokens, see the [OAuth scoped access](https://clerk.com/docs/guides/configure/auth-strategies/oauth/scoped-access.md) and [OAuth token verification](https://clerk.com/docs/guides/configure/auth-strategies/oauth/verify-oauth-tokens.md) guides.
+
+If you are looking for support for the OAuth [client credentials flow](https://datatracker.ietf.org/doc/html/rfc6749#section-4.4), Clerk does not yet support it, but we are aiming to add support for it in the near future. [Add your feedback and get notified when it's available here](https://feedback.clerk.com/roadmap?id=78bf5154-6caa-42ac-acd1-9684e2c99308).
+
+## M2M tokens
+
+If your goal is to authenticate requests made between several different services within your own infrastructure, this is the intended use case for Clerk's M2M tokens feature. With this feature, you can create machines, dictate which machines are allowed to communicate with each other, and create tokens that can be used to authenticate requests between these machines.
+
+To learn more about machine authentication with M2M tokens, see the [M2M tokens](https://clerk.com/docs/guides/development/machine-auth/m2m-tokens.md) guide.
+
+## API keys
+
+If you'd like for your application's users to be able to create API keys that can delegate access to your application's API on their behalf, this is the intended use case for Clerk's API keys feature.
+
+With this feature, you will be able to allow users to create API keys directly through the [`<UserProfile />`](https://clerk.com/docs/nextjs/reference/components/user/user-profile.md) component, or create your own UI for API keys via custom hooks. It will also be simple to verify API keys on your backend using Clerk's SDKs, and you or your users will be able to instantly revoke API keys at any time.
+
+To learn more about machine authentication with API keys, see the [API keys](https://clerk.com/docs/guides/development/machine-auth/api-keys.md) guide.
+
+---
+
+## Sitemap
+
+[Overview of all docs pages](https://clerk.com/docs/llms.txt)

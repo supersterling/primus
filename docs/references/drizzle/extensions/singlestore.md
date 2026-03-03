@@ -1,0 +1,1 @@
+> **Info:** Currently, there are no SingleStore extensions natively supported by Drizzle. Once those are added, we will have them here!

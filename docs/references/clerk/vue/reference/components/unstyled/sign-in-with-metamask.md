@@ -1,0 +1,39 @@
+# <SignInWithMetamaskButton>
+
+The `<SignInWithMetamaskButton>` component is used to complete a one-click, cryptographically-secure sign-in flow using MetaMask.
+
+## Usage
+
+### Basic usage
+
+```vue {{ filename: 'example.vue' }}
+<script setup>
+import { SignInWithMetamaskButton } from '@clerk/vue'
+</script>
+
+<template>
+  <SignInWithMetamaskButton />
+</template>
+```
+
+### Custom usage
+
+In some cases, you will want to use your own button, or button text. You can do that by wrapping your button in the `<SignInWithMetamaskButton>` component.
+
+```vue {{ filename: 'example.vue' }}
+<script setup>
+import { SignInWithMetamaskButton } from '@clerk/vue'
+</script>
+
+<template>
+  <SignInWithMetamaskButton mode="modal">
+    <button>Custom sign in button</button>
+  </SignInWithMetamaskButton>
+</template>
+```
+
+---
+
+## Sitemap
+
+[Overview of all docs pages](https://clerk.com/docs/llms.txt)

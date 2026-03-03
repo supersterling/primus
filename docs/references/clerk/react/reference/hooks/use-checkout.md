@@ -1,0 +1,267 @@
+# useCheckout()
+
+> Billing is currently in Beta and its APIs are experimental and may undergo breaking changes. To mitigate potential disruptions, we recommend [pinning](https://clerk.com/docs/pinning.md) your SDK and `clerk-js` package versions.
+
+The `useCheckout()` hook is used to create, manage, and confirm a checkout session for a user or an Organization's Subscription Plan. It provides the state of the current checkout process, such as its status and any errors, along with methods to initiate and complete the checkout.
+
+There are two ways to use `useCheckout()`:
+
+1. In conjunction with [`<CheckoutProvider />`](https://clerk.com/docs/react/reference/hooks/use-checkout.md#checkout-provider) to create a shared checkout context. All child components inside the provider can then use `useCheckout()` to access or update the same checkout state.
+2. On its own by passing configuration options directly to it. This is ideal for self-contained components that handle their own checkout flow without needing a shared context.
+
+## Parameters
+
+| Parameter  | Type                                       | Description                                                                                                                                                  |
+| ---------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `options?` | `PropsWithChildren`<`UseCheckoutOptions`> | An object containing the configuration for the checkout flow. **Required** if the hook is used without a `<CheckoutProvider />` wrapping the component tree. |
+
+### `UseCheckoutOptions`
+
+| Property                             | Type                                 | Description                                                             |
+| ------------------------------------ | ------------------------------------ | ----------------------------------------------------------------------- |
+| <a id="for"></a> `for?`              | `"user" | "organization"` | Specifies if the checkout is for an Organization. Defaults to `'user'`. |
+| <a id="planid"></a> `planId`         | `string`                             | The ID of the Subscription Plan to check out (e.g. `cplan_xxx`).        |
+| <a id="planperiod"></a> `planPeriod` | `"month" | "annual"`      | The billing period for the Plan.                                        |
+
+## Returns
+
+`useCheckout()` returns a `{ checkout }` object. The `checkout` object contains the following properties. They are `null` until the checkout process is started by calling the `start()` method.
+
+| Property                                                   | Type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| <a id="clear"></a> `clear`                                 | `() => void`                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | A function that clears the current checkout state from the cache.                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| <a id="confirm"></a> `confirm`                             | <code>(params: <a href="https://clerk.com/docs/reference/javascript/types/billing-checkout-resource.md#parameters">`ConfirmCheckoutParams`</a>) => Promise<{ data: <a href="https://clerk.com/docs/reference/javascript/types/billing-checkout-resource.md">`BillingCheckoutResource`</a>; error: null; } | { data: null; error: <a href="https://clerk.com/docs/reference/javascript/types/clerk-api-response-error.md">`ClerkAPIResponseError`</a>; }></code> | A function that confirms and finalizes the checkout process, usually after the user has provided and validated payment information.                                                                                                                                                                                                                                                                                                                                                                                          |
+| <a id="error"></a> `error`                                 | `null | ClerkAPIResponseError`                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Returns an error object if any part of the checkout process fails.                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| <a id="externalclientsecret"></a> `externalClientSecret`   | `null | string`                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | A client secret from an external payment provider (such as Stripe) used to complete the payment on the client-side.                                                                                                                                                                                                                                                                                                                                                                                                          |
+| <a id="externalgatewayid"></a> `externalGatewayId`         | `null | string`                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | The identifier for the external payment gateway used for this checkout session.                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| <a id="fetchstatus"></a> `fetchStatus`                     | `"error" | "idle" | "fetching"`                                                                                                                                                                                                                                                                                                                                                                                                                                                       | The data fetching status.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| <a id="finalize"></a> `finalize`                           | `(params?: { navigate?: SetActiveNavigate; }) => void`                                                                                                                                                                                                                                                                                                                                                                                                                                | A function that finalizes the checkout process. Can optionally accept a `navigate()` function to redirect the user after completion.                                                                                                                                                                                                                                                                                                                                                                                         |
+| <a id="freetrialendsat"></a> `freeTrialEndsAt?`            | `null | Date`                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Unix timestamp (milliseconds) of when the free trial ends.                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| <a id="id"></a> `id`                                       | `null | string`                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | The unique identifier for the checkout session.                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| <a id="isconfirming"></a> `isConfirming`                   | `boolean`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | A boolean that indicates if the `confirm()` method is in progress.                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| <a id="isimmediateplanchange"></a> `isImmediatePlanChange` | `null | boolean`                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Whether the Plan change will take effect immediately after checkout.                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| <a id="isstarting"></a> `isStarting`                       | `boolean`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | A boolean that indicates if the `start()` method is in progress.                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| <a id="needspaymentmethod"></a> `needsPaymentMethod`       | `null | boolean`                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Whether a payment method is required for this checkout.                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| <a id="payer"></a> `payer`                                 | <code>null | <a href="https://clerk.com/docs/reference/javascript/types/billing-payer-resource.md">`BillingPayerResource`</a></code>                                                                                                                                                                                                                                                                                                                                                  | The payer associated with the checkout.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| <a id="paymentmethod"></a> `paymentMethod?`                | <code>null | <a href="https://clerk.com/docs/reference/javascript/types/billing-payment-method-resource.md">`BillingPaymentMethodResource`</a></code>                                                                                                                                                                                                                                                                                                                                 | The payment method being used for the checkout, such as a credit card or bank account.                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| <a id="plan"></a> `plan`                                   | <code>null | <a href="https://clerk.com/docs/reference/javascript/types/billing-plan-resource.md">`BillingPlanResource`</a></code>                                                                                                                                                                                                                                                                                                                                                    | The Subscription Plan details for the checkout.                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| <a id="planperiod"></a> `planPeriod`                       | `null | "month" | "annual"`                                                                                                                                                                                                                                                                                                                                                                                                                                                           | The billing period for the Plan.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| <a id="planperiodstart"></a> `planPeriodStart?`            | `null | number`                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | The start date of the Plan period, represented as a Unix timestamp.                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| <a id="start"></a> `start`                                 | <code>() => Promise<{ data: <a href="https://clerk.com/docs/reference/javascript/types/billing-checkout-resource.md">`BillingCheckoutResource`</a>; error: null; } | { data: null; error: <a href="https://clerk.com/docs/reference/javascript/types/clerk-api-response-error.md">`ClerkAPIResponseError`</a>; }></code>                                                                                                                                                   | A function that initializes the checkout process by creating a checkout resource on the server.                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| <a id="status"></a> `status`                               | `"needs_confirmation" | "completed" | "needs_initialization"`                                                                                                                                                                                                                                                                                                                                                                                                                         | The current status of the checkout session. The following statuses are possible: <ul> <li>`needs_initialization`: The checkout hasn't started but the hook is mounted. Call `start()` to continue.</li> <li>`needs_confirmation`: The checkout has been initialized and is awaiting confirmation. Call `confirm()` to continue.</li> <li>`completed`: The checkout has been successfully confirmed. Call `finalize()` to complete the checkout.</li> </ul> |
+| <a id="totals"></a> `totals`                               | <code>null | <a href="https://clerk.com/docs/reference/javascript/types/billing-checkout-totals.md">`BillingCheckoutTotals`</a></code>                                                                                                                                                                                                                                                                                                                                                | The total costs, taxes, and other pricing details for the checkout.                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+
+## `<CheckoutProvider />`
+
+The `<CheckoutProvider />` component is a wrapper that provides a checkout context to its children, allowing checkout state to be shared across multiple components. Child components can access the checkout context by calling `useCheckout()`.
+
+### Properties
+
+The `<CheckoutProvider />` component accepts the following props:
+
+| Property                             | Type                                 | Description                                                             |
+| ------------------------------------ | ------------------------------------ | ----------------------------------------------------------------------- |
+| <a id="for"></a> `for?`              | `"user" | "organization"` | Specifies if the checkout is for an Organization. Defaults to `'user'`. |
+| <a id="planid"></a> `planId`         | `string`                             | The ID of the Subscription Plan to check out (e.g. `cplan_xxx`).        |
+| <a id="planperiod"></a> `planPeriod` | `"month" | "annual"`      | The billing period for the Plan.                                        |
+
+## Usage
+
+For the best user experience and to prevent potential errors, always wrap components using `useCheckout()` with both `<ClerkLoaded>` and `<SignedIn>` components. This ensures that the user is properly authenticated and Clerk is fully initialized before accessing checkout functionality.
+
+```tsx
+function CheckoutPage() {
+  return (
+    <ClerkLoaded>
+      <SignedIn>
+        <YourCheckoutComponent />
+      </SignedIn>
+    </ClerkLoaded>
+  )
+}
+```
+
+### Examples
+
+The `useCheckout()` hook can be used with a context provider for managing state across multiple components or as a standalone hook for more isolated use cases.
+
+**With <CheckoutProvider />**
+
+The following example shows the basic structure for a checkout flow. A parent component, `<SubscriptionPage />`, sets up the `<CheckoutProvider />` and renders the checkout flow. A child component, `<CheckoutFlow />`, uses the `useCheckout()` hook to access the checkout state.
+
+**<SubscriptionPage />**
+
+```tsx {{ filename: 'src/components/SubscriptionPage.tsx', collapsible: true }}
+import { CheckoutProvider } from '@clerk/clerk-react/experimental'
+import { ClerkLoaded } from '@clerk/clerk-react'
+import { CheckoutFlow } from './CheckoutFlow'
+
+export default function SubscriptionPage() {
+  // `<CheckoutProvider />` sets the context for the checkout flow.
+  // Any child component can now call `useCheckout()` to access this context.
+  return (
+    <CheckoutProvider for="user" planId="cplan_xxx" planPeriod="month">
+      <div>
+        <h1>Upgrade Your Plan</h1>
+        <p>You are about to subscribe to our monthly plan</p>
+        <ClerkLoaded>
+          <CheckoutFlow />
+        </ClerkLoaded>
+      </div>
+    </CheckoutProvider>
+  )
+}
+```
+
+**<CheckoutFlow />**
+
+```tsx {{ filename: 'src/components/CheckoutFlow.tsx', collapsible: true }}
+import { useCheckout } from '@clerk/clerk-react/experimental'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+
+export function CheckoutFlow() {
+  const { checkout } = useCheckout()
+  const { status } = checkout
+
+  if (status === 'needs_initialization') {
+    return <CheckoutInitialization />
+  }
+
+  return (
+    <div className="checkout-container">
+      <CheckoutSummary />
+      <PaymentSection />
+    </div>
+  )
+}
+
+function CheckoutInitialization() {
+  const { checkout } = useCheckout()
+  const { start, fetchStatus } = checkout
+
+  return (
+    <button onClick={start} disabled={fetchStatus === 'fetching'} className="start-checkout-button">
+      {fetchStatus === 'fetching' ? 'Initializing...' : 'Start Checkout'}
+    </button>
+  )
+}
+
+function PaymentSection() {
+  const { checkout } = useCheckout()
+
+  const { isConfirming, confirm, finalize, error } = checkout
+
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [paymentMethodId, setPaymentMethodId] = useState<string | null>(null)
+  const navigate = useNavigate()
+
+  const submitSelectedMethod = async () => {
+    if (isProcessing || !paymentMethodId) return
+    setIsProcessing(true)
+
+    try {
+      // Confirm checkout with payment method
+      await confirm({
+        paymentSourceId: paymentMethodId,
+      })
+      // Calling `.finalize` enables you to sync the client-side state with the server-side state of your users.
+      // It revalidates all authorization checks computed within server components.
+      await finalize({
+        navigate: () => navigate('/dashboard'),
+      })
+    } catch (error) {
+      console.error('Payment failed:', error)
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  return (
+    <>
+      {/* A component that lists a user's payment methods and allows them to select one. See an example: https://clerk.com/docs/reference/hooks/use-payment-methods#examples */}
+      <PaymentMethods onChange={setPaymentMethodId} />
+
+      {error && <div>{error.message}</div>}
+
+      <button type="button" disabled={isProcessing || isConfirming} onClick={submitSelectedMethod}>
+        {isProcessing || isConfirming ? 'Processing...' : 'Complete Purchase'}
+      </button>
+    </>
+  )
+}
+
+function CheckoutSummary() {
+  const { checkout } = useCheckout()
+  const { plan, totals } = checkout
+
+  return (
+    <div>
+      <h2>Order Summary</h2>
+      <span>{plan?.name}</span>
+      <span>
+        {totals?.totalDueNow.currencySymbol}
+        {totals?.totalDueNow.amountFormatted}
+      </span>
+    </div>
+  )
+}
+```
+
+**Standalone Hook**
+
+For simple, self-contained components, you can use `useCheckout()` by passing the configuration options directly to the hook. This avoids the need to wrap the component in a provider.
+
+The following example shows an `<UpgradeButton />` component that manages its own checkout flow.
+
+```tsx {{ filename: 'src/components/UpgradeButton.tsx' }}
+import { useCheckout } from '@clerk/clerk-react/experimental'
+
+export function UpgradeButton({
+  planId,
+  planPeriod,
+}: {
+  planId: string
+  planPeriod: 'month' | 'annual'
+}) {
+  // Pass options directly to the hook when not using a provider.
+  const { checkout } = useCheckout({
+    planId,
+    planPeriod,
+    for: 'user',
+  })
+
+  const { start, status, isStarting, error } = checkout
+
+  const handleStartCheckout = async () => {
+    try {
+      await start()
+      // In a real app, you would now use the `externalClientSecret`
+      // from the checkout object to render a payment form.
+      console.log('Checkout started! Status:', checkout.status)
+    } catch (e) {
+      console.error('Error starting checkout:', e)
+    }
+  }
+
+  return (
+    <div>
+      <button onClick={handleStartCheckout} disabled={isStarting}>
+        {isStarting ? 'Initializing...' : `Upgrade to ${planPeriod} plan`}
+      </button>
+      {error && <p style={{ color: 'red' }}>Error: {error.errors[0].message}</p>}
+    </div>
+  )
+}
+```
+
+## Next steps
+
+- [Checkout flow with a new payment method](https://clerk.com/docs/guides/development/custom-flows/billing/checkout-new-payment-method.md): Build a custom checkout flow that allows users to add a new payment method during checkout.
+- [Checkout flow for returning users](https://clerk.com/docs/guides/development/custom-flows/billing/checkout-existing-payment-method.md): Build a custom checkout flow that allows users to select an existing payment method during checkout.
+
+---
+
+## Sitemap
+
+[Overview of all docs pages](https://clerk.com/docs/llms.txt)
