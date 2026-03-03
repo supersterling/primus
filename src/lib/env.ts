@@ -26,6 +26,10 @@ export const env = createEnv({
             .enum(["development", "test", "production"])
             .default("development")
             .describe("Node environment"),
+        INNGEST_DEV: z
+            .enum(["1", "0"])
+            .optional()
+            .describe("Set to '1' to run Inngest in local dev mode (no signing key required)"),
         INNGEST_EVENT_KEY: z.string().optional().describe("Inngest event key for sending events"),
         INNGEST_SIGNING_KEY: z
             .string()
@@ -49,6 +53,7 @@ export const env = createEnv({
 
     runtimeEnv: {
         NODE_ENV: process.env.NODE_ENV,
+        INNGEST_DEV: process.env.INNGEST_DEV,
         INNGEST_EVENT_KEY: process.env.INNGEST_EVENT_KEY,
         INNGEST_SIGNING_KEY: process.env.INNGEST_SIGNING_KEY,
         LOGGER_LOWEST_LEVEL: process.env.LOGGER_LOWEST_LEVEL,
