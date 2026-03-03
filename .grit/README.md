@@ -10,11 +10,11 @@ Rule files use long, descriptive names that describe the **required behavior**, 
 - `request-*` — warning severity, nudges toward a preferred pattern
 
 ```
-require-result-trycatch-for-error-handling.grit   ✅
-no-try-catch.grit                                  ❌ (describes the ban, not the requirement)
+require-result-trycatch-for-error-handling.grit   -- correct
+no-try-catch.grit                                  -- wrong (describes the ban, not the requirement)
 
-request-result-fail-over-throw.grit               ✅
-prefer-result-fail.grit                            ❌ (ambiguous severity)
+request-result-fail-over-throw.grit               -- correct
+prefer-result-fail.grit                            -- wrong (ambiguous severity)
 ```
 
 Files are grouped into subdirectories by concern: `database/`, `error-handling/`, `imports/`, `react/`, `style/`.
