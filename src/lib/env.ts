@@ -35,16 +35,6 @@ export const env = createEnv({
             .string()
             .optional()
             .describe("Inngest signing key for webhook verification"),
-        LOGGER_LOWEST_LEVEL: z
-            .enum(["DEBUG", "INFO", "WARN", "ERROR"])
-            .default("DEBUG")
-            .describe("Minimum log level to emit"),
-        LOGGER_FORMAT_STYLE: z
-            .enum(["pretty", "json"])
-            .optional()
-            .describe(
-                "Log output format — pretty for dev, json for prod. Defaults to pretty in development",
-            ),
     },
 
     client: {
@@ -56,8 +46,6 @@ export const env = createEnv({
         INNGEST_DEV: process.env.INNGEST_DEV,
         INNGEST_EVENT_KEY: process.env.INNGEST_EVENT_KEY,
         INNGEST_SIGNING_KEY: process.env.INNGEST_SIGNING_KEY,
-        LOGGER_LOWEST_LEVEL: process.env.LOGGER_LOWEST_LEVEL,
-        LOGGER_FORMAT_STYLE: process.env.LOGGER_FORMAT_STYLE,
     },
 
     // biome-ignore lint/complexity/noImplicitCoercions: standard idiom for boolean coercion
