@@ -1,0 +1,23 @@
+ignore_patterns:
+  - "yek.yaml"
+  - "bun.lock"
+  - "tsconfig.tsbuildinfo"
+  - "skills-lock.json"
+  - ".docref.lock"
+  - "patches/*"
+  - "public/**"
+  - "node_modules/**"
+  - ".next/**"
+  - ".vercel/**"
+  - "src/components/ui/**"
+  - ".agents/skills/**"
+  - ".pi/skills/**"
+  - ".claude/skills/**"
+  - ".factory/skills/**"
+  - ".goose/skills/**"
+
+priority_rules:
+  - score: 99
+    pattern: "^docs/"
+  - score: 100
+    pattern: "^.grit/"
