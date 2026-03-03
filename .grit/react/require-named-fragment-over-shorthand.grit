@@ -4,9 +4,9 @@ language js
 
 or {
 	`<><$children></>` as $match where {
-		register_diagnostic(span=$match, message="Use `<Fragment>`. `<>` is ambiguous and harder to grep.", severity="error")
+		register_diagnostic(span=$match, message="Use `<Fragment>` from react. `<>` is ambiguous and harder to grep.", severity="error")
 	},
 	`</>` as $match where {
-		register_diagnostic(span=$match, message="Use `<Fragment>`. `<>` is ambiguous and harder to grep.", severity="error")
+		register_diagnostic(span=$match, message="Use `<Fragment>` from react. `<>` is ambiguous and harder to grep.", severity="error")
 	}
 }
