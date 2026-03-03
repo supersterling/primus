@@ -12,7 +12,8 @@
         "./.grit/style/require-type-guards-over-as-assertion.grit",
         "./.grit/style/require-explicit-nullability-handling.grit",
         "./.grit/react/require-tailwind-over-inline-styles.grit",
-        "./.grit/react/require-variable-assignment-for-ternary.grit"
+        "./.grit/react/require-variable-assignment-for-ternary.grit",
+        "./.grit/react/require-theme-tokens-for-tailwind-colors.grit"
     ],
     "vcs": {
         "enabled": true,

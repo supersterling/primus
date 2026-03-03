@@ -1,0 +1,20 @@
+language js
+
+// Require Tailwind theme tokens over raw color utilities in className props.
+// Catches static strings and string literals inside dynamic expressions (e.g. cn(...)).
+// Cannot verify that a theme token actually exists — only bans known raw Tailwind colors.
+
+or {
+	// Static: className="bg-blue-500 text-red-400"
+	`className="$classes"` as $match where {
+		$classes <: r".*\b(bg|text|border|ring|fill|stroke|from|via|to|shadow|outline|accent|caret|decoration|placeholder|divide)-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d{2,3}\b.*",
+		register_diagnostic(span=$match, message="Use theme tokens. Raw Tailwind colors bypass the design system.", severity="error")
+	},
+	// Dynamic: className={cn("bg-blue-500", ...)} — flags the whole attribute
+	`className={$expr}` as $match where {
+		$expr <: contains `"$classes"` where {
+			$classes <: r".*\b(bg|text|border|ring|fill|stroke|from|via|to|shadow|outline|accent|caret|decoration|placeholder|divide)-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d{2,3}\b.*"
+		},
+		register_diagnostic(span=$match, message="Use theme tokens. Raw Tailwind colors bypass the design system.", severity="error")
+	}
+}
