@@ -27,7 +27,7 @@ Strips generated artifacts (shadcn/ui components, hooks, utils) and reverts modi
 
 Tooling for generating scripts.
 
-### [create-sh-script.sh](scripts:meta/create-sh-script.sh)
+### [create-sh-script.sh](src/scripts/meta/create-sh-script.sh)
 
 Generates bash scripts with standard boilerplate: structured logging, signal handling, and cleanup guards.
 
@@ -57,12 +57,12 @@ Parent directories are created automatically. Generated scripts are `chmod +x` o
 
 Every generated script includes:
 
-- **Logging** — [log_flow](scripts:meta/create-sh-script.sh#log_flow) / [log_done](scripts:meta/create-sh-script.sh#log_done) pairs for nested indented blocks, [log_pass](scripts:meta/create-sh-script.sh#log_pass) / [log_fail](scripts:meta/create-sh-script.sh#log_fail) for success/error, [log_step](scripts:meta/create-sh-script.sh#log_step) for progress, [log_warn](scripts:meta/create-sh-script.sh#log_warn) for warnings, [log_bold](scripts:meta/create-sh-script.sh#log_bold) for emphasis, [log_pose](scripts:meta/create-sh-script.sh#log_pose) for questions
-- **User input** — [ask_user_via_prompt](scripts:meta/create-sh-script.sh#ask_user_via_prompt) for free text, [ask_user_via_confirm](scripts:meta/create-sh-script.sh#ask_user_via_confirm) for y/n, [ask_user_via_select](scripts:meta/create-sh-script.sh#ask_user_via_select) for numbered menus. All take a variable name as first argument and skip the prompt if the variable is already set (e.g., from a CLI flag).
-- **CLI flags** — `add_flag` / `parse_flags` for declarative `--flag value` registration with auto-generated [usage](scripts:meta/create-sh-script.sh#usage). Flags pre-set variables so `ask_user_via_*` prompts are skipped in non-interactive mode.
-- **Command execution** — [cmd_exec](scripts:meta/create-sh-script.sh#cmd_exec) shows the command via [log_exec](scripts:meta/create-sh-script.sh#log_exec) (`$ command` in bold), then runs it with dimmed, indented output and preserved exit codes
-- **Signal handling** — traps for INT/TERM/HUP with a [cleanup](scripts:meta/create-sh-script.sh#cleanup) guard you can override
-- **[die](scripts:meta/create-sh-script.sh#die)** — fatal error + exit in one call
+- **Logging** — [log_flow](src/scripts/meta/create-sh-script.sh#log_flow) / [log_done](src/scripts/meta/create-sh-script.sh#log_done) pairs for nested indented blocks, [log_pass](src/scripts/meta/create-sh-script.sh#log_pass) / [log_fail](src/scripts/meta/create-sh-script.sh#log_fail) for success/error, [log_step](src/scripts/meta/create-sh-script.sh#log_step) for progress, [log_warn](src/scripts/meta/create-sh-script.sh#log_warn) for warnings, [log_bold](src/scripts/meta/create-sh-script.sh#log_bold) for emphasis, [log_pose](src/scripts/meta/create-sh-script.sh#log_pose) for questions
+- **User input** — [ask_user_via_prompt](src/scripts/meta/create-sh-script.sh#ask_user_via_prompt) for free text, [ask_user_via_confirm](src/scripts/meta/create-sh-script.sh#ask_user_via_confirm) for y/n, [ask_user_via_select](src/scripts/meta/create-sh-script.sh#ask_user_via_select) for numbered menus. All take a variable name as first argument and skip the prompt if the variable is already set (e.g., from a CLI flag).
+- **CLI flags** — `add_flag` / `parse_flags` for declarative `--flag value` registration with auto-generated [usage](src/scripts/meta/create-sh-script.sh#usage). Flags pre-set variables so `ask_user_via_*` prompts are skipped in non-interactive mode.
+- **Command execution** — [cmd_exec](src/scripts/meta/create-sh-script.sh#cmd_exec) shows the command via [log_exec](src/scripts/meta/create-sh-script.sh#log_exec) (`$ command` in bold), then runs it with dimmed, indented output and preserved exit codes
+- **Signal handling** — traps for INT/TERM/HUP with a [cleanup](src/scripts/meta/create-sh-script.sh#cleanup) guard you can override
+- **[die](src/scripts/meta/create-sh-script.sh#die)** — fatal error + exit in one call
 - **Strict mode** — `set -euo pipefail` (shell) or equivalent error handling (TypeScript)
 
 ### Output style

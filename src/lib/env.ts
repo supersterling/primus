@@ -22,9 +22,25 @@ if (!process.env.NEXT_RUNTIME && isServerRuntime) {
 export const env = createEnv({
     extends: [vercel()],
     server: {
-        NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
-        INNGEST_EVENT_KEY: z.string().optional(),
-        INNGEST_SIGNING_KEY: z.string().optional(),
+        NODE_ENV: z
+            .enum(["development", "test", "production"])
+            .default("development")
+            .describe("Node environment"),
+        INNGEST_EVENT_KEY: z.string().optional().describe("Inngest event key for sending events"),
+        INNGEST_SIGNING_KEY: z
+            .string()
+            .optional()
+            .describe("Inngest signing key for webhook verification"),
+        LOGGER_LOWEST_LEVEL: z
+            .enum(["DEBUG", "INFO", "WARN", "ERROR"])
+            .default("DEBUG")
+            .describe("Minimum log level to emit"),
+        LOGGER_FORMAT_STYLE: z
+            .enum(["pretty", "json"])
+            .optional()
+            .describe(
+                "Log output format — pretty for dev, json for prod. Defaults to pretty in development",
+            ),
     },
 
     client: {
@@ -35,6 +51,8 @@ export const env = createEnv({
         NODE_ENV: process.env.NODE_ENV,
         INNGEST_EVENT_KEY: process.env.INNGEST_EVENT_KEY,
         INNGEST_SIGNING_KEY: process.env.INNGEST_SIGNING_KEY,
+        LOGGER_LOWEST_LEVEL: process.env.LOGGER_LOWEST_LEVEL,
+        LOGGER_FORMAT_STYLE: process.env.LOGGER_FORMAT_STYLE,
     },
 
     // biome-ignore lint/complexity/noImplicitCoercions: standard idiom for boolean coercion

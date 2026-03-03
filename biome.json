@@ -514,7 +514,9 @@
     "overrides": [
         {
             "includes": ["src/components/ui/**", "src/hooks/use-mobile.ts"],
-            "linter": { "enabled": false }
+            "linter": {
+                "enabled": false
+            }
         },
         {
             "includes": ["src/lib/logger.ts"],
@@ -563,7 +565,7 @@
             }
         },
         {
-            "includes": ["scripts/**"],
+            "includes": ["src/scripts/**"],
             "plugins": [],
             "linter": {
                 "rules": {

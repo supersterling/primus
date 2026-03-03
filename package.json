@@ -12,7 +12,7 @@
     "biome:check": "biome check",
     "biome:fix": "biome check --fix",
     "grit:test": "tests/grit/run-tests.sh",
-    "env:example": "./scripts/generate-env-example.ts",
+    "env:example": "bun src/scripts/generate-env-example.ts",
     "prepare": "husky"
   },
   "dependencies": {

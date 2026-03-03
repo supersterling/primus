@@ -22,6 +22,7 @@
 
 import { hostname } from "node:os"
 import process from "node:process"
+import { env } from "@/lib/env"
 
 /**
  * Process identity captured once at module load.
@@ -330,12 +331,17 @@ function createInlineLogger(
 }
 
 const output = process.stdout.write.bind(process.stdout)
-const lowest = parseLevel(process.env.LOGGER_LOWEST_LEVEL)
+const lowest = parseLevel(env.LOGGER_LOWEST_LEVEL)
 
-const logger =
-    process.env.LOGGER_FORMAT_STYLE === "pretty" && Boolean(process.stdout.isTTY)
-        ? createPrettyLogger(output, {}, lowest)
-        : createInlineLogger(output, {}, lowest)
+const isPretty =
+    env.LOGGER_FORMAT_STYLE === "pretty" ||
+    (env.LOGGER_FORMAT_STYLE === undefined &&
+        env.NODE_ENV === "development" &&
+        Boolean(process.stdout.isTTY))
+
+const logger = isPretty
+    ? createPrettyLogger(output, {}, lowest)
+    : createInlineLogger(output, {}, lowest)
 
 export type { Logger }
 export { logger }
