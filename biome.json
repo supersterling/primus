@@ -513,6 +513,10 @@
     },
     "overrides": [
         {
+            "includes": ["src/components/ui/**", "src/hooks/use-mobile.ts"],
+            "linter": { "enabled": false }
+        },
+        {
             "includes": ["src/lib/logger.ts"],
             "linter": {
                 "rules": {

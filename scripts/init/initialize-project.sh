@@ -686,7 +686,7 @@ EOF
     log_flow "Installing agent skills..."
     ask_user_via_choice --default "claude-code cursor" \
         AGENTS "Which agents to install skills for?" \
-        "claude-code" "cursor" "codex"
+        "claude-code" "cursor" "codex" "goose" "droid" "pi"
     AGENT_FLAGS=()
     for agent in $AGENTS; do
         AGENT_FLAGS+=(--agent "$agent")

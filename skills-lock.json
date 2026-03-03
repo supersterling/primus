@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "skills": {
+    "ai-elements": {
+      "source": "vercel/ai-elements",
+      "sourceType": "github",
+      "computedHash": "fb5f5a85b48db9b410595b02b84fdf48f7299b9f8e1dcd5964001fb3d9705808"
+    },
+    "ai-sdk": {
+      "source": "vercel/ai",
+      "sourceType": "github",
+      "computedHash": "58ce68f628890c3925aea2b5435a649251ac182057541045c68fc19a27aaa0ec"
+    },
+    "before-and-after": {
+      "source": "vercel-labs/before-and-after",
+      "sourceType": "github",
+      "computedHash": "64034c2524068151d089e7d74fa744d1dbc73befa20d2d8b22eb261c2fba2fe5"
+    },
+    "building-components": {
+      "source": "vercel/components.build",
+      "sourceType": "github",
+      "computedHash": "ca96444b70257eb3f4f4c76dfdd4a32312c835fe3c8755d2e3d75ac78d384bfd"
+    },
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "sourceType": "github",
+      "computedHash": "6412eb4eb3b91595ebab937f0c69501240e7ba761b3d82510b5cf506ec5c7adc"
+    },
+    "inngest-durable-functions": {
+      "source": "inngest/inngest-skills",
+      "sourceType": "github",
+      "computedHash": "a540b098e99c48f8eba800a756d2c0170128e88147a66f80ebbf16eecdf1d51f"
+    },
+    "inngest-events": {
+      "source": "inngest/inngest-skills",
+      "sourceType": "github",
+      "computedHash": "fc7b26058d06099c171cbf102125d1a98fe71d723f37704fc208920895222956"
+    },
+    "inngest-flow-control": {
+      "source": "inngest/inngest-skills",
+      "sourceType": "github",
+      "computedHash": "6a51d0e26309202b4cb4ef853f63d4b3203b2374cb4569eef35f4e6638a6d3d8"
+    },
+    "inngest-middleware": {
+      "source": "inngest/inngest-skills",
+      "sourceType": "github",
+      "computedHash": "1e586e0167bfc7a52f4cd4099de53e0d87f0743d93d7c88c7055a16dc6e70772"
+    },
+    "inngest-setup": {
+      "source": "inngest/inngest-skills",
+      "sourceType": "github",
+      "computedHash": "2c40971e280ac95500e4bf0000dd134c8bf124df4ed01ab2591786cf8f3fb5e7"
+    },
+    "inngest-steps": {
+      "source": "inngest/inngest-skills",
+      "sourceType": "github",
+      "computedHash": "748640680d8432c578049e5c5fa69e729a9f0f24c6e1d4fb9917baffdb0d1dc3"
+    },
+    "json-render-core": {
+      "source": "vercel-labs/json-render",
+      "sourceType": "github",
+      "computedHash": "8e5a55ec66896a82173ab1c84c3dc264069d4a3a2fac6e927b2a40d2fba9e323"
+    },
+    "json-render-react": {
+      "source": "vercel-labs/json-render",
+      "sourceType": "github",
+      "computedHash": "6f960b3e9d728a3ffc617e123b49f4239325137e8ad5ebdf8248b503bb308cb9"
+    },
+    "json-render-shadcn": {
+      "source": "vercel-labs/json-render",
+      "sourceType": "github",
+      "computedHash": "b09982175f109a3b6392bdda43bca48061dfe8ff2655ed3206b811fafb0028a7"
+    },
+    "next-best-practices": {
+      "source": "vercel-labs/next-skills",
+      "sourceType": "github",
+      "computedHash": "515ba75178bd44875812d9a560bdf14651f86709f89cf1d4f209638e879807f3"
+    },
+    "next-cache-components": {
+      "source": "vercel-labs/next-skills",
+      "sourceType": "github",
+      "computedHash": "a94b83ddcd2ff1c30722577f693b1bfe32f2e1a83abdd6c08c2d6cc6753b53c8"
+    },
+    "skill-creator": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "9b03bb78ec5c81c4e0546dbb78cfc970368c72dcae5482e8c59690175abbc8e7"
+    },
+    "streamdown": {
+      "source": "vercel/streamdown",
+      "sourceType": "github",
+      "computedHash": "6470d8677cc0888c9d4dae7e38be8243e767b1cb808d6ec547a7c0d50670ad56"
+    },
+    "vercel-cli": {
+      "source": "vercel/vercel",
+      "sourceType": "github",
+      "computedHash": "b030d91f22bb7665a4871649ad52d3918db93273e339ba92d90a67ed00de465a"
+    },
+    "vercel-composition-patterns": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "computedHash": "f98931159fa9c7fed043bcd18a891a46dcf89ababa38df13a4c5b7b30dc0ce07"
+    },
+    "vercel-react-best-practices": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "computedHash": "3462ec83f862abb2d532953df33a4dbf87f4616849da5d4b5cc7c13601aaf997"
+    },
+    "web-design-guidelines": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "computedHash": "a6a44d5498f7e8f68289902f3dedfc6f38ae0cee1e96527c80724cf27f727c2a"
+    }
+  }
+}

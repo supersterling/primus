@@ -10,7 +10,7 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-    title: "PRIMUS",
+    title: "primus",
     description:
         "An opinionated Next.js template with the best of Vercel, Inngest, and modern tooling.",
 }
