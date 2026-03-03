@@ -17,8 +17,6 @@ export default inngest.createFunction(
             data: { greeting },
         })
 
-        await step.sleep("pause", "3s")
-
         const farewell = await step.run("farewell", () => {
             logger.info("Farewell user", { name: event.data.name })
             return `Goodbye, ${event.data.name}!`
