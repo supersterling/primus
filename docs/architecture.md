@@ -29,6 +29,7 @@ src/
 docs/
   rules.md          Coding rules — read before writing any code
   architecture.md   This file
+  billing.md        Polar payment integration — checkout, webhook pipeline, Inngest events
   references/       External documentation (large; excluded from agent context)
 
 .grit/              GritQL lint rules — enforced as Biome plugins
