@@ -4,6 +4,7 @@ import { ManageAccountButton } from "@/components/manage-account-button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
+import { fallback } from "@/lib/utils"
 
 export const metadata: Metadata = { title: "Settings" }
 
@@ -39,7 +40,7 @@ export default async function SettingsPage() {
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <Avatar>
-                            <AvatarImage src={user?.imageUrl} alt={user?.fullName ?? ""} />
+                            <AvatarImage src={user?.imageUrl} alt={fallback(user?.fullName, "")} />
                             <AvatarFallback>{initials}</AvatarFallback>
                         </Avatar>
                         <div>

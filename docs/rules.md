@@ -166,7 +166,7 @@ const input = event.target
 **Rules:**
 - No `any`. Use `unknown` and narrow explicitly.
 - No non-null assertions (`!`). Check for null/undefined first.
-- No `??`. Fix the source of nullability — `??` hides the problem, it doesn't solve it.
+- No `??`. Fix the source of nullability — `??` hides the problem, it doesn't solve it. When you genuinely need a fallback value, use `fallback()` from `@/lib/utils` — it makes the intent explicit.
 - No `||` for fallbacks. Use explicit null checks.
 
 **Hint — type predicate functions:**

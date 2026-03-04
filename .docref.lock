@@ -29,7 +29,7 @@ symbol = "pass"
 target = "lib:either.ts"
 
 [[entries]]
-hash = "eaaccdc1934be63a55a808199117c0478f31848d873dcf5eef63ed5be8c00987"
+hash = "792b754f441c8b2fd58b46ed33f2687be83419799271f0478cb9495029629d46"
 source = "src/lib/README.md"
 symbol = "result"
 target = "lib:either.ts"
@@ -47,25 +47,13 @@ symbol = "trycatch"
 target = "lib:either.ts"
 
 [[entries]]
-hash = "29d6d50ecb0e8cfd0a825db99d8aa6b001dec53f2855f7a513c99f35d9484ac5"
-source = "src/lib/README.md"
-symbol = "wrap"
-target = "lib:either.ts"
-
-[[entries]]
-hash = "a0b567f816bcddfd75a13f5e6fe81a1a23946da4cb4e88a7e2c7d230615a16b0"
+hash = "80b3beeddf37ee17054d83696eda58c2a9dc222d258a53ee1f2dc9b5d50434ec"
 source = "src/lib/README.md"
 symbol = "env"
 target = "lib:env.ts"
 
 [[entries]]
-hash = "545e940cc068b3a958ad7164010e61154ffd3807eec067ee4708f17efc7e2bc1"
-source = "src/lib/README.md"
-symbol = "Logger"
-target = "lib:logger.ts"
-
-[[entries]]
-hash = "b0cc9b606fc46497578d08904ea6a6aa0c33c8ae3c1babcd884d7122e7040ae0"
+hash = "5928e89e0446d616a4284efef598c335e131f8716a73c2b8ae154fca4b4e5a22"
 source = "src/lib/README.md"
 symbol = "logger"
 target = "lib:logger.ts"

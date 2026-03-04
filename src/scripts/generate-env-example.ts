@@ -1,6 +1,7 @@
 import { plugin } from "bun"
 import { z } from "zod"
 import { result } from "@/lib/either.ts"
+import { fallback } from "@/lib/utils.ts"
 
 // ── Intercept createEnv ────────────────────────────────────────────────────
 
@@ -9,6 +10,18 @@ type EnvConfig = { server?: EnvSection; client?: EnvSection; shared?: EnvSection
 
 let captured: EnvConfig | null = null
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === "object" && value !== null && !Array.isArray(value)
+}
+
+function requireEnvConfig(value: EnvConfig | null): EnvConfig {
+    if (!value) {
+        console.error("createEnv() was never called")
+        process.exit(1)
+    }
+    return value
+}
+
 plugin({
     name: "capture-env",
     setup(build) {
@@ -16,7 +29,15 @@ plugin({
             exports: {
                 createEnv(cfg: EnvConfig) {
                     captured = cfg
-                    return new Proxy({}, { get: (_, k) => process.env[k as string] ?? "" })
+                    return new Proxy(
+                        {},
+                        {
+                            get: (_, k) => {
+                                const val = typeof k === "string" ? process.env[k] : undefined
+                                return fallback(val, "")
+                            },
+                        },
+                    )
                 },
             },
             loader: "object",
@@ -37,14 +58,31 @@ if (!load.ok) {
     process.exit(1)
 }
 
-if (!captured) {
-    console.error("createEnv() was never called")
-    process.exit(1)
-}
-
-const config = captured as EnvConfig
+const config = requireEnvConfig(captured)
 
 // ── Generate lines ─────────────────────────────────────────────────────────
+
+function schemaLines(key: string, schema: z.ZodType): string[] {
+    const jsonSchema: unknown = z.toJSONSchema(schema)
+
+    if (!isRecord(jsonSchema)) {
+        return []
+    }
+
+    const lines: string[] = []
+
+    if (jsonSchema.description) {
+        lines.push(`# ${jsonSchema.description}`)
+    }
+    if (Array.isArray(jsonSchema.enum)) {
+        lines.push(`# ${jsonSchema.enum.join(" | ")}`)
+    }
+
+    const defaultVal = "default" in jsonSchema ? JSON.stringify(jsonSchema.default) : ""
+    lines.push(`${key}=${defaultVal}`, "")
+
+    return lines
+}
 
 function section(title: string, schemas: EnvSection | undefined): string[] {
     if (!schemas || Object.keys(schemas).length === 0) {
@@ -54,17 +92,7 @@ function section(title: string, schemas: EnvSection | undefined): string[] {
     const lines = [`# ── ${title} ──`, ""]
 
     for (const [key, schema] of Object.entries(schemas)) {
-        const js = z.toJSONSchema(schema) as Record<string, unknown>
-
-        if (js.description) {
-            lines.push(`# ${js.description}`)
-        }
-        if (Array.isArray(js.enum)) {
-            lines.push(`# ${js.enum.join(" | ")}`)
-        }
-
-        const defaultVal = "default" in js ? JSON.stringify(js.default) : ""
-        lines.push(`${key}=${defaultVal}`, "")
+        lines.push(...schemaLines(key, schema))
     }
 
     return lines

@@ -1,6 +1,12 @@
 {
     "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
     "extends": ["./biome/base.json"],
+    "overrides": [
+        {
+            "includes": ["src/scripts/**"],
+            "plugins": []
+        }
+    ],
     "plugins": [
         "./.grit/error-handling/require-result-trycatch-for-error-handling.grit",
         "./.grit/error-handling/require-explicit-error-cause.grit",

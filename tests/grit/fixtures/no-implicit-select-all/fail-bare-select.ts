@@ -1,1 +1,0 @@
-const rows = await db.select().from(users)

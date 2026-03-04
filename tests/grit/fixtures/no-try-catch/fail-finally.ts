@@ -1,5 +1,0 @@
-try {
-    doSomething()
-} finally {
-    cleanup()
-}

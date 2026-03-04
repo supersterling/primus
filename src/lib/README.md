@@ -12,13 +12,12 @@ Algebraic error handling — [result](lib:either.ts#result) for fallible operati
 
 - [result.pass](lib:either.ts#pass) / [result.fail](lib:either.ts#fail) — construct results
 - [result.trycatch](lib:either.ts#trycatch) — capture sync/async throws as Result
-- [result.wrap](lib:either.ts#wrap) — attach context to errors (preserves cause chain)
 - [result.is](lib:either.ts#is) — walk cause chain for an error type
 - [option.some](lib:either.ts#some) / [option.none](lib:either.ts#none) — `T | undefined`, zero allocation
 
 ## [logger](lib:logger.ts#logger)
 
-Structured logging. Methods: `debug`, `info`, `warn`, `error` — each takes `(message, context)`. Use [.child()](lib:logger.ts#Logger) to bind context across calls.
+Structured logging via [logger](lib:logger.ts#logger). Object-first syntax: `logger.info({ key }, "message")`. Use `.child({ requestId })` to bind context across calls.
 
 | Env var               | Values                          | Default |
 | --------------------- | ------------------------------- | ------- |
