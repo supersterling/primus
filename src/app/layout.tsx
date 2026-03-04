@@ -1,6 +1,7 @@
 import { ClerkProvider } from "@clerk/nextjs"
 import { type Metadata } from "next"
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google"
+import { Toaster } from "sonner"
 import { ThemeProvider } from "@/components/theme-provider"
 import "./globals.css"
 
@@ -50,6 +51,7 @@ export default function RootLayout({
                         disableTransitionOnChange
                     >
                         {children}
+                        <Toaster richColors position="top-center" />
                     </ThemeProvider>
                 </body>
             </html>
