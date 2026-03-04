@@ -1,4 +1,118 @@
 [[entries]]
+hash = "102e2bd3cc64b8ff5d796eee8d75e0fcf5fa1b54f1873565b3423d8de12e9a1c"
+source = "docs/architecture.md"
+symbol = "inngest"
+target = "inngest:core/client.ts"
+
+[[entries]]
+hash = "0e004cf88fc02ccc62efb1ad57c3e77a15439c06ba73326def0daac1bae0a3d5"
+source = "docs/architecture.md"
+symbol = "appHelloWorld"
+target = "inngest:core/events.ts"
+
+[[entries]]
+hash = "34713d886ab8e175d2c9177a90d90b022ea61fc42c7d812934bd23e949b7bd2c"
+source = "docs/architecture.md"
+symbol = "functions"
+target = "inngest:core/functions.ts"
+
+[[entries]]
+hash = "792b754f441c8b2fd58b46ed33f2687be83419799271f0478cb9495029629d46"
+source = "docs/architecture.md"
+symbol = "result"
+target = "lib:either.ts"
+
+[[entries]]
+hash = "b186b8d06eb0c625d0d07007fe1b835fa004fcaf899babee87cb75ec5d32322d"
+source = "docs/architecture.md"
+symbol = "trycatch"
+target = "lib:either.ts"
+
+[[entries]]
+hash = "032c75d030d5a7b959a549e7079ad2f55ed56821751efc0d6a8a4844c050205f"
+source = "docs/architecture.md"
+symbol = "env"
+target = "lib:env.ts"
+
+[[entries]]
+hash = "5928e89e0446d616a4284efef598c335e131f8716a73c2b8ae154fca4b4e5a22"
+source = "docs/architecture.md"
+symbol = "logger"
+target = "lib:logger.ts"
+
+[[entries]]
+hash = "6737421a20a25be8aeb5e673494a8a3963a3c5e8b73969bb25d3329bb7e4e3b7"
+source = "docs/architecture.md"
+symbol = "cn"
+target = "lib:utils.ts"
+
+[[entries]]
+hash = "070970e001efa10ca4051ffd4a106a6bc30d2887275c95b9c7b9fac955606bf8"
+source = "docs/architecture.md"
+symbol = "fallback"
+target = "lib:utils.ts"
+
+[[entries]]
+hash = "a3cc0714db24cb2fe431857f9ff0caec98d4cb102185b1d08570d7bf313bf714"
+source = "docs/billing.md"
+symbol = "POST"
+target = "app:api/polar/webhook/route.ts"
+
+[[entries]]
+hash = "102e2bd3cc64b8ff5d796eee8d75e0fcf5fa1b54f1873565b3423d8de12e9a1c"
+source = "docs/patterns/inngest-functions.md"
+symbol = "inngest"
+target = "inngest:core/client.ts"
+
+[[entries]]
+hash = "0e004cf88fc02ccc62efb1ad57c3e77a15439c06ba73326def0daac1bae0a3d5"
+source = "docs/patterns/inngest-functions.md"
+symbol = "appHelloWorld"
+target = "inngest:core/events.ts"
+
+[[entries]]
+hash = "34713d886ab8e175d2c9177a90d90b022ea61fc42c7d812934bd23e949b7bd2c"
+source = "docs/patterns/inngest-functions.md"
+symbol = "functions"
+target = "inngest:core/functions.ts"
+
+[[entries]]
+hash = "b999446bcbdf15c9dda3e10bc5351b2a4b342bc0bb29bcc2995519058097e4c7"
+source = "docs/patterns/url-state.md"
+symbol = "RootLayout"
+target = "app:layout.tsx"
+
+[[entries]]
+hash = "b0303417e1a836f11e58a223833cfddc6accca8da9d6c5a96f2b268a939dd9ac"
+source = "docs/rules.md"
+symbol = "fail"
+target = "lib:either.ts"
+
+[[entries]]
+hash = "9adf9d683d153c25d0c1e52ab1f64b947d0119188e39546ac373108de9797bb5"
+source = "docs/rules.md"
+symbol = "is"
+target = "lib:either.ts"
+
+[[entries]]
+hash = "b186b8d06eb0c625d0d07007fe1b835fa004fcaf899babee87cb75ec5d32322d"
+source = "docs/rules.md"
+symbol = "trycatch"
+target = "lib:either.ts"
+
+[[entries]]
+hash = "5928e89e0446d616a4284efef598c335e131f8716a73c2b8ae154fca4b4e5a22"
+source = "docs/rules.md"
+symbol = "logger"
+target = "lib:logger.ts"
+
+[[entries]]
+hash = "070970e001efa10ca4051ffd4a106a6bc30d2887275c95b9c7b9fac955606bf8"
+source = "docs/rules.md"
+symbol = "fallback"
+target = "lib:utils.ts"
+
+[[entries]]
 hash = "b0303417e1a836f11e58a223833cfddc6accca8da9d6c5a96f2b268a939dd9ac"
 source = "src/lib/README.md"
 symbol = "fail"
@@ -47,7 +161,7 @@ symbol = "trycatch"
 target = "lib:either.ts"
 
 [[entries]]
-hash = "ece7b932ebcc451b30c2add924ca544f7b5ec63a384d1dc555741995470e1845"
+hash = "032c75d030d5a7b959a549e7079ad2f55ed56821751efc0d6a8a4844c050205f"
 source = "src/lib/README.md"
 symbol = "env"
 target = "lib:env.ts"

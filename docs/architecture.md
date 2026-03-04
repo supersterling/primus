@@ -13,22 +13,23 @@ src/
     db/             Drizzle ORM client and schemas
       index.ts      Database client (pg pool)
       schemas/      Table definitions (core.ts)
-    either.ts       Result type — result.pass / result.fail / result.trycatch / result.is
-    env.ts          Validated environment variables (t3-env) — the only place process.env is read
-    logger.ts       Pino logger — object-first syntax: logger.info({ key }, "message")
+    either.ts       [Result type](lib:either.ts#result) — result.pass / result.fail / result.trycatch / result.is
+    env.ts          [Validated environment variables](lib:env.ts#env) (t3-env) — the only place process.env is read
+    logger.ts       [Pino logger](lib:logger.ts#logger) — object-first syntax: logger.info({ key }, "message")
     types.ts        Shared TypeScript types
-    utils.ts        Shared pure utilities
+    utils.ts        Shared pure utilities — [cn](lib:utils.ts#cn), [fallback](lib:utils.ts#fallback)
   inngest/
     core/           Inngest client, event types, functions
-      client.ts     Inngest client instance
-      events.ts     Typed event definitions
-      functions.ts  Inngest function registry
+      client.ts     [Inngest client instance](inngest:core/client.ts#inngest)
+      events.ts     [Typed event definitions](inngest:core/events.ts#appHelloWorld)
+      functions.ts  [Inngest function registry](inngest:core/functions.ts#functions)
       functions/    Individual Inngest function implementations
   scripts/          One-off scripts run with `bun src/scripts/<name>.ts`
 
 docs/
   rules.md          Coding rules — read before writing any code
   architecture.md   This file
+  patterns/         Individual pattern files -- RSC streaming, Suspense, URL state, skeletons
   billing.md        Polar payment integration — checkout, webhook pipeline, Inngest events
   references/       External documentation (large; excluded from agent context)
 
@@ -41,9 +42,9 @@ biome.json          Extends base.json, registers .grit plugins
 
 These are encoded into the type system or enforced by linters. They are invariants because they are checked mechanically — not by convention.
 
-- **No `process.env` outside `src/lib/env.ts`** — Biome `noProcessEnv`. All env access goes through the validated `env` export.
-- **No `console.log`** — Biome `noConsole`. Use `logger` from `src/lib/logger.ts`.
-- **No `try/catch` for recoverable errors** — use `result.trycatch` from `src/lib/either.ts`.
+- **No `process.env` outside `src/lib/env.ts`** — Biome `noProcessEnv`. All env access goes through the validated [`env` export](lib:env.ts#env).
+- **No `console.log`** — Biome `noConsole`. Use [`logger`](lib:logger.ts#logger) from `src/lib/logger.ts`.
+- **No `try/catch` for recoverable errors** — use [`result.trycatch`](lib:either.ts#trycatch) from `src/lib/either.ts`.
 - **No `as` type assertions** — use type guards. GritQL `require-type-guards-over-as-assertion`.
 - **No barrel files** — Biome `noBarrelFile`. Import directly from source files, never from `index.ts` re-exports.
 - **No `forEach`** — use `for...of`. Biome `noForEach`.

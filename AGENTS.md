@@ -6,15 +6,16 @@ An opinionated Next.js starter on Vercel + Inngest.
 
 - `docs/architecture.md` — codemap, layer boundaries, architectural invariants
 - `docs/rules.md` — coding rules (error handling, logging, TypeScript, React, DB)
+- `docs/patterns.md` — pattern index (RSC streaming, Suspense, URL state, Inngest functions)
 - `docs/billing.md` — Polar payment integration (checkout, webhooks, Inngest events)
 
 ## Before writing any code
 
 Read `docs/rules.md` in full before writing or editing code. Then, as you write each piece:
 
-- **Error handling** — are you using `result.trycatch`? Logging before failing or throwing?
-- **Logging** — structured object first, string literal second, no template literals?
-- **Types** — type guards over `as`? No `any`, no `!`, no `??`?
+- **Error handling** — are you using [`result.trycatch`](lib:either.ts#trycatch)? Logging before failing or throwing?
+- **Logging** — structured object first, string literal second, no template literals? Using [`logger`](lib:logger.ts#logger)?
+- **Types** — type guards over `as`? No `any`, no `!`, no `??` (use [`fallback()`](lib:utils.ts#fallback))?
 - **Imports** — `@/` prefix, no barrel files, no relative `../` across boundaries?
 - **DB** — explicit column selection in every `select()` and `returning()`?
 - **React** — Tailwind over inline styles, theme tokens over raw colors, `Fragment` over `<>`?

@@ -6,7 +6,7 @@ Rules enforced by GritQL lint rules in `.grit/`. Each section explains the why b
 
 ## Error Handling
 
-Use `result.trycatch()` from `@/lib/either`. `try/catch` breaks the error-as-value pattern — errors become invisible control flow instead of explicit values the caller must handle.
+Use [`result.trycatch()`](lib:either.ts#trycatch) from `@/lib/either`. `try/catch` breaks the error-as-value pattern — errors become invisible control flow instead of explicit values the caller must handle.
 
 ```typescript
 import { result } from "@/lib/either"
@@ -37,7 +37,7 @@ const user = res.value
 **Rules:**
 - Always assign the result. Never `void`, `return`, or discard it.
 - Check `if (!res.ok)` immediately after. No code between the call and the check.
-- Use `result.fail(new Error(...))` when returning failure from a function. Prefer returning over throwing so callers handle failure explicitly.
+- Use [`result.fail(new Error(...))`](lib:either.ts#fail) when returning failure from a function. Prefer returning over throwing so callers handle failure explicitly.
 - Prefer `AsyncDisposableStack` / `DisposableStack` over `try/finally` for cleanup.
 
 **Hint — cleanup with `AsyncDisposableStack`:**
@@ -76,7 +76,7 @@ Never use `new Error()` without `{ cause }`. Never use class-based errors (`clas
 
 **Hint — checking for specific error types with `result.is()`:**
 
-`result.is()` walks the full cause chain, so it finds the error even if it has been wrapped.
+[`result.is()`](lib:either.ts#is) walks the full cause chain, so it finds the error even if it has been wrapped.
 
 ```typescript
 class HttpError extends Error {
@@ -105,7 +105,7 @@ if (!res.ok) {
 
 ## Logging
 
-Use `logger` from `@/lib/logger`. Never use `console.log`, `console.error`, or any other `console` method.
+Use [`logger`](lib:logger.ts#logger) from `@/lib/logger`. Never use `console.log`, `console.error`, or any other `console` method.
 
 ```typescript
 import { logger } from "@/lib/logger"
@@ -166,7 +166,7 @@ const input = event.target
 **Rules:**
 - No `any`. Use `unknown` and narrow explicitly.
 - No non-null assertions (`!`). Check for null/undefined first.
-- No `??`. Fix the source of nullability — `??` hides the problem, it doesn't solve it. When you genuinely need a fallback value, use `fallback()` from `@/lib/utils` — it makes the intent explicit.
+- No `??`. Fix the source of nullability — `??` hides the problem, it doesn't solve it. When you genuinely need a fallback value, use [`fallback()`](lib:utils.ts#fallback) from `@/lib/utils` — it makes the intent explicit.
 - No `||` for fallbacks. Use explicit null checks.
 
 **Hint — type predicate functions:**

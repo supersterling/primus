@@ -29,6 +29,7 @@ Read these before writing code — rules are enforced by linters and `bun run ch
 
 - **`docs/rules.md`** — Error handling, logging, type safety, imports, database, React/Tailwind, code style
 - **`docs/architecture.md`** — Codemap, layer boundaries, invariants
+- **`docs/patterns.md`** — Pattern index; individual patterns in `docs/patterns/` (RSC streaming, Suspense, URL state, Inngest functions)
 - **`docs/billing.md`** — Polar payment integration (checkout, webhooks, Inngest events)
 
 ## Architecture

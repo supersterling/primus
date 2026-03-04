@@ -14,7 +14,7 @@ Inngest
   → polar/<type>                            event received by any registered function
 ```
 
-The checkout and webhook routes live in `src/app/api/polar/`. The routes are opt-in — the app starts normally without env vars set. Routes return 503 with a clear message if the required var is missing.
+The checkout and [webhook routes](app:api/polar/webhook/route.ts#POST) live in `src/app/api/polar/`. The routes are opt-in — the app starts normally without env vars set. Routes return 503 with a clear message if the required var is missing.
 
 ## Checkout
 
