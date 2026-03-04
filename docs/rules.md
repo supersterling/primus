@@ -368,6 +368,33 @@ import { Fragment } from "react"
 <Fragment><Child /></Fragment>
 ```
 
+### Suspense boundaries
+
+Always provide a `fallback` prop on `<Suspense>`. Without one, React silently renders nothing while loading — the user sees a blank area with no indication of activity.
+
+The fallback must be a named skeleton component, not an inline HTML element. Named components are reusable, testable, and signal that the skeleton was deliberately designed to match the content shape.
+
+```tsx
+// wrong — no fallback
+<Suspense>
+    <AccountSection />
+</Suspense>
+
+// wrong — inline HTML is a throwaway placeholder, not a real skeleton
+<Suspense fallback={<div>Loading...</div>}>
+    <AccountSection />
+</Suspense>
+
+// right — named skeleton component that mirrors the content layout
+<Suspense fallback={<AccountSectionSkeleton />}>
+    <AccountSection />
+</Suspense>
+```
+
+Co-locate the skeleton with the component it covers. If `AccountSection` lives in `settings/page.tsx`, define `AccountSectionSkeleton` in the same file.
+
+**Note:** The fallback component rule catches inline elements with children (`<div>Loading...</div>`) but cannot catch self-closing HTML elements (`<span />`) due to a limitation in Biome's GritQL implementation. The missing-fallback rule is the more important guard.
+
 ### Ternaries
 
 Assign the ternary to a variable. Inline ternaries hide branching logic.

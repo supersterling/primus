@@ -1,0 +1,20 @@
+language js
+
+// Require Suspense fallbacks to be named skeleton components, not inline HTML elements.
+// Inline elements like <div> are throwaway placeholders — named components are reusable and testable.
+//
+// Note: Biome's GritQL implementation cannot match self-closing JSX elements (<span />, <div />),
+// so this rule only catches elements with children (e.g. <div>Loading...</div>).
+// The require-suspense-fallback rule (missing fallback entirely) is the more important guard.
+
+`<Suspense $props>$_</Suspense>` as $suspense where {
+    $props <: contains `fallback={$value}`,
+    $value <: contains `<$tag>$_</$tag>` where {
+        $tag <: r"^[a-z]",
+        register_diagnostic(
+            span=$suspense,
+            message="Use a named skeleton component as the fallback. Inline HTML elements are throwaway placeholders that can't be reused or tested.",
+            severity="error"
+        )
+    }
+}

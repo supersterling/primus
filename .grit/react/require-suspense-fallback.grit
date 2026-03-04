@@ -1,0 +1,17 @@
+language js
+
+// Require a fallback prop on all Suspense boundaries.
+// Without a fallback, Suspense silently renders nothing while loading.
+
+or {
+    `<Suspense>$_</Suspense>` as $match,
+    `<Suspense $props>$_</Suspense>` as $match where {
+        ! $props <: contains `fallback`
+    }
+} where {
+    register_diagnostic(
+        span=$match,
+        message="Add a `fallback` prop to this `<Suspense>`. Without one, React renders nothing while loading.",
+        severity="error"
+    )
+}

@@ -3,8 +3,8 @@ import "@/lib/env";
 
 const nextConfig: NextConfig = {
     reactStrictMode: true,
+    reactCompiler: true,
     typedRoutes: true,
-    cacheComponents: true,
     serverExternalPackages: ["pg"],
     experimental: {
         optimizePackageImports: ["lucide-react"],

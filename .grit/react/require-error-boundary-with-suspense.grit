@@ -1,0 +1,19 @@
+language js
+
+// Require every <Suspense> to be wrapped in an <ErrorBoundary>.
+// Suspense without an error boundary silently crashes the component tree on failure.
+
+or {
+    `<Suspense>$_</Suspense>` as $match,
+    `<Suspense $_>$_</Suspense>` as $match
+} where {
+    not ($match <: within or {
+        `<ErrorBoundary>$_</ErrorBoundary>`,
+        `<ErrorBoundary $_>$_</ErrorBoundary>`
+    }),
+    register_diagnostic(
+        span=$match,
+        message="Wrap `<Suspense>` in `<ErrorBoundary>`. Unhandled render errors crash the entire component tree.",
+        severity="error"
+    )
+}

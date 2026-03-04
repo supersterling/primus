@@ -509,6 +509,23 @@
             }
         },
         {
+            "includes": ["src/app/debug/**"],
+            "plugins": [],
+            "linter": {
+                "rules": {
+                    "suspicious": {
+                        "useAwait": "off",
+                        "noExplicitAny": "off"
+                    },
+                    "style": {
+                        "noMagicNumbers": "off",
+                        "useImportType": "off"
+                    }
+                }
+            }
+        },
+
+        {
             "includes": ["src/lib/logger.ts"],
             "linter": {
                 "rules": {
