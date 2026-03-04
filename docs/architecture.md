@@ -18,7 +18,7 @@ src/
     env.ts          [Validated environment variables](lib:env.ts#env) (t3-env) — the only place process.env is read
     logger.ts       [Pino logger](lib:logger.ts#logger) — object-first syntax: logger.info({ key }, "message")
     types.ts        Shared TypeScript types
-    utils.ts        Shared pure utilities — [cn](lib:utils.ts#cn), [fallback](lib:utils.ts#fallback)
+    utils.ts        Shared pure utilities — [cn](lib:utils.ts#cn), [baseUrl](lib:utils.ts#baseUrl)
   inngest/
     core/           Inngest client, event types, functions
       client.ts     [Inngest client instance](inngest:core/client.ts#inngest)

@@ -41,15 +41,15 @@ symbol = "logger"
 target = "lib:logger.ts"
 
 [[entries]]
-hash = "6737421a20a25be8aeb5e673494a8a3963a3c5e8b73969bb25d3329bb7e4e3b7"
+hash = "8699873fa633aa57d31b7c2c5a3448302a5b2bd3ffcec2a910cfe0721663203c"
 source = "docs/architecture.md"
-symbol = "cn"
+symbol = "baseUrl"
 target = "lib:utils.ts"
 
 [[entries]]
-hash = "070970e001efa10ca4051ffd4a106a6bc30d2887275c95b9c7b9fac955606bf8"
+hash = "6737421a20a25be8aeb5e673494a8a3963a3c5e8b73969bb25d3329bb7e4e3b7"
 source = "docs/architecture.md"
-symbol = "fallback"
+symbol = "cn"
 target = "lib:utils.ts"
 
 [[entries]]
@@ -105,12 +105,6 @@ hash = "5928e89e0446d616a4284efef598c335e131f8716a73c2b8ae154fca4b4e5a22"
 source = "docs/rules.md"
 symbol = "logger"
 target = "lib:logger.ts"
-
-[[entries]]
-hash = "070970e001efa10ca4051ffd4a106a6bc30d2887275c95b9c7b9fac955606bf8"
-source = "docs/rules.md"
-symbol = "fallback"
-target = "lib:utils.ts"
 
 [[entries]]
 hash = "b0303417e1a836f11e58a223833cfddc6accca8da9d6c5a96f2b268a939dd9ac"

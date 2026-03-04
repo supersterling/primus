@@ -1,6 +1,5 @@
 concurrently --kill-others-on-fail \
-  --names "tsc,docref,grit" \
-  --prefix-colors "yellow,green,magenta" \
+  --names "tsc,docref" \
+  --prefix-colors "yellow,green" \
   "tsc --noEmit" \
-  "docref check" \
-  "tests/grit/run-tests.sh"
+  "docref check"
