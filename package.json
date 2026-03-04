@@ -5,6 +5,7 @@
     "scripts": {
         "dev": "next dev",
         "dev:inngest": "bun --bun inngest-cli dev",
+        "dev:polar": "polar listen http://localhost:3000/api/polar/webhook",
         "build": "next build",
         "start": "next start",
         "checks": "bun run ts:check && bun run biome:check && bun run docref:check",
@@ -25,6 +26,8 @@
         "@clerk/nextjs": "^6.38.2",
         "@hookform/resolvers": "^5.2.2",
         "@inngest/realtime": "^0.4.6",
+        "@polar-sh/nextjs": "^0.9.4",
+        "@polar-sh/sdk": "^0.46.1",
         "@t3-oss/env-core": "^0.13.10",
         "@t3-oss/env-nextjs": "^0.13.10",
         "@vercel/functions": "^3.4.3",
