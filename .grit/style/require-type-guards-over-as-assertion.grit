@@ -29,7 +29,8 @@ or {
 			`IntersectionObserver`, `MutationObserver`, `ResizeObserver`, `PerformanceObserver`,
 			`MediaQueryList`, `Selection`, `Range`, `DOMRect`, `DOMRectReadOnly`, `DOMPoint`,
 			`DOMPointReadOnly`, `DOMMatrix`, `DOMMatrixReadOnly`,
-			`CustomEvent<$_>`, `MessageEvent<$_>`
+			`CustomEvent<$_>`, `MessageEvent<$_>`,
+			`Route`
 		}
 	},
 	`$_expression as $_target_type` as $assertion where {

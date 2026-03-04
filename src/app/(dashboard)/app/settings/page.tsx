@@ -1,12 +1,13 @@
-import { currentUser } from "@clerk/nextjs/server"
 import { type Metadata } from "next"
 import { Suspense } from "react"
 import { ErrorBoundary } from "react-error-boundary"
-import { ManageAccountButton } from "@/components/manage-account-button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
+import { getSession } from "@/lib/auth/session"
+import { getInitials } from "@/lib/auth/utils"
+
 export const metadata: Metadata = { title: "Settings" }
 
 function AccountSectionError() {
@@ -23,48 +24,44 @@ function AccountSectionSkeleton() {
                     <Skeleton className="h-3 w-48" />
                 </div>
             </div>
-            <Skeleton className="h-9 w-20" />
         </div>
     )
 }
 
 async function AccountSection() {
-    const user = await currentUser()
+    const session = await getSession()
 
-    const initials = [user?.firstName, user?.lastName]
-        .filter(Boolean)
-        .map((n) => n?.[0])
-        .join("")
+    if (!session) {
+        return <p className="text-muted-foreground text-sm">Not signed in.</p>
+    }
+
+    const { user } = session
+    const initials = getInitials(user.name)
+    const avatarSrc = user.image != null ? user.image : undefined
 
     return (
         <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
                 <Avatar>
-                    <AvatarImage
-                        src={user?.imageUrl}
-                        alt={user?.fullName != null ? user.fullName : ""}
-                    />
+                    <AvatarImage src={avatarSrc} alt={user.name} />
                     <AvatarFallback>{initials}</AvatarFallback>
                 </Avatar>
                 <div>
-                    <p className="font-medium">{user?.fullName}</p>
-                    <p className="text-muted-foreground text-sm">
-                        {user?.emailAddresses[0]?.emailAddress}
-                    </p>
+                    <p className="font-medium">{user.name}</p>
+                    <p className="text-muted-foreground text-sm">{user.email}</p>
                 </div>
             </div>
-            <ManageAccountButton />
         </div>
     )
 }
 
 export default function SettingsPage() {
     return (
-        <div className="max-w-2xl p-8">
+        <div className="w-full max-w-2xl p-4 md:p-8">
             <h1 className="text-pretty font-semibold text-2xl">Settings</h1>
 
             <section className="mt-8 space-y-4">
-                <p className="text-muted-foreground text-sm">Appearance</p>
+                <h2 className="font-medium text-muted-foreground text-sm">Appearance</h2>
                 <div className="flex items-center justify-between">
                     <div>
                         <p className="font-medium">Theme</p>
@@ -76,10 +73,10 @@ export default function SettingsPage() {
                 </div>
             </section>
 
-            <Separator className="my-6" />
+            <Separator className="my-8" />
 
             <section className="space-y-4">
-                <p className="text-muted-foreground text-sm">Account</p>
+                <h2 className="font-medium text-muted-foreground text-sm">Account</h2>
                 <ErrorBoundary fallback={<AccountSectionError />}>
                     <Suspense fallback={<AccountSectionSkeleton />}>
                         <AccountSection />

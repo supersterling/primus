@@ -1,14 +1,21 @@
-// Next.js 16 renamed middleware.ts → proxy.ts. This file is the equivalent
-// of the old src/middleware.ts — Next.js picks it up automatically.
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
+import { getSessionCookie } from "better-auth/cookies"
+import { type NextRequest, NextResponse } from "next/server"
 
-const isDashboard = createRouteMatcher(["/app(.*)"])
+const DASHBOARD_PATTERN = /^\/app(\/|$)/
 
-export default clerkMiddleware(async (auth, req) => {
-    if (isDashboard(req)) {
-        await auth.protect()
+export function proxy(request: NextRequest) {
+    if (DASHBOARD_PATTERN.test(request.nextUrl.pathname)) {
+        const sessionCookie = getSessionCookie(request)
+
+        if (!sessionCookie) {
+            const signInUrl = new URL("/sign-in", request.url)
+            signInUrl.searchParams.set("callback-url", request.nextUrl.pathname)
+            return NextResponse.redirect(signInUrl)
+        }
     }
-})
+
+    return NextResponse.next()
+}
 
 export const config = {
     matcher: [

@@ -5,6 +5,9 @@ import { z } from "zod"
 
 const isServerRuntime = typeof window === "undefined"
 
+/** Minimum length for auth signing secrets */
+const MIN_AUTH_SECRET_LENGTH = 32
+
 if (!process.env.NEXT_RUNTIME && isServerRuntime) {
     // biome-ignore lint/style/noCommonJs: dynamic require needed for conditional env loading outside Next.js runtime
     // biome-ignore lint/correctness/noUndeclaredDependencies: @next/env is a transitive dep from next
@@ -60,10 +63,22 @@ export const env = createEnv({
             .string()
             .optional()
             .describe("Resend API key — get this from resend.com/api-keys"),
+        BETTER_AUTH_SECRET: z
+            .string()
+            .min(MIN_AUTH_SECRET_LENGTH)
+            .default("primus-dev-secret-do-not-use-in-production-please")
+            .describe("Secret for signing auth sessions — generate with: openssl rand -base64 32"),
+        GOOGLE_CLIENT_ID: z.string().optional().describe("Google OAuth client ID"),
+        GOOGLE_CLIENT_SECRET: z.string().optional().describe("Google OAuth client secret"),
+        GITHUB_CLIENT_ID: z.string().optional().describe("GitHub OAuth client ID"),
+        GITHUB_CLIENT_SECRET: z.string().optional().describe("GitHub OAuth client secret"),
     },
 
     client: {
-        // NEXT_PUBLIC_* vars go here
+        NEXT_PUBLIC_BETTER_AUTH_URL: z
+            .url()
+            .default("http://localhost:3000")
+            .describe("Better Auth base URL"),
     },
 
     runtimeEnv: {
@@ -76,6 +91,12 @@ export const env = createEnv({
         POLAR_WEBHOOK_SECRET: process.env.POLAR_WEBHOOK_SECRET,
         POLAR_SERVER: process.env.POLAR_SERVER,
         RESEND_API_KEY: process.env.RESEND_API_KEY,
+        BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
+        GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+        GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+        GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
+        GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
+        NEXT_PUBLIC_BETTER_AUTH_URL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
     },
 
     // biome-ignore lint/complexity/noImplicitCoercions: standard idiom for boolean coercion

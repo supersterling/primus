@@ -1,7 +1,6 @@
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs"
 import { ChessKing, LayoutDashboard, Settings } from "lucide-react"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import { UserMenu } from "@/components/auth/user-menu"
 import {
     Sidebar,
     SidebarContent,
@@ -67,16 +66,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         <SidebarTrigger />
                     </div>
                     <div className="flex items-center gap-2">
-                        <SignedOut>
-                            <SignInButton>
-                                <Button variant="ghost" size="sm">
-                                    Login
-                                </Button>
-                            </SignInButton>
-                        </SignedOut>
-                        <SignedIn>
-                            <UserButton />
-                        </SignedIn>
+                        <UserMenu />
                     </div>
                 </header>
                 {children}

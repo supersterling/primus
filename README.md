@@ -14,7 +14,7 @@ Primus is an opinionated Next.js 16 starter for teams who want to ship product, 
 |---|---|---|
 | Framework | [Next.js 16](https://nextjs.org) on [Vercel](https://vercel.com) | App Router, RSC, typed routes, React Compiler — the current ceiling of full-stack React |
 | Runtime | [Bun](https://bun.sh) | Faster installs, faster scripts, `.env.local` loaded automatically, no config for TypeScript |
-| Auth | [Clerk](https://clerk.com) | User management is a product, not a library. Clerk handles MFA, OAuth, user profiles, and org management so you don't have to. |
+| Auth | [Better Auth](https://better-auth.com) | Self-hosted, open-source auth with email/password + social OAuth. No per-user pricing, full control over your data. |
 | Background jobs | [Inngest v4](https://inngest.com) | Durable execution with retries, sleep, event fan-out, and realtime — without managing queues or workers |
 | Payments | [Polar](https://polar.sh) | Stripe is powerful and complex. Polar is opinionated and fast. Hosted checkout, webhooks, and subscriptions with less surface area. |
 | Database | [Drizzle ORM](https://orm.drizzle.team) + PostgreSQL | Type-safe queries, explicit column selection, no magic. Drizzle stays close to SQL. |
@@ -29,7 +29,7 @@ Primus is an opinionated Next.js 16 starter for teams who want to ship product, 
 
 ## What you get out of the box
 
-**Auth** — Clerk with protected routes via middleware. `/app/*` requires sign-in. User profile management in the settings page.
+**Auth** — Better Auth with email/password and optional social OAuth (Google, GitHub). Protected routes via proxy cookie check. `/app/*` requires sign-in. Session helper for RSC at `src/lib/auth-session.ts`.
 
 **Payments** — Polar checkout (`/api/polar/checkout`) and HMAC-verified webhooks (`/api/polar/webhook`). Every Polar event becomes an Inngest event — write handlers by subscribing to `polar/<type>`. Both routes are opt-in: they return 503 with a clear error if the env vars aren't set.
 
@@ -87,7 +87,7 @@ bun run env:local
 
 This generates `.env.local` from your current env schema, pre-filling defaults and prompting for anything missing. All vars are optional for local development — the app starts with an empty `.env.local`. Features backed by missing keys (email, payments, Inngest) fail at call-time with a clear error rather than at startup.
 
-Clerk keys come from environment variables injected by their Next.js SDK; follow [Clerk's Next.js quickstart](https://clerk.com/docs/quickstarts/nextjs) to set those up.
+Better Auth needs `BETTER_AUTH_SECRET` (a 32+ char string). Social OAuth (Google, GitHub) is optional — set the client ID/secret env vars to enable.
 
 **3. Push the database schema**
 
@@ -168,4 +168,4 @@ The linter enforces all of these. `bun run checks` must pass before pushing.
 
 **PostgreSQL only.** The DB client uses `pg` with a connection pool attached to Vercel's infrastructure. SQLite, MySQL, and other databases are not supported without replacing `src/lib/db/index.ts`.
 
-**Clerk is not free at scale.** Clerk's free tier is generous for early stage but pricing scales with monthly active users. Factor this into your cost model before you grow.
+**Better Auth is self-hosted.** You own the auth data and there's no per-user pricing, but you're responsible for session security, rate limiting, and account recovery flows.

@@ -1,0 +1,145 @@
+# SQLite
+
+Integrate Better Auth with SQLite.
+
+SQLite is a lightweight, serverless, self-contained SQL database engine that is widely used for local data storage in applications.
+Read more [here.](https://www.sqlite.org/)
+
+## Example Usage
+
+Better Auth supports multiple SQLite drivers. Choose the one that best fits your environment:
+
+### Better-SQLite3 (Recommended)
+
+The most popular and stable SQLite driver for Node.js:
+
+```ts
+import { betterAuth } from "better-auth";
+import Database from "better-sqlite3";
+
+export const auth = betterAuth({
+  database: new Database("database.sqlite"),
+});
+```
+
+  For more information, read Kysely's documentation to the
+  [SqliteDialect](https://kysely-org.github.io/kysely-apidoc/classes/SqliteDialect.html).
+
+### Node.js Built-in SQLite (Experimental)
+
+  The `node:sqlite` module is still experimental and may change at any time. It requires Node.js 22.5.0 or later.
+
+Starting from Node.js 22.5.0, you can use the built-in [SQLite](https://nodejs.org/api/sqlite.html) module:
+
+```ts
+import { betterAuth } from "better-auth";
+import { DatabaseSync } from "node:sqlite";
+
+export const auth = betterAuth({
+  database: new DatabaseSync("database.sqlite"),
+});
+```
+
+To run your application with Node.js SQLite:
+
+```bash
+node your-app.js
+```
+
+### Bun Built-in SQLite
+
+You can also use the built-in [SQLite](https://bun.com/docs/api/sqlite) module in Bun, which is similar to the Node.js version:
+
+```ts
+import { betterAuth } from "better-auth";
+import { Database } from "bun:sqlite";
+export const auth = betterAuth({
+  database: new Database("database.sqlite"),
+});
+```
+
+## Schema generation & migration
+
+The [Better Auth CLI](/docs/concepts/cli) allows you to generate or migrate
+your database schema based on your Better Auth configuration and plugins.
+
+<table>
+  <thead>
+    <tr className="border-b">
+      <th>
+          SQLite Schema Generation
+      </th>
+
+      <th>
+          SQLite Schema Migration
+      </th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr className="h-10">
+      <td>
+        ✅ Supported
+      </td>
+
+      <td>
+        ✅ Supported
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+```bash
+    npx @better-auth/cli@latest generate
+```
+
+```bash
+    pnpm dlx @better-auth/cli@latest generate
+```
+
+```bash
+    yarn dlx @better-auth/cli@latest generate
+```
+
+```bash
+    bun x @better-auth/cli@latest generate
+```
+
+```bash
+    npx @better-auth/cli@latest migrate
+```
+
+```bash
+    pnpm dlx @better-auth/cli@latest migrate
+```
+
+```bash
+    yarn dlx @better-auth/cli@latest migrate
+```
+
+```bash
+    bun x @better-auth/cli@latest migrate
+```
+
+## Joins (Experimental)
+
+Database joins is useful when Better-Auth needs to fetch related data from multiple tables in a single query.
+Endpoints like `/get-session`, `/get-full-organization` and many others benefit greatly from this feature,
+seeing upwards of 2x to 3x performance improvements depending on database latency.
+
+The Kysely SQLite dialect supports joins out of the box since version `1.4.0`.
+To enable this feature, you need to set the `experimental.joins` option to `true` in your auth configuration.
+
+```ts
+export const auth = betterAuth({
+  experimental: { joins: true }
+});
+```
+
+  It's possible that you may need to run migrations after enabling this feature.
+
+## Additional Information
+
+SQLite is supported under the hood via the [Kysely](https://kysely.dev/) adapter, any database supported by Kysely would also be supported. ([Read more here](/docs/adapters/other-relational-databases))
+
+If you're looking for performance improvements or tips, take a look at our guide to [performance optimizations](/docs/guides/optimizing-for-performance).

@@ -4,7 +4,7 @@
 
 ```
 src/
-  proxy.ts          Next.js middleware entry point (Next.js 16 renamed middleware.ts → proxy.ts)
+  proxy.ts          Next.js proxy entry point (Next.js 16 renamed middleware.ts → proxy.ts)
   app/              Next.js App Router — pages, layouts, route handlers
     api/            Route handlers (HTTP endpoints)
     (dashboard)/    Authenticated dashboard routes (route group)

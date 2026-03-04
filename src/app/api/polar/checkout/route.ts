@@ -12,7 +12,7 @@ import { env } from "@/lib/env"
  * In dev, use your sandbox product ID from sandbox.polar.sh.
  *
  * Optional params:
- *   customerExternalId   your internal user ID (e.g. Clerk user ID)
+ *   customerExternalId   your internal user ID (e.g. Better Auth user ID)
  *   customerEmail        pre-fill the email field
  *   customerName         pre-fill the name field
  */

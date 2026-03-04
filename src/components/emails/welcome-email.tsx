@@ -50,7 +50,8 @@ const tailwindConfig = {
 const features = [
     {
         title: "Auth",
-        description: "Clerk with protected routes, sign-in, and user management pre-configured.",
+        description:
+            "Better Auth with protected routes, sign-in, and session management pre-configured.",
     },
     {
         title: "Payments",

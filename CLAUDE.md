@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What is this?
 
-Primus is an opinionated Next.js 16 starter on Vercel + Inngest + Clerk + Polar. It enforces strict coding rules through Biome + custom GritQL lint plugins.
+Primus is an opinionated Next.js 16 starter on Vercel + Inngest + Better Auth + Polar. It enforces strict coding rules through Biome + custom GritQL lint plugins.
 
 ## Commands
 
@@ -46,7 +46,7 @@ inngest/        ← no HTTP response logic; background/side-effect processing on
 
 ### Key integration points
 
-- **Auth**: Clerk — middleware in `src/proxy.ts`, dashboard routes behind `(dashboard)/` route group
+- **Auth**: Better Auth — cookie check in `src/proxy.ts`, server config at `src/lib/auth/server.ts`, client at `src/lib/auth/client.ts`, session helper at `src/lib/auth/session.ts`, utilities at `src/lib/auth/utils.ts`, provider detection at `src/lib/auth/providers.ts`, API route at `src/app/api/auth/[...all]/route.ts`, UI components in `src/components/auth/`, dashboard routes behind `(dashboard)/` route group
 - **Database**: Drizzle ORM + PostgreSQL — client at `src/lib/db/index.ts`, schemas in `src/lib/db/schemas/core.ts` (uses `pgSchema("core")`)
 - **Background jobs**: Inngest — client at `src/inngest/core/client.ts`, served at `src/app/api/inngest/core/route.ts`. Register new functions in `src/inngest/core/functions.ts`
 - **Payments**: Polar (not Stripe) — checkout redirect at `/api/polar/checkout`, webhooks at `/api/polar/webhook` forwarded as Inngest events (`polar/<type>`)

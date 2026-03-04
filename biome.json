@@ -5,6 +5,11 @@
         {
             "includes": ["src/scripts/**"],
             "plugins": []
+        },
+        {
+            "includes": ["src/components/icons/**"],
+            "linter": { "enabled": false },
+            "plugins": []
         }
     ],
     "plugins": [

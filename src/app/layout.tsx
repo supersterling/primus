@@ -1,4 +1,3 @@
-import { ClerkProvider } from "@clerk/nextjs"
 import { type Metadata } from "next"
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google"
 import { Toaster } from "sonner"
@@ -39,22 +38,20 @@ export default function RootLayout({
     children: React.ReactNode
 }>) {
     return (
-        <ClerkProvider>
-            <html lang="en" suppressHydrationWarning>
-                <body
-                    className={`${geist.variable} ${geistMono.variable} ${instrumentSerif.variable} antialiased`}
+        <html lang="en" suppressHydrationWarning>
+            <body
+                className={`${geist.variable} ${geistMono.variable} ${instrumentSerif.variable} antialiased`}
+            >
+                <ThemeProvider
+                    attribute="class"
+                    defaultTheme="system"
+                    enableSystem
+                    disableTransitionOnChange
                 >
-                    <ThemeProvider
-                        attribute="class"
-                        defaultTheme="system"
-                        enableSystem
-                        disableTransitionOnChange
-                    >
-                        {children}
-                        <Toaster richColors position="top-center" />
-                    </ThemeProvider>
-                </body>
-            </html>
-        </ClerkProvider>
+                    {children}
+                    <Toaster richColors position="top-center" />
+                </ThemeProvider>
+            </body>
+        </html>
     )
 }
