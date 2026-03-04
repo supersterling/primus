@@ -1,27 +1,34 @@
 "use client"
 
 import { useTheme } from "next-themes"
+import { useCallback } from "react"
+import { Button } from "@/components/ui/button"
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export function ThemeToggle() {
-    const { theme, setTheme } = useTheme()
+    const { setTheme } = useTheme()
+
+    const setLight = useCallback(() => setTheme("light"), [setTheme])
+    const setDark = useCallback(() => setTheme("dark"), [setTheme])
+    const setSystem = useCallback(() => setTheme("system"), [setTheme])
 
     return (
-        <Select value={theme} onValueChange={setTheme}>
-            <SelectTrigger className="w-32">
-                <SelectValue placeholder="Theme" />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem value="light">Light</SelectItem>
-                <SelectItem value="dark">Dark</SelectItem>
-                <SelectItem value="system">System</SelectItem>
-            </SelectContent>
-        </Select>
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-24">
+                    Theme
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={setLight}>Light</DropdownMenuItem>
+                <DropdownMenuItem onClick={setDark}>Dark</DropdownMenuItem>
+                <DropdownMenuItem onClick={setSystem}>System</DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
     )
 }
