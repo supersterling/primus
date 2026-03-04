@@ -56,6 +56,7 @@ export const env = createEnv({
             .enum(["sandbox", "production"])
             .default("sandbox")
             .describe("Polar server environment — keep 'sandbox' until you're ready to go live"),
+        RESEND_API_KEY: z.string().describe("Resend API key — get this from resend.com/api-keys"),
     },
 
     client: {
@@ -71,6 +72,7 @@ export const env = createEnv({
         POLAR_ACCESS_TOKEN: process.env.POLAR_ACCESS_TOKEN,
         POLAR_WEBHOOK_SECRET: process.env.POLAR_WEBHOOK_SECRET,
         POLAR_SERVER: process.env.POLAR_SERVER,
+        RESEND_API_KEY: process.env.RESEND_API_KEY,
     },
 
     // biome-ignore lint/complexity/noImplicitCoercions: standard idiom for boolean coercion

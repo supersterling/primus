@@ -1,7 +1,12 @@
 language js
 
 // Nudge toward returning result.fail() over throwing.
+// Excluded: inngest/**/functions/**/* — inside step.run, throwing is the correct
+// Inngest pattern for signalling failure and triggering retries.
 
-`throw $expr` as $match where {
-	register_diagnostic(span=$match, message="Return `result.fail(new Error(...))` instead of throwing. Errors as values let callers handle failure explicitly.", severity="warning")
+file($name, $body) where {
+	not ($name <: r".*inngest/.*/functions/.*\.tsx?$"),
+	$body <: contains `throw $expr` as $match where {
+		register_diagnostic(span=$match, message="Return `result.fail(new Error(...))` instead of throwing. Errors as values let callers handle failure explicitly.", severity="warning")
+	}
 }
