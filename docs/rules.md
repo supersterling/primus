@@ -117,7 +117,7 @@ logger.debug({ id }, "processing item")
 ```
 
 **Rules:**
-- Always log before throwing, passing, or failing. Silent outcomes are invisible.
+- Always log before throwing or failing. Silent failures are invisible.
 - First argument must be a non-empty object with structured context.
 - Second argument must be a plain string literal. No template literals, no variables.
 - Use terse, lowercase messages. Action-oriented verbs: `"user created"`, `"fetch failed"`, `"processing item"`.
@@ -166,8 +166,29 @@ const input = event.target
 **Rules:**
 - No `any`. Use `unknown` and narrow explicitly.
 - No non-null assertions (`!`). Check for null/undefined first.
-- No `??`. Fix the source of nullability — `??` hides the problem, it doesn't solve it. When you genuinely need a fallback value, use [`fallback()`](lib:utils.ts#fallback) from `@/lib/utils` — it makes the intent explicit.
+- No `??`. Fix the source of nullability — `??` hides the problem, it doesn't solve it. When a fallback is genuinely required, write an explicit null check so the intent is impossible to miss.
 - No `||` for fallbacks. Use explicit null checks.
+
+**Hint — explicit null checks instead of `??`:**
+
+```typescript
+// wrong
+const name = user.name ?? "Anonymous"
+
+// right — fix the source: make name required in the schema
+const UserSchema = z.object({ name: z.string().min(1) })
+
+// right — if a fallback is genuinely needed, be explicit about why
+const name = user.name != null ? user.name : "Anonymous"
+
+// right — for repeated use, extract a named function that documents the intent
+function displayName(name: string | null | undefined): string {
+    if (name === null || name === undefined) {
+        return "Anonymous"
+    }
+    return name
+}
+```
 
 **Hint — type predicate functions:**
 

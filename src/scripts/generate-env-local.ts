@@ -1,7 +1,6 @@
 import { plugin } from "bun"
 import { z } from "zod"
 import { result } from "@/lib/either.ts"
-import { fallback } from "@/lib/utils.ts"
 
 // ── Intercept createEnv ────────────────────────────────────────────────────
 
@@ -34,7 +33,7 @@ plugin({
                         {
                             get: (_, k) => {
                                 const val = typeof k === "string" ? process.env[k] : undefined
-                                return fallback(val, "")
+                                return val != null ? val : ""
                             },
                         },
                     )
@@ -109,7 +108,8 @@ function schemaLines(key: string, schema: z.ZodType): string[] {
     }
 
     const value = existing.has(key) ? existing.get(key) : defaultFor(schema)
-    lines.push(`${key}=${fallback(value, "")}`, "")
+    const serialized = value != null ? value : ""
+    lines.push(`${key}=${serialized}`, "")
 
     return lines
 }

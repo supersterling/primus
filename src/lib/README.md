@@ -19,10 +19,7 @@ Algebraic error handling — [result](lib:either.ts#result) for fallible operati
 
 Structured logging via [logger](lib:logger.ts#logger). Object-first syntax: `logger.info({ key }, "message")`. Use `.child({ requestId })` to bind context across calls.
 
-| Env var               | Values                          | Default |
-| --------------------- | ------------------------------- | ------- |
-| `LOGGER_FORMAT_STYLE` | `"pretty"` (requires TTY), else inline | inline |
-| `LOGGER_LOWEST_LEVEL` | `DEBUG` `INFO` `WARN` `ERROR`   | `DEBUG` |
+Level is `debug` in development, `info` in production. Format is pretty-printed in development, JSON in production. Both are hardcoded in `logger.ts` — there are no env vars to configure them.
 
 ## types
 

@@ -1,6 +1,14 @@
-import { clerkMiddleware } from "@clerk/nextjs/server"
+// Next.js 16 renamed middleware.ts → proxy.ts. This file is the equivalent
+// of the old src/middleware.ts — Next.js picks it up automatically.
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
 
-export default clerkMiddleware()
+const isDashboard = createRouteMatcher(["/app(.*)"])
+
+export default clerkMiddleware(async (auth, req) => {
+    if (isDashboard(req)) {
+        await auth.protect()
+    }
+})
 
 export const config = {
     matcher: [

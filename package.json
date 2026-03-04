@@ -13,7 +13,6 @@
         "ts:check": "tsc --noEmit",
         "biome:check": "biome check",
         "biome:fix": "biome check --fix",
-        "grit:test": "tests/grit/run-tests.sh",
         "db:generate": "bun --bun drizzle-kit generate",
         "db:migrate": "bun --bun drizzle-kit migrate",
         "db:push": "bun --bun drizzle-kit push",

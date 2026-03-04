@@ -4,6 +4,7 @@
 
 ```
 src/
+  proxy.ts          Next.js middleware entry point (Next.js 16 renamed middleware.ts → proxy.ts)
   app/              Next.js App Router — pages, layouts, route handlers
     api/            Route handlers (HTTP endpoints)
     (dashboard)/    Authenticated dashboard routes (route group)
@@ -62,3 +63,7 @@ inngest/        ← no direct HTTP response logic; side-effects only
 ```
 
 Nothing in `lib/` depends on Next.js internals. Nothing in `components/` imports from `lib/db/` directly.
+
+## Intentional Beta Dependencies
+
+- **`inngest@^4.0.0-beta.2`** — Inngest v4 is in beta. It is pinned intentionally: v4 introduces the realtime API (`step.realtime.publish`) and the `eventType()` helper used throughout `src/inngest/`. The `@inngest/realtime` package is locked to this version via `overrides` in `package.json`. Upgrade only when Inngest publishes a stable v4 release.

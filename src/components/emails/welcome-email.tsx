@@ -11,13 +11,14 @@ import {
     Tailwind,
     Text,
 } from "@react-email/components"
+import { baseUrl } from "@/lib/utils"
 
 type Props = {
     name: string
     dashboardUrl?: string
 }
 
-const baseUrl = "https://primus.dev"
+const appUrl = baseUrl()
 
 // Pass hex equivalents of the oklch tokens from globals.css so Tailwind
 // utility classes match the Primus design system inside email clients.
@@ -66,7 +67,7 @@ const features = [
     },
 ]
 
-export function WelcomeEmail({ name, dashboardUrl = `${baseUrl}/app` }: Props) {
+export function WelcomeEmail({ name, dashboardUrl = `${appUrl}/app` }: Props) {
     return (
         <Html lang="en">
             <Head />

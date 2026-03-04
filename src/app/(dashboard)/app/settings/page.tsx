@@ -7,8 +7,6 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
-import { fallback } from "@/lib/utils"
-
 export const metadata: Metadata = { title: "Settings" }
 
 function AccountSectionError() {
@@ -42,7 +40,10 @@ async function AccountSection() {
         <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
                 <Avatar>
-                    <AvatarImage src={user?.imageUrl} alt={fallback(user?.fullName, "")} />
+                    <AvatarImage
+                        src={user?.imageUrl}
+                        alt={user?.fullName != null ? user.fullName : ""}
+                    />
                     <AvatarFallback>{initials}</AvatarFallback>
                 </Avatar>
                 <div>
