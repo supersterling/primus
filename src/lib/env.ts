@@ -56,7 +56,10 @@ export const env = createEnv({
             .enum(["sandbox", "production"])
             .default("sandbox")
             .describe("Polar server environment — keep 'sandbox' until you're ready to go live"),
-        RESEND_API_KEY: z.string().describe("Resend API key — get this from resend.com/api-keys"),
+        RESEND_API_KEY: z
+            .string()
+            .optional()
+            .describe("Resend API key — get this from resend.com/api-keys"),
     },
 
     client: {

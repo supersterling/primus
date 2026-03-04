@@ -29,7 +29,7 @@ symbol = "trycatch"
 target = "lib:either.ts"
 
 [[entries]]
-hash = "032c75d030d5a7b959a549e7079ad2f55ed56821751efc0d6a8a4844c050205f"
+hash = "d8cc3b4d6a60671caae0133fa35279cd7e91561e9a1f1cd4db8b44990a1efef9"
 source = "docs/architecture.md"
 symbol = "env"
 target = "lib:env.ts"
@@ -155,7 +155,7 @@ symbol = "trycatch"
 target = "lib:either.ts"
 
 [[entries]]
-hash = "032c75d030d5a7b959a549e7079ad2f55ed56821751efc0d6a8a4844c050205f"
+hash = "d8cc3b4d6a60671caae0133fa35279cd7e91561e9a1f1cd4db8b44990a1efef9"
 source = "src/lib/README.md"
 symbol = "env"
 target = "lib:env.ts"

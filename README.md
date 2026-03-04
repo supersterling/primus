@@ -82,17 +82,12 @@ bun install
 **2. Configure environment**
 
 ```bash
-cp .env.example .env.local
+bun run env:local
 ```
 
-Fill in `.env.local`. The required vars at minimum:
+This generates `.env.local` from your current env schema, pre-filling defaults and prompting for anything missing. All vars are optional for local development — the app starts with an empty `.env.local`. Features backed by missing keys (email, payments, Inngest) fail at call-time with a clear error rather than at startup.
 
-| Var | Get it from |
-|---|---|
-| `RESEND_API_KEY` | [resend.com/api-keys](https://resend.com/api-keys) |
-| `DATABASE_URL` | Your PostgreSQL connection string |
-
-Everything else (Clerk, Inngest, Polar) is optional — the app starts without them. Clerk keys come from environment variables injected by their Next.js SDK; follow [Clerk's Next.js quickstart](https://clerk.com/docs/quickstarts/nextjs) to set those up.
+Clerk keys come from environment variables injected by their Next.js SDK; follow [Clerk's Next.js quickstart](https://clerk.com/docs/quickstarts/nextjs) to set those up.
 
 **3. Push the database schema**
 
