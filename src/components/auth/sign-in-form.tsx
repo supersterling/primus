@@ -13,7 +13,7 @@ import { SocialButton, type SocialProviders } from "@/components/auth/social-but
 import { GitHub } from "@/components/icons/github"
 import { Google } from "@/components/icons/google"
 import { Button } from "@/components/ui/button"
-import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field"
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { authClient } from "@/lib/auth/client"
 import { isRelativePath } from "@/lib/auth/utils"
@@ -116,37 +116,39 @@ export function SignInForm({ className, providers }: SignInFormProps) {
             footer={<SignInFooter />}
         >
             <form onSubmit={handleSubmit(onSubmit)} aria-label="Sign in">
-                <Field>
-                    <FieldLabel htmlFor={emailId}>Email</FieldLabel>
-                    <Input
-                        id={emailId}
-                        type="email"
-                        placeholder="you@example.com"
-                        autoComplete="email"
-                        aria-invalid={Boolean(errors.email)}
-                        aria-describedby={errors.email ? emailErrorId : undefined}
-                        {...register("email")}
-                    />
-                    <FieldError id={emailErrorId} errors={[errors.email]} />
-                </Field>
-                <Field>
-                    <FieldLabel htmlFor={passwordId}>Password</FieldLabel>
-                    <Input
-                        id={passwordId}
-                        type="password"
-                        autoComplete="current-password"
-                        aria-invalid={Boolean(errors.password)}
-                        aria-describedby={errors.password ? passwordErrorId : undefined}
-                        {...register("password")}
-                    />
-                    <FieldError id={passwordErrorId} errors={[errors.password]} />
-                </Field>
-                <Field>
-                    <Button type="submit" disabled={isSubmitting}>
-                        {submitIcon}
-                        {submitLabel}
-                    </Button>
-                </Field>
+                <FieldGroup>
+                    <Field>
+                        <FieldLabel htmlFor={emailId}>Email</FieldLabel>
+                        <Input
+                            id={emailId}
+                            type="email"
+                            placeholder="you@example.com"
+                            autoComplete="email"
+                            aria-invalid={Boolean(errors.email)}
+                            aria-describedby={errors.email ? emailErrorId : undefined}
+                            {...register("email")}
+                        />
+                        <FieldError id={emailErrorId} errors={[errors.email]} />
+                    </Field>
+                    <Field>
+                        <FieldLabel htmlFor={passwordId}>Password</FieldLabel>
+                        <Input
+                            id={passwordId}
+                            type="password"
+                            autoComplete="current-password"
+                            aria-invalid={Boolean(errors.password)}
+                            aria-describedby={errors.password ? passwordErrorId : undefined}
+                            {...register("password")}
+                        />
+                        <FieldError id={passwordErrorId} errors={[errors.password]} />
+                    </Field>
+                    <Field>
+                        <Button type="submit" disabled={isSubmitting}>
+                            {submitIcon}
+                            {submitLabel}
+                        </Button>
+                    </Field>
+                </FieldGroup>
             </form>
         </AuthFormShell>
     )

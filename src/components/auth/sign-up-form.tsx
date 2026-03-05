@@ -13,7 +13,7 @@ import { SocialButton, type SocialProviders } from "@/components/auth/social-but
 import { GitHub } from "@/components/icons/github"
 import { Google } from "@/components/icons/google"
 import { Button } from "@/components/ui/button"
-import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field"
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { authClient } from "@/lib/auth/client"
 
@@ -122,73 +122,75 @@ export function SignUpForm({ className, providers }: SignUpFormProps) {
             footer={<SignUpFooter />}
         >
             <form onSubmit={handleSubmit(onSubmit)} aria-label="Create account">
-                <Field>
-                    <FieldLabel htmlFor={ids.name}>Name</FieldLabel>
-                    <Input
-                        id={ids.name}
-                        type="text"
-                        placeholder="Jane Doe"
-                        autoComplete="name"
-                        spellCheck={false}
-                        aria-invalid={Boolean(errors.name)}
-                        aria-describedby={errors.name ? ids.nameError : undefined}
-                        {...register("name")}
-                    />
-                    <FieldError id={ids.nameError} errors={[errors.name]} />
-                </Field>
-                <Field>
-                    <FieldLabel htmlFor={ids.email}>Email</FieldLabel>
-                    <Input
-                        id={ids.email}
-                        type="email"
-                        placeholder="you@example.com"
-                        autoComplete="email"
-                        aria-invalid={Boolean(errors.email)}
-                        aria-describedby={errors.email ? ids.emailError : undefined}
-                        {...register("email")}
-                    />
-                    <FieldError id={ids.emailError} errors={[errors.email]} />
-                </Field>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <FieldGroup>
                     <Field>
-                        <FieldLabel htmlFor={ids.password}>Password</FieldLabel>
+                        <FieldLabel htmlFor={ids.name}>Name</FieldLabel>
                         <Input
-                            id={ids.password}
-                            type="password"
-                            autoComplete="new-password"
-                            aria-invalid={Boolean(errors.password)}
-                            aria-describedby={errors.password ? ids.passwordError : undefined}
-                            {...register("password")}
+                            id={ids.name}
+                            type="text"
+                            placeholder="Jane Doe"
+                            autoComplete="name"
+                            spellCheck={false}
+                            aria-invalid={Boolean(errors.name)}
+                            aria-describedby={errors.name ? ids.nameError : undefined}
+                            {...register("name")}
                         />
-                        <FieldError id={ids.passwordError} errors={[errors.password]} />
+                        <FieldError id={ids.nameError} errors={[errors.name]} />
                     </Field>
                     <Field>
-                        <FieldLabel htmlFor={ids.confirmPassword}>Confirm password</FieldLabel>
+                        <FieldLabel htmlFor={ids.email}>Email</FieldLabel>
                         <Input
-                            id={ids.confirmPassword}
-                            type="password"
-                            autoComplete="new-password"
-                            aria-invalid={Boolean(errors.confirmPassword)}
-                            aria-describedby={
-                                errors.confirmPassword ? ids.confirmPasswordError : undefined
-                            }
-                            {...register("confirmPassword")}
+                            id={ids.email}
+                            type="email"
+                            placeholder="you@example.com"
+                            autoComplete="email"
+                            aria-invalid={Boolean(errors.email)}
+                            aria-describedby={errors.email ? ids.emailError : undefined}
+                            {...register("email")}
                         />
-                        <FieldError
-                            id={ids.confirmPasswordError}
-                            errors={[errors.confirmPassword]}
-                        />
+                        <FieldError id={ids.emailError} errors={[errors.email]} />
                     </Field>
-                </div>
-                <FieldDescription>
-                    Must be at least {MIN_PASSWORD_LENGTH} characters long.
-                </FieldDescription>
-                <Field>
-                    <Button type="submit" disabled={isSubmitting}>
-                        {submitIcon}
-                        {submitLabel}
-                    </Button>
-                </Field>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <Field>
+                            <FieldLabel htmlFor={ids.password}>Password</FieldLabel>
+                            <Input
+                                id={ids.password}
+                                type="password"
+                                autoComplete="new-password"
+                                aria-invalid={Boolean(errors.password)}
+                                aria-describedby={errors.password ? ids.passwordError : undefined}
+                                {...register("password")}
+                            />
+                            <FieldError id={ids.passwordError} errors={[errors.password]} />
+                        </Field>
+                        <Field>
+                            <FieldLabel htmlFor={ids.confirmPassword}>Confirm password</FieldLabel>
+                            <Input
+                                id={ids.confirmPassword}
+                                type="password"
+                                autoComplete="new-password"
+                                aria-invalid={Boolean(errors.confirmPassword)}
+                                aria-describedby={
+                                    errors.confirmPassword ? ids.confirmPasswordError : undefined
+                                }
+                                {...register("confirmPassword")}
+                            />
+                            <FieldError
+                                id={ids.confirmPasswordError}
+                                errors={[errors.confirmPassword]}
+                            />
+                        </Field>
+                    </div>
+                    <FieldDescription>
+                        Must be at least {MIN_PASSWORD_LENGTH} characters long.
+                    </FieldDescription>
+                    <Field>
+                        <Button type="submit" disabled={isSubmitting}>
+                            {submitIcon}
+                            {submitLabel}
+                        </Button>
+                    </Field>
+                </FieldGroup>
             </form>
         </AuthFormShell>
     )
