@@ -64,6 +64,10 @@ inngest/        ← no direct HTTP response logic; side-effects only
 
 Nothing in `lib/` depends on Next.js internals. Nothing in `components/` imports from `lib/db/` directly.
 
+## Integration Points
+
+- **Haptics**: [web-haptics](https://github.com/lochie/web-haptics) — mobile haptic feedback via the Web Vibration API. Wrapper hook at `src/hooks/use-haptics.ts`. No-ops on unsupported platforms (desktop). Presets: success, warning, error, light, medium, heavy, soft, rigid, selection, nudge, buzz.
+
 ## Intentional Beta Dependencies
 
 - **`inngest@^4.0.0-beta.2`** — Inngest v4 is in beta. It is pinned intentionally: v4 introduces the realtime API (`step.realtime.publish`) and the `eventType()` helper used throughout `src/inngest/`. The `@inngest/realtime` package is locked to this version via `overrides` in `package.json`. Upgrade only when Inngest publishes a stable v4 release.
