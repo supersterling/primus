@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import { type ReactNode } from "react"
+import kingSvg from "@/components/auth/king.svg"
 import { Card, CardContent } from "@/components/ui/card"
 import { FieldGroup, FieldSeparator } from "@/components/ui/field"
 import { cn } from "@/lib/utils"
@@ -45,7 +46,7 @@ export function AuthFormShell({
                     </div>
                     <div className="relative hidden bg-muted md:block" aria-hidden="true">
                         <Image
-                            src="/king.svg"
+                            src={kingSvg}
                             alt=""
                             fill
                             className="object-cover dark:brightness-[0.5] dark:grayscale"
