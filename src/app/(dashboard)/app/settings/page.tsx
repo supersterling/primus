@@ -1,6 +1,7 @@
 import { type Metadata } from "next"
 import { Suspense } from "react"
 import { ErrorBoundary } from "react-error-boundary"
+import { UpdateNameForm } from "@/components/settings/update-name-form"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
@@ -40,7 +41,7 @@ async function AccountSection() {
     const avatarSrc = user.image != null ? user.image : undefined
 
     return (
-        <div className="flex items-center justify-between">
+        <div className="space-y-6">
             <div className="flex items-center gap-3">
                 <Avatar>
                     <AvatarImage src={avatarSrc} alt={user.name} />
@@ -51,6 +52,7 @@ async function AccountSection() {
                     <p className="text-muted-foreground text-sm">{user.email}</p>
                 </div>
             </div>
+            <UpdateNameForm defaultName={user.name} />
         </div>
     )
 }
