@@ -61,7 +61,9 @@ export default function SettingsPage() {
             <h1 className="text-pretty font-semibold text-2xl">Settings</h1>
 
             <section className="mt-8 space-y-4">
-                <h2 className="font-medium text-muted-foreground text-sm">Appearance</h2>
+                <p className="font-semibold text-muted-foreground text-xs uppercase tracking-widest">
+                    Appearance
+                </p>
                 <div className="flex items-center justify-between">
                     <div>
                         <p className="font-medium">Theme</p>
@@ -76,7 +78,9 @@ export default function SettingsPage() {
             <Separator className="my-8" />
 
             <section className="space-y-4">
-                <h2 className="font-medium text-muted-foreground text-sm">Account</h2>
+                <p className="font-semibold text-muted-foreground text-xs uppercase tracking-widest">
+                    Account
+                </p>
                 <ErrorBoundary fallback={<AccountSectionError />}>
                     <Suspense fallback={<AccountSectionSkeleton />}>
                         <AccountSection />
