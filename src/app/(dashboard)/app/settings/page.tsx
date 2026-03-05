@@ -1,6 +1,7 @@
 import { type Metadata } from "next"
 import { Suspense } from "react"
 import { ErrorBoundary } from "react-error-boundary"
+import { ChangePasswordForm } from "@/components/settings/change-password-form"
 import { EmailField } from "@/components/settings/email-field"
 import { UpdateNameForm } from "@/components/settings/update-name-form"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -18,13 +19,23 @@ function AccountSectionError() {
 
 function AccountSectionSkeleton() {
     return (
-        <div className="flex items-center justify-between">
+        <div className="space-y-6">
             <div className="flex items-center gap-3">
                 <Skeleton className="size-10 rounded-full" />
                 <div className="space-y-2">
                     <Skeleton className="h-4 w-32" />
                     <Skeleton className="h-3 w-48" />
                 </div>
+            </div>
+            <div className="space-y-2">
+                <Skeleton className="h-4 w-12" />
+                <Skeleton className="h-9 w-full rounded-md" />
+                <Skeleton className="h-3 w-64" />
+            </div>
+            <div className="space-y-2">
+                <Skeleton className="h-4 w-12" />
+                <Skeleton className="h-9 w-full rounded-md" />
+                <Skeleton className="h-3 w-72" />
             </div>
         </div>
     )
@@ -64,7 +75,8 @@ export default function SettingsPage() {
         <div className="w-full max-w-2xl p-4 md:p-8">
             <h1 className="text-pretty font-semibold text-2xl">Settings</h1>
 
-            <section className="mt-8 space-y-4">
+            {/* biome-ignore lint/correctness/useUniqueElementIds: stable anchor for URL hash navigation */}
+            <section id="appearance" className="mt-8 scroll-mt-8 space-y-4">
                 <p className="font-semibold text-muted-foreground text-xs uppercase tracking-widest">
                     Appearance
                 </p>
@@ -81,7 +93,8 @@ export default function SettingsPage() {
 
             <Separator className="my-8" />
 
-            <section className="space-y-4">
+            {/* biome-ignore lint/correctness/useUniqueElementIds: stable anchor for URL hash navigation */}
+            <section id="account" className="scroll-mt-8 space-y-4">
                 <p className="font-semibold text-muted-foreground text-xs uppercase tracking-widest">
                     Account
                 </p>
@@ -90,6 +103,16 @@ export default function SettingsPage() {
                         <AccountSection />
                     </Suspense>
                 </ErrorBoundary>
+            </section>
+
+            <Separator className="my-8" />
+
+            {/* biome-ignore lint/correctness/useUniqueElementIds: stable anchor for URL hash navigation */}
+            <section id="security" className="scroll-mt-8 space-y-4">
+                <p className="font-semibold text-muted-foreground text-xs uppercase tracking-widest">
+                    Security
+                </p>
+                <ChangePasswordForm />
             </section>
         </div>
     )
