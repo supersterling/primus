@@ -1,23 +1,30 @@
-import { Globe, ShieldCheck } from "lucide-react"
+import { CheckCircle2, Crown, Terminal } from "lucide-react"
+import { BetterAuthIcon } from "@/components/icons/better-auth"
+import { BiomeIcon } from "@/components/icons/biome"
+import { DrizzleIcon } from "@/components/icons/drizzle"
+import { InngestIcon } from "@/components/icons/inngest"
+import { NextjsIcon } from "@/components/icons/nextjs"
+import { PolarIcon } from "@/components/icons/polar"
 import { Card, CardContent } from "@/components/ui/card"
+import { OrbitingCircles } from "@/components/ui/orbiting-circles"
 
 function StackPreview() {
     return (
-        <div className="flex min-h-[240px] items-center justify-center bg-muted/50 p-8">
-            <div className="relative flex items-center justify-center">
-                <div className="absolute size-32 rounded-full border border-border/50" />
-                <div className="absolute size-24 rounded-full border border-border/50" />
-                <div className="absolute size-16 rounded-full border border-border/50" />
-                <ShieldCheck className="relative size-8 text-primary" aria-hidden="true" />
-                <div className="absolute -top-2 -right-2 flex size-8 items-center justify-center rounded-full bg-background shadow-sm">
-                    <div className="size-3 rounded-sm bg-primary/60" />
-                </div>
-                <div className="absolute -bottom-3 left-1 flex size-8 items-center justify-center rounded-full bg-background shadow-sm">
-                    <div className="size-3 rounded bg-primary/40" />
-                </div>
-                <div className="absolute top-2 -left-4 flex size-8 items-center justify-center rounded-full bg-background shadow-sm">
-                    <div className="size-3 rounded-full bg-primary/50" />
-                </div>
+        <div className="relative flex min-h-[280px] items-center justify-center overflow-hidden bg-muted/50">
+            <div className="relative flex size-full items-center justify-center">
+                <Crown className="size-8 text-foreground" aria-hidden="true" />
+
+                <OrbitingCircles iconSize={32} radius={70} speed={0.5}>
+                    <NextjsIcon className="size-5" />
+                    <DrizzleIcon className="size-5" />
+                    <BetterAuthIcon className="size-5" />
+                </OrbitingCircles>
+
+                <OrbitingCircles iconSize={32} radius={120} speed={0.3} reverse>
+                    <PolarIcon className="size-5" />
+                    <InngestIcon className="h-3.5 w-auto" />
+                    <BiomeIcon className="size-5" />
+                </OrbitingCircles>
             </div>
         </div>
     )
@@ -25,19 +32,39 @@ function StackPreview() {
 
 function DxPreview() {
     return (
-        <div className="flex min-h-[240px] items-center justify-center bg-muted/50 p-8">
-            <div className="relative flex size-36 items-center justify-center">
-                <Globe className="relative size-10 text-primary/30" aria-hidden="true" />
-                <div className="absolute top-0 left-1/2 size-3 -translate-x-1/2 rounded-full bg-primary/40" />
-                <div className="absolute bottom-0 left-1/2 size-3 -translate-x-1/2 rounded-full bg-primary/40" />
-                <div className="absolute top-1/2 left-0 size-3 -translate-y-1/2 rounded-full bg-primary/40" />
-                <div className="absolute top-1/2 right-0 size-3 -translate-y-1/2 rounded-full bg-primary/40" />
-                <div className="absolute top-1 left-1 size-3 rounded-full bg-primary/40" />
-                <div className="absolute right-1 bottom-1 size-3 rounded-full bg-primary/40" />
-                <div className="absolute top-3 right-3 size-2 rounded-full bg-muted-foreground/20" />
-                <div className="absolute bottom-3 left-3 size-2 rounded-full bg-muted-foreground/20" />
-                <div className="absolute right-0 bottom-6 size-2 rounded-full bg-muted-foreground/20" />
-                <div className="absolute top-6 left-0 size-2 rounded-full bg-muted-foreground/20" />
+        <div className="flex min-h-[280px] items-center justify-center bg-muted/50 p-6">
+            <div className="w-full rounded-lg border bg-card p-4">
+                <div className="mb-3 flex items-center gap-2 text-muted-foreground">
+                    <Terminal className="size-4" />
+                    <span className="font-mono text-xs">bun run checks</span>
+                </div>
+                <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                        <CheckCircle2 className="size-3.5 text-green" />
+                        <span className="font-mono text-xs">tsc --noEmit</span>
+                        <span className="ml-auto text-muted-foreground text-xs">0 errors</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <CheckCircle2 className="size-3.5 text-green" />
+                        <span className="font-mono text-xs">biome check</span>
+                        <span className="ml-auto text-muted-foreground text-xs">139 files</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <CheckCircle2 className="size-3.5 text-green" />
+                        <span className="font-mono text-xs">docref check</span>
+                        <span className="ml-auto text-muted-foreground text-xs">42 refs</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <CheckCircle2 className="size-3.5 text-green" />
+                        <span className="font-mono text-xs">grit test</span>
+                        <span className="ml-auto text-muted-foreground text-xs">18 rules</span>
+                    </div>
+                    <div className="mt-1 border-t pt-2">
+                        <span className="font-mono text-green text-xs">
+                            All checks passed in 1.8s
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
     )
