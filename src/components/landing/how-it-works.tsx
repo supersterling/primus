@@ -80,14 +80,14 @@ function CloneVisual() {
                 <span className="font-mono text-xs">Terminal</span>
             </div>
             <div className="space-y-1">
-                <TerminalLine>$ bunx create-primus my-saas</TerminalLine>
-                <TerminalLine dim> Creating project in ./my-saas...</TerminalLine>
-                <TerminalLine dim> Installing dependencies...</TerminalLine>
-                <TerminalLine dim> Initializing git repository...</TerminalLine>
-                <TerminalLine dim> Setting up database schema...</TerminalLine>
+                <TerminalLine>$ bunx degit supersterling/primus my-saas</TerminalLine>
+                <TerminalLine dim> cloned supersterling/primus#HEAD</TerminalLine>
+                <TerminalLine>$ cd my-saas &amp;&amp; bun install</TerminalLine>
+                <TerminalLine dim> Resolving dependencies...</TerminalLine>
+                <TerminalLine dim> Installed 847 packages</TerminalLine>
                 <div className="mt-2 flex items-center gap-1.5">
                     <CheckCircle2 className="size-3.5 text-green" />
-                    <span className="font-mono text-green text-xs">Done in 12s</span>
+                    <span className="font-mono text-green text-xs">Done in 4.2s</span>
                 </div>
             </div>
         </div>
