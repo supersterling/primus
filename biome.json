@@ -10,6 +10,11 @@
             "includes": ["src/components/icons/**"],
             "linter": { "enabled": false },
             "plugins": []
+        },
+        {
+            "includes": ["src/components/kibo-ui/**"],
+            "linter": { "enabled": false },
+            "plugins": []
         }
     ],
     "plugins": [

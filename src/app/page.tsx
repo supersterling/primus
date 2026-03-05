@@ -1,66 +1,91 @@
-import { ChessKing } from "lucide-react"
 import { type Metadata } from "next"
 import Link from "next/link"
-import { Suspense } from "react"
+import { Fragment, Suspense } from "react"
 import { ErrorBoundary } from "react-error-boundary"
+import { Bento } from "@/components/landing/bento"
+import { Cta } from "@/components/landing/cta"
+import { Faq } from "@/components/landing/faq"
+import { FeaturesGrid } from "@/components/landing/features-grid"
+import { Footer } from "@/components/landing/footer"
+import { Hero } from "@/components/landing/hero"
+import { HowItWorks } from "@/components/landing/how-it-works"
+import { Logos } from "@/components/landing/logos"
+import { Navbar } from "@/components/landing/navbar"
+import { Pricing } from "@/components/landing/pricing"
 import { Button } from "@/components/ui/button"
+import { RainbowButton } from "@/components/ui/rainbow-button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getSession } from "@/lib/auth/session"
 
 export const metadata: Metadata = { title: "Welcome" }
 
-async function HeroAction() {
+async function HeroActions() {
     const session = await getSession()
     const isSignedIn = session != null
-    const href = isSignedIn ? "/app" : "/sign-in"
-    const label = isSignedIn ? "Go to app" : "Get started"
+
+    if (isSignedIn) {
+        return (
+            <RainbowButton asChild size="lg">
+                <Link href="/app">Go to app</Link>
+            </RainbowButton>
+        )
+    }
 
     return (
-        <Button asChild size="lg">
-            <Link href={href}>{label}</Link>
-        </Button>
+        <Fragment>
+            <RainbowButton asChild size="lg">
+                <Link href="/sign-in">Get Started</Link>
+            </RainbowButton>
+            <Button asChild variant="outline" size="lg">
+                <Link href="/sign-in">Log in</Link>
+            </Button>
+        </Fragment>
     )
 }
 
-function HeroActionSkeleton() {
-    return <Skeleton className="h-11 w-32 rounded-md" />
+function HeroActionsSkeleton() {
+    return (
+        <div className="flex gap-4">
+            <Skeleton className="h-11 w-32 rounded-md" />
+            <Skeleton className="h-11 w-24 rounded-md" />
+        </div>
+    )
 }
 
-function HeroActionFallback() {
+function HeroActionsFallback() {
     return (
-        <Button asChild size="lg">
-            <Link href="/sign-in">Get started</Link>
-        </Button>
+        <Fragment>
+            <RainbowButton asChild size="lg">
+                <Link href="/sign-in">Get Started</Link>
+            </RainbowButton>
+            <Button asChild variant="outline" size="lg">
+                <Link href="/sign-in">Log in</Link>
+            </Button>
+        </Fragment>
     )
 }
 
 export default function LandingPage() {
     return (
-        <main className="flex min-h-svh flex-col items-center justify-center px-6 py-6">
-            <div className="flex max-w-lg flex-col items-center gap-8 text-center">
-                <div className="flex items-center gap-2.5 text-muted-foreground">
-                    <ChessKing className="size-5" aria-hidden="true" />
-                    <span className="font-mono text-sm uppercase tracking-widest">Primus</span>
-                </div>
+        <main>
+            <Navbar />
 
-                <div className="space-y-4">
-                    <h1 className="text-pretty text-5xl leading-tight tracking-tight">
-                        The foundation for what comes next.
-                    </h1>
-                    <p className="text-lg text-muted-foreground leading-relaxed">
-                        An opinionated Next.js starter with Inngest, Polar, and the modern tooling
-                        you actually want to ship with.
-                    </p>
-                </div>
+            <Hero>
+                <ErrorBoundary fallback={<HeroActionsFallback />}>
+                    <Suspense fallback={<HeroActionsSkeleton />}>
+                        <HeroActions />
+                    </Suspense>
+                </ErrorBoundary>
+            </Hero>
 
-                <div className="flex gap-3">
-                    <ErrorBoundary fallback={<HeroActionFallback />}>
-                        <Suspense fallback={<HeroActionSkeleton />}>
-                            <HeroAction />
-                        </Suspense>
-                    </ErrorBoundary>
-                </div>
-            </div>
+            <Logos />
+            <Bento />
+            <HowItWorks />
+            <FeaturesGrid />
+            <Pricing />
+            <Faq />
+            <Cta />
+            <Footer />
         </main>
     )
 }
