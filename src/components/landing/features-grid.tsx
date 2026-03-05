@@ -1,4 +1,4 @@
-import { CheckCircle2, Crown, Terminal } from "lucide-react"
+import { CheckCircle2, ChessKing, Terminal } from "lucide-react"
 import { BetterAuthIcon } from "@/components/icons/better-auth"
 import { BiomeIcon } from "@/components/icons/biome"
 import { DrizzleIcon } from "@/components/icons/drizzle"
@@ -12,7 +12,7 @@ function StackPreview() {
     return (
         <div className="relative flex min-h-[280px] items-center justify-center overflow-hidden bg-muted/50">
             <div className="relative flex size-full items-center justify-center">
-                <Crown className="size-8 text-foreground" aria-hidden="true" />
+                <ChessKing className="size-8 text-foreground" aria-hidden="true" />
 
                 <OrbitingCircles iconSize={32} radius={70} speed={0.5}>
                     <NextjsIcon className="size-5" />

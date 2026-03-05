@@ -1,4 +1,4 @@
-import { Crown } from "lucide-react"
+import { ChessKing } from "lucide-react"
 import Link from "next/link"
 import { Separator } from "@/components/ui/separator"
 
@@ -72,7 +72,7 @@ export function Footer() {
                             href="/"
                             className="flex items-center gap-2 font-mono text-sm uppercase tracking-widest"
                         >
-                            <Crown className="size-5" />
+                            <ChessKing className="size-5" />
                             <span>Primus</span>
                         </Link>
                         <p className="mt-4 text-muted-foreground text-sm">

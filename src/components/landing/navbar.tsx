@@ -3,7 +3,7 @@
 import { ChessKing, Menu, Moon, Sun, X } from "lucide-react"
 import Link from "next/link"
 import { useTheme } from "next-themes"
-import { Fragment, useCallback, useState } from "react"
+import { Fragment, type MouseEvent, useCallback, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -12,6 +12,22 @@ const NAV_LINKS = [
     { label: "How it Works", href: "#how-it-works" },
     { label: "Pricing", href: "#pricing" },
 ]
+
+function smoothScroll(e: MouseEvent<HTMLAnchorElement>) {
+    const href = e.currentTarget.getAttribute("href")
+    if (href?.startsWith("#")) {
+        e.preventDefault()
+        const target = document.getElementById(href.slice(1))
+        if (target) {
+            target.scrollIntoView({ behavior: "smooth" })
+        }
+    }
+}
+
+function scrollToTop(e: MouseEvent<HTMLAnchorElement>) {
+    e.preventDefault()
+    window.scrollTo({ top: 0, behavior: "smooth" })
+}
 
 export function Navbar() {
     const [mobileOpen, setMobileOpen] = useState(false)
@@ -26,7 +42,8 @@ export function Navbar() {
         setMobileOpen((prev) => !prev)
     }, [])
 
-    const closeMenu = useCallback(() => {
+    const handleMobileLink = useCallback((e: MouseEvent<HTMLAnchorElement>) => {
+        smoothScroll(e)
         setMobileOpen(false)
     }, [])
 
@@ -41,19 +58,21 @@ export function Navbar() {
                         "rounded-full border bg-background/80 px-4 py-2 shadow-sm backdrop-blur-md",
                     )}
                 >
-                    <Link
+                    <a
                         href="/"
+                        onClick={scrollToTop}
                         className="flex items-center gap-2 font-mono text-sm uppercase tracking-widest"
                     >
                         <ChessKing className="size-5" />
                         <span>Primus</span>
-                    </Link>
+                    </a>
 
                     <div className="hidden items-center gap-6 md:flex">
                         {NAV_LINKS.map((link) => (
                             <a
                                 key={link.href}
                                 href={link.href}
+                                onClick={smoothScroll}
                                 className="text-muted-foreground text-sm transition-colors hover:text-foreground"
                             >
                                 {link.label}
@@ -97,7 +116,7 @@ export function Navbar() {
                                 key={link.href}
                                 href={link.href}
                                 className="text-muted-foreground text-sm transition-colors hover:text-foreground"
-                                onClick={closeMenu}
+                                onClick={handleMobileLink}
                             >
                                 {link.label}
                             </a>
