@@ -1,9 +1,40 @@
 import { CreditCard, Lock, Shield, Zap } from "lucide-react"
 import Image from "next/image"
-import { ChatConversation } from "@/components/landing/chat-conversation"
+import { ChatConversation } from "@/components/aceternity/chat-conversation"
 import { InngestFlow } from "@/components/landing/inngest-flow"
 import { TypeSafetyCode } from "@/components/landing/type-safety-code"
 import { Card, CardContent } from "@/components/ui/card"
+
+const authMessages = [
+    {
+        id: 1,
+        name: "Sarah",
+        avatar: "https://assets.aceternity.com/avatars/1.webp",
+        text: "Just signed in with Google — took 2 seconds!",
+        isUser: false,
+    },
+    {
+        id: 2,
+        name: "You",
+        avatar: "https://assets.aceternity.com/avatars/manu.webp",
+        text: "Session synced across all my devices",
+        isUser: true,
+    },
+    {
+        id: 3,
+        name: "Tyler",
+        avatar: "https://assets.aceternity.com/avatars/8.webp",
+        text: "Email/password works too — zero config",
+        isUser: false,
+    },
+    {
+        id: 4,
+        name: "You",
+        avatar: "https://assets.aceternity.com/avatars/manu.webp",
+        text: "Better Auth handles it all.",
+        isUser: true,
+    },
+]
 
 const sectionId = "features"
 
@@ -25,7 +56,7 @@ export function Bento() {
                     {/* Row 1: Auth (short) + Payments (tall) */}
                     <Card className="overflow-hidden border-border/50 py-0 sm:row-span-1">
                         <div className="relative overflow-hidden bg-muted/50">
-                            <ChatConversation className="min-h-0" />
+                            <ChatConversation className="min-h-0" messages={authMessages} />
                             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-muted/90 via-muted/40 to-transparent" />
                         </div>
                         <CardContent className="space-y-2 py-6">

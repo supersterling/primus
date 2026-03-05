@@ -4,49 +4,63 @@ import { motion, useInView } from "motion/react"
 import { useRef } from "react"
 import { cn } from "@/lib/utils"
 
+type Message = {
+    id: number
+    name: string
+    avatar: string
+    text: string
+    isUser: boolean
+}
+
+type ChatConversationProps = {
+    className?: string
+    messages?: Message[]
+}
+
 const STAGGER_DELAY = 0.3
 const TEXT_OFFSET = 0.15
 const SLIDE_DISTANCE = 10
 
-const messages = [
+const defaultMessages: Message[] = [
     {
         id: 1,
         name: "Sarah",
         avatar: "https://assets.aceternity.com/avatars/1.webp",
-        text: "Just signed in with Google — took 2 seconds!",
+        text: "Hey! Are you free for a quick call?",
         isUser: false,
     },
     {
         id: 2,
         name: "You",
         avatar: "https://assets.aceternity.com/avatars/manu.webp",
-        text: "Session synced across all my devices",
+        text: "Sure, give me 5 minutes!",
         isUser: true,
     },
     {
         id: 3,
         name: "Tyler",
         avatar: "https://assets.aceternity.com/avatars/8.webp",
-        text: "Email/password works too — zero config",
+        text: "Sounds good",
         isUser: false,
     },
     {
         id: 4,
-        name: "You",
+        name: "Sarah",
         avatar: "https://assets.aceternity.com/avatars/manu.webp",
-        text: "Better Auth handles it all.",
+        text: "I'm not sure if I can make it.",
         isUser: true,
     },
 ]
 
-export function ChatConversation({ className }: { className?: string }) {
+export function ChatConversation({ className, messages }: ChatConversationProps) {
     const ref = useRef(null)
     const isInView = useInView(ref, { once: true, margin: "-50px" })
+    const items = messages ? messages : defaultMessages
 
     return (
         <div className={cn("flex min-h-60 items-center justify-center p-4", className)}>
             <div ref={ref} className="flex flex-col justify-center gap-3">
-                {messages.map((message, index) => {
+                {items.map((message, index) => {
                     const baseDelay = index * STAGGER_DELAY
                     const directionClass = message.isUser ? "flex-row-reverse" : ""
                     const slideX = message.isUser ? SLIDE_DISTANCE : -SLIDE_DISTANCE
@@ -72,7 +86,7 @@ export function ChatConversation({ className }: { className?: string }) {
                                     duration: STAGGER_DELAY,
                                     delay: baseDelay + TEXT_OFFSET,
                                 }}
-                                className="rounded-xl bg-background px-3 py-2 text-sm shadow-sm ring-1 ring-border"
+                                className="rounded-xl bg-white px-3 py-2 text-neutral-700 text-sm shadow-black/5 shadow-sm ring-1 ring-black/5 dark:bg-neutral-800 dark:text-neutral-200"
                             >
                                 {message.text}
                             </motion.div>
