@@ -1,6 +1,7 @@
 import { type Metadata } from "next"
 import { Suspense } from "react"
 import { ErrorBoundary } from "react-error-boundary"
+import { EmailField } from "@/components/settings/email-field"
 import { UpdateNameForm } from "@/components/settings/update-name-form"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -53,6 +54,7 @@ async function AccountSection() {
                 </div>
             </div>
             <UpdateNameForm defaultName={user.name} />
+            <EmailField email={user.email} />
         </div>
     )
 }
