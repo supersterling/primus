@@ -86,11 +86,11 @@ function ChangePasswordDialogContent({ onSuccess }: { onSuccess: () => void }) {
 
     const submitLabel = isSubmitting ? "Updating\u2026" : "Update password"
     const submitIcon = isSubmitting ? (
-        <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+        <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
     ) : null
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form aria-label="Change password" onSubmit={handleSubmit(onSubmit)}>
             <FieldGroup>
                 <Field>
                     <FieldLabel htmlFor={ids.currentPassword}>Current password</FieldLabel>

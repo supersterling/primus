@@ -76,10 +76,18 @@ export default function SettingsPage() {
             <h1 className="text-pretty font-semibold text-2xl">Settings</h1>
 
             {/* biome-ignore lint/correctness/useUniqueElementIds: stable anchor for URL hash navigation */}
-            <section id="appearance" className="mt-8 scroll-mt-8 space-y-4">
-                <p className="font-semibold text-muted-foreground text-xs uppercase tracking-widest">
+            <section
+                id="appearance"
+                aria-labelledby="heading-appearance"
+                className="mt-8 scroll-mt-8 space-y-4"
+            >
+                {/* biome-ignore lint/correctness/useUniqueElementIds: stable anchor for aria-labelledby */}
+                <h2
+                    id="heading-appearance"
+                    className="font-sans font-semibold text-muted-foreground text-xs uppercase tracking-widest"
+                >
                     Appearance
-                </p>
+                </h2>
                 <div className="flex items-center justify-between">
                     <div>
                         <p className="font-medium">Theme</p>
@@ -94,10 +102,18 @@ export default function SettingsPage() {
             <Separator className="my-8" />
 
             {/* biome-ignore lint/correctness/useUniqueElementIds: stable anchor for URL hash navigation */}
-            <section id="account" className="scroll-mt-8 space-y-4">
-                <p className="font-semibold text-muted-foreground text-xs uppercase tracking-widest">
+            <section
+                id="account"
+                aria-labelledby="heading-account"
+                className="scroll-mt-8 space-y-4"
+            >
+                {/* biome-ignore lint/correctness/useUniqueElementIds: stable anchor for aria-labelledby */}
+                <h2
+                    id="heading-account"
+                    className="font-sans font-semibold text-muted-foreground text-xs uppercase tracking-widest"
+                >
                     Account
-                </p>
+                </h2>
                 <ErrorBoundary fallback={<AccountSectionError />}>
                     <Suspense fallback={<AccountSectionSkeleton />}>
                         <AccountSection />
@@ -108,10 +124,18 @@ export default function SettingsPage() {
             <Separator className="my-8" />
 
             {/* biome-ignore lint/correctness/useUniqueElementIds: stable anchor for URL hash navigation */}
-            <section id="security" className="scroll-mt-8 space-y-4">
-                <p className="font-semibold text-muted-foreground text-xs uppercase tracking-widest">
+            <section
+                id="security"
+                aria-labelledby="heading-security"
+                className="scroll-mt-8 space-y-4"
+            >
+                {/* biome-ignore lint/correctness/useUniqueElementIds: stable anchor for aria-labelledby */}
+                <h2
+                    id="heading-security"
+                    className="font-sans font-semibold text-muted-foreground text-xs uppercase tracking-widest"
+                >
                     Security
-                </p>
+                </h2>
                 <ChangePasswordForm />
             </section>
         </div>

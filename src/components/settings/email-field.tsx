@@ -25,14 +25,19 @@ export function EmailField({ email }: EmailFieldProps) {
     const timeoutRef = useRef<ReturnType<typeof setTimeout>>(null)
 
     const handleCopy = useCallback(() => {
-        navigator.clipboard.writeText(email).then(() => {
-            toast.success("Email copied to clipboard")
-            setCopied(true)
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current)
-            }
-            timeoutRef.current = setTimeout(() => setCopied(false), COPIED_FEEDBACK_MS)
-        })
+        navigator.clipboard.writeText(email).then(
+            () => {
+                toast.success("Email copied to clipboard")
+                setCopied(true)
+                if (timeoutRef.current) {
+                    clearTimeout(timeoutRef.current)
+                }
+                timeoutRef.current = setTimeout(() => setCopied(false), COPIED_FEEDBACK_MS)
+            },
+            () => {
+                toast.error("Unable to copy to clipboard")
+            },
+        )
     }, [email])
 
     const icon = copied ? (
@@ -50,6 +55,7 @@ export function EmailField({ email }: EmailFieldProps) {
                     type="email"
                     value={email}
                     readOnly
+                    spellCheck={false}
                     aria-describedby={descriptionId}
                 />
                 <InputGroupAddon align="inline-end">
