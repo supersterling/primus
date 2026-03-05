@@ -16,8 +16,11 @@ import {
     SidebarRail,
     SidebarTrigger,
 } from "@/components/ui/sidebar"
+import { getSession } from "@/lib/auth/session"
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+    const session = await getSession()
+
     return (
         <SidebarProvider>
             <Sidebar collapsible="icon">
@@ -66,7 +69,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         <SidebarTrigger />
                     </div>
                     <div className="flex items-center gap-2">
-                        <UserMenu />
+                        <UserMenu session={session} />
                     </div>
                 </header>
                 {children}

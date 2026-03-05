@@ -12,23 +12,24 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Skeleton } from "@/components/ui/skeleton"
 import { authClient } from "@/lib/auth/client"
 import { getInitials } from "@/lib/auth/utils"
 
-export function UserMenu() {
+type UserMenuSession = {
+    user: {
+        name: string
+        image?: string | null
+    }
+}
+
+export function UserMenu({ session }: { session: UserMenuSession | null }) {
     const router = useRouter()
-    const { data: session, isPending } = authClient.useSession()
 
     const handleSignOut = useCallback(async () => {
         await authClient.signOut()
         router.push("/")
         router.refresh()
     }, [router])
-
-    if (isPending) {
-        return <Skeleton className="size-9 rounded-full" />
-    }
 
     if (!session) {
         return (
