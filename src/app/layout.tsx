@@ -1,5 +1,6 @@
 import { type Metadata } from "next"
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google"
+import { ViewTransition } from "react"
 import { Toaster } from "sonner"
 import { ThemeProvider } from "@/components/theme-provider"
 import "./globals.css"
@@ -48,7 +49,7 @@ export default function RootLayout({
                     enableSystem
                     disableTransitionOnChange
                 >
-                    {children}
+                    <ViewTransition>{children}</ViewTransition>
                     <Toaster richColors position="top-center" />
                 </ThemeProvider>
             </body>

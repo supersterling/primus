@@ -144,3 +144,7 @@ body {
         @apply font-serif;
     }
 }
+
+@view-transition {
+    navigation: auto;
+}

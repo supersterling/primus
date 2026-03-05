@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
     serverExternalPackages: ["pg"],
     experimental: {
         optimizePackageImports: ["lucide-react"],
+        viewTransition: true,
     },
 };
 
