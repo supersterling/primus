@@ -1,8 +1,8 @@
 import { Sparkles } from "lucide-react"
 import Image from "next/image"
 import { type ReactNode } from "react"
-import dashboardImg from "@/components/landing/dashboard-preview.png"
 import { Badge } from "@/components/ui/badge"
+import dashboardImg from "./dashboard-preview.png"
 
 type HeroProps = {
     children: ReactNode

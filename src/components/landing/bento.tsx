@@ -2,9 +2,9 @@ import { CreditCard, Lock, Shield, Zap } from "lucide-react"
 import Image from "next/image"
 import { ChatConversation } from "@/components/aceternity/chat-conversation"
 import { InngestFlow } from "@/components/landing/inngest-flow"
-import polarImg from "@/components/landing/polar-transactions.jpg"
 import { TypeSafetyCode } from "@/components/landing/type-safety-code"
 import { Card, CardContent } from "@/components/ui/card"
+import polarImg from "./polar-transactions.jpg"
 
 const authMessages = [
     {

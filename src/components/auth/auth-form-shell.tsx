@@ -2,10 +2,10 @@
 
 import Image from "next/image"
 import { type ReactNode } from "react"
-import kingSvg from "@/components/auth/king.svg"
 import { Card, CardContent } from "@/components/ui/card"
 import { FieldGroup, FieldSeparator } from "@/components/ui/field"
 import { cn } from "@/lib/utils"
+import kingSvg from "./king.svg"
 
 type AuthFormShellProps = {
     title: string

@@ -1,8 +1,20 @@
 language js
 
 // Require absolute imports with @/ prefix.
+// Static asset imports (.png, .jpg, .svg, etc.) are exempt because
+// Turbopack does not resolve path aliases for non-TS/JS modules.
 
 `import $specifiers from $path` as $match where {
 	or { $path <: `"../$_"`, $path <: `"./$_"` },
+	not $path <: or {
+		`"./$_.png"`, `"../$_.png"`,
+		`"./$_.jpg"`, `"../$_.jpg"`,
+		`"./$_.jpeg"`, `"../$_.jpeg"`,
+		`"./$_.webp"`, `"../$_.webp"`,
+		`"./$_.gif"`, `"../$_.gif"`,
+		`"./$_.svg"`, `"../$_.svg"`,
+		`"./$_.ico"`, `"../$_.ico"`,
+		`"./$_.avif"`, `"../$_.avif"`
+	},
 	register_diagnostic(span=$match, message="Use `@/` imports. Relative paths break when files move.", severity="error")
 }
