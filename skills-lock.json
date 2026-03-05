@@ -91,6 +91,11 @@
       "sourceType": "github",
       "computedHash": "9b03bb78ec5c81c4e0546dbb78cfc970368c72dcae5482e8c59690175abbc8e7"
     },
+    "slack-agent": {
+      "source": "vercel-labs/slack-agent-skill",
+      "sourceType": "github",
+      "computedHash": "61bbe24383873700163c8b5b0dd928e52792206b0d9ff777bb14fa5ff7c854cf"
+    },
     "streamdown": {
       "source": "vercel/streamdown",
       "sourceType": "github",
