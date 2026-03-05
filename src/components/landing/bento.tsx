@@ -2,6 +2,7 @@ import { CreditCard, Lock, Shield, Zap } from "lucide-react"
 import Image from "next/image"
 import { ChatConversation } from "@/components/aceternity/chat-conversation"
 import { InngestFlow } from "@/components/landing/inngest-flow"
+import polarImg from "@/components/landing/polar-transactions.jpg"
 import { TypeSafetyCode } from "@/components/landing/type-safety-code"
 import { Card, CardContent } from "@/components/ui/card"
 
@@ -74,11 +75,10 @@ export function Bento() {
                     <Card className="overflow-hidden border-border/50 py-0 sm:row-span-2">
                         <div className="relative overflow-hidden bg-muted/50">
                             <Image
-                                src="/images/polar-transactions.jpg"
+                                src={polarImg}
                                 alt="Polar payment transactions dashboard"
-                                width={600}
-                                height={600}
                                 className="object-cover object-top"
+                                placeholder="blur"
                             />
                             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-muted/90 via-muted/40 to-transparent" />
                         </div>

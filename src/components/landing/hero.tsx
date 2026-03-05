@@ -1,6 +1,7 @@
 import { Sparkles } from "lucide-react"
 import Image from "next/image"
 import { type ReactNode } from "react"
+import dashboardImg from "@/components/landing/dashboard-preview.png"
 import { Badge } from "@/components/ui/badge"
 
 type HeroProps = {
@@ -34,12 +35,11 @@ export function Hero({ children }: HeroProps) {
             <div className="mt-16 w-full max-w-4xl">
                 <div className="overflow-hidden rounded-xl border shadow-xl">
                     <Image
-                        src="/images/dashboard-preview.png"
+                        src={dashboardImg}
                         alt="Dashboard preview showing a modern SaaS application"
-                        width={2048}
-                        height={1150}
                         className="w-full"
                         priority
+                        placeholder="blur"
                     />
                 </div>
             </div>
