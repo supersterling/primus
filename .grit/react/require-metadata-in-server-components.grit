@@ -1,0 +1,14 @@
+language js
+
+// Require metadata exports to live in server components.
+
+file($name, $body) where {
+	$body <: contains `'use client'`,
+	$body <: contains or {
+		`export const metadata` as $match,
+		`export function generateMetadata($...) { $_ }` as $match,
+		`export async function generateMetadata($...) { $_ }` as $match
+	} where {
+		register_diagnostic(span=$match, message="Move metadata to a server component. `metadata` and `generateMetadata` are ignored in client components.", severity="error")
+	}
+}

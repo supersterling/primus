@@ -1,0 +1,18 @@
+language js
+
+// Require paste to remain enabled on input elements.
+
+or {
+	`<input $props />` as $match,
+	`<input $props>$_</input>` as $match,
+	`<textarea $props>$_</textarea>` as $match
+} where {
+	$props <: contains `onPaste={$handler}` where {
+		$handler <: contains `preventDefault`
+	},
+	register_diagnostic(
+		span=$match,
+		message="Remove paste prevention. Blocking paste breaks password managers and accessibility workflows.",
+		severity="error"
+	)
+}

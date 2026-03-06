@@ -1,0 +1,9 @@
+language js
+
+// Require encryptionMiddleware import from @inngest/middleware-encryption.
+
+`import { $imports } from "$source"` as $match where {
+	$imports <: contains `encryptionMiddleware`,
+	not ($source <: r"^@inngest/middleware-encryption$"),
+	register_diagnostic(span=$match, message="Import `encryptionMiddleware` from `\"@inngest/middleware-encryption\"`. It is a separate package.", severity="error")
+}

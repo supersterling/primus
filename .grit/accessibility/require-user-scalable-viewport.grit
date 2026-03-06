@@ -1,0 +1,21 @@
+language js
+
+// Require user-scalable viewport settings that allow zoom.
+
+or {
+	`<meta $props />` as $match,
+	`<meta $props>$_</meta>` as $match
+} where {
+	$props <: contains `content="$val"` where {
+		$val <: or {
+			r".*user-scalable\s*=\s*no.*",
+			r".*maximum-scale\s*=\s*1[^0-9].*",
+			r".*maximum-scale\s*=\s*1$"
+		}
+	},
+	register_diagnostic(
+		span=$match,
+		message="Remove zoom restrictions from viewport meta. Preventing zoom violates WCAG 1.4.4.",
+		severity="error"
+	)
+}

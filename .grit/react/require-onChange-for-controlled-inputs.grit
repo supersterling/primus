@@ -1,0 +1,13 @@
+language js
+
+// Require onChange handler on controlled inputs.
+
+or {
+	`<input $props />` as $match,
+	`<input $props>$_</input>` as $match,
+	`<textarea $props>$_</textarea>` as $match
+} where {
+	$props <: contains `value={$_}`,
+	not ($props <: contains or { `onChange`, `readOnly`, `type="hidden"`, `disabled` }),
+	register_diagnostic(span=$match, message="Add `onChange` to controlled inputs. Use `defaultValue` for uncontrolled or `readOnly` for immutable inputs.", severity="error")
+}

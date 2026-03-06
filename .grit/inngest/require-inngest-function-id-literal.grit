@@ -1,0 +1,10 @@
+language js
+
+// Require static string literals for Inngest function IDs.
+
+`createFunction($config, $...)` as $outer where {
+	$config <: contains `id: $val` where {
+		not ($val <: `"$_"`),
+		register_diagnostic(span=$val, message="Use a static string literal for function `id`. Dynamic IDs break identity across deployments.", severity="error")
+	}
+}

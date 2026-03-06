@@ -1,0 +1,18 @@
+language js
+
+// Require width and height on native img elements.
+
+or {
+	`<img $props />` as $match,
+	`<img $props>$_</img>` as $match
+} where {
+	or {
+		not ($props <: contains `width`),
+		not ($props <: contains `height`)
+	},
+	register_diagnostic(
+		span=$match,
+		message="Add `width` and `height` to `<img>`. Missing dimensions cause layout shift during loading.",
+		severity="error"
+	)
+}

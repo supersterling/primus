@@ -1,0 +1,13 @@
+language js
+
+// Request domain/noun.verb naming convention for Inngest events.
+
+or {
+	`inngest.send({ $props })` as $outer,
+	`step.sendEvent($_, { $props })` as $outer
+} where {
+	$props <: contains `name: "$val"` where {
+		not ($val <: r"^[a-z][a-z0-9-]*/[a-z][a-z0-9-]*\.[a-z][a-z0-9-]*$"),
+		register_diagnostic(span=$outer, message="Use `domain/noun.verb` event naming (e.g. `billing/invoice.paid`). Structured names enable filtering and routing.", severity="warning")
+	}
+}

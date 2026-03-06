@@ -1,0 +1,13 @@
+language js
+
+// Require next/image Image component instead of native img.
+
+file($name, $body) where {
+	$name <: r".*\.tsx$",
+	$body <: contains or {
+		`<img $_ />` as $match,
+		`<img $_ >$_</img>` as $match
+	} where {
+		register_diagnostic(span=$match, message="Use `Image` from `next/image`. Native `<img>` misses automatic optimization and lazy loading.", severity="warning")
+	}
+}

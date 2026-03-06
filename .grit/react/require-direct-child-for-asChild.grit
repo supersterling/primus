@@ -1,0 +1,12 @@
+language js
+
+// Require a DOM element as direct child of asChild components.
+
+or {
+	`<$tag $props><>$_</>$_</$tag>` as $match,
+	`<$tag $props><Fragment>$_</Fragment>$_</$tag>` as $match,
+	`<$tag $props><Fragment $_>$_</Fragment>$_</$tag>` as $match
+} where {
+	$props <: contains or { `asChild`, `asChild={true}` },
+	register_diagnostic(span=$match, message="Replace Fragment with a DOM element inside `asChild`. Fragments have no node to merge props onto.", severity="error")
+}

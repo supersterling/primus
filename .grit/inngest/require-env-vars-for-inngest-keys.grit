@@ -1,0 +1,8 @@
+language js
+
+// Require environment variables for Inngest keys instead of hardcoding.
+
+`"$val"` as $match where {
+	$val <: r"^(evt_|signkey_)",
+	register_diagnostic(span=$match, message="Use environment variables for Inngest keys. Hardcoded secrets leak into version control.", severity="error")
+}

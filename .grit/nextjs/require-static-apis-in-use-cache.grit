@@ -1,0 +1,15 @@
+// Require static APIs inside `'use cache'` functions.
+language js
+
+or {
+	`async function $fname($...) { $body }` as $match,
+	`const $fname = async ($...) => { $body }` as $match
+} where {
+	$body <: contains `'use cache'`,
+	$body <: contains or { `cookies($...)`, `headers($...)` } as $call,
+	register_diagnostic(
+		span=$call,
+		message="Pass runtime values as arguments instead. `cookies()` and `headers()` are not available in `'use cache'` functions.",
+		severity="error"
+	)
+}

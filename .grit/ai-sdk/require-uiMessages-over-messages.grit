@@ -1,0 +1,13 @@
+language js
+
+// Require uiMessages parameter over deprecated messages in createAgentUIStreamResponse.
+
+`createAgentUIStreamResponse({ $props })` as $outer where {
+	$props <: contains `messages` as $match,
+	not ($props <: contains `uiMessages`),
+	register_diagnostic(
+		span=$match,
+		message="Use `uiMessages`. `messages` was renamed in AI SDK 5.",
+		severity="error"
+	)
+}

@@ -1,0 +1,11 @@
+language js
+
+// Require both timeout and maxSize on batchEvents configuration.
+
+`batchEvents: { $props }` as $match where {
+	or {
+		not ($props <: contains `timeout`),
+		not ($props <: contains `maxSize`)
+	},
+	register_diagnostic(span=$match, message="Add both `timeout` and `maxSize` to `batchEvents`. Missing either causes batches that never flush or grow unbounded.", severity="error")
+}

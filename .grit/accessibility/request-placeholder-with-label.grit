@@ -1,0 +1,16 @@
+language js
+
+// Request that inputs with placeholder also have an accessible label.
+
+or {
+	`<input $props />` as $match,
+	`<input $props>$_</input>` as $match
+} where {
+	$props <: contains `placeholder`,
+	not ($props <: contains or { `aria-label`, `aria-labelledby`, `id` }),
+	register_diagnostic(
+		span=$match,
+		message="Add `aria-label` or `aria-labelledby` to labeled inputs. Placeholders alone are not accessible labels.",
+		severity="warning"
+	)
+}

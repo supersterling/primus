@@ -1,0 +1,13 @@
+language js
+
+// Require client components to be synchronous.
+
+file($name, $body) where {
+	$body <: contains `'use client'`,
+	$body <: contains or {
+		`export default async function $fname($...) { $_ }` as $match,
+		`export async function $fname($...) { $_ }` as $match
+	} where {
+		register_diagnostic(span=$match, message="Remove `async` from client components. Fetch data in a server parent and pass as props.", severity="error")
+	}
+}

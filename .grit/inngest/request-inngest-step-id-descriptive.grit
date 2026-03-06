@@ -1,0 +1,8 @@
+language js
+
+// Request descriptive IDs for step.run() calls.
+
+`step.run("$id", $...)` as $match where {
+	$id <: r"^(step|run|execute|do|work|process|handle|task|action|main|start|init|begin)$",
+	register_diagnostic(span=$match, message="Use a descriptive step ID (e.g. `fetch-user-profile`). Generic IDs make debugging harder.", severity="warning")
+}

@@ -1,0 +1,9 @@
+language js
+
+// Require dependencyInjectionMiddleware import from the core inngest package.
+
+`import { $imports } from "$source"` as $match where {
+	$imports <: contains `dependencyInjectionMiddleware`,
+	not ($source <: `inngest`),
+	register_diagnostic(span=$match, message="Import `dependencyInjectionMiddleware` from `\"inngest\"`. It ships with the core package.", severity="error")
+}

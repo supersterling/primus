@@ -1,0 +1,16 @@
+language js
+
+// Require isAnimating alongside caret prop on Streamdown.
+
+or {
+	`<Streamdown $props>$_</Streamdown>` as $match,
+	`<Streamdown $props />` as $match
+} where {
+	$props <: contains or { `caret`, `caret=` },
+	not ($props <: contains `isAnimating`),
+	register_diagnostic(
+		span=$match,
+		message="Add `isAnimating` alongside `caret`. The caret only renders when `isAnimating` is true.",
+		severity="error"
+	)
+}

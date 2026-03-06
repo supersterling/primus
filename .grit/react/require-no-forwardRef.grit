@@ -1,0 +1,10 @@
+language js
+
+// Require ref as a regular prop instead of forwardRef in React 19+.
+
+or {
+	`forwardRef($...)` as $match,
+	`React.forwardRef($...)` as $match
+} where {
+	register_diagnostic(span=$match, message="Use `ref` as a regular prop. `forwardRef` is unnecessary in React 19+.", severity="error")
+}

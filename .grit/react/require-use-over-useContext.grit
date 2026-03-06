@@ -1,0 +1,10 @@
+language js
+
+// Require use() over useContext() in React 19+.
+
+or {
+	`useContext($...)` as $match,
+	`React.useContext($...)` as $match
+} where {
+	register_diagnostic(span=$match, message="Use `use()` instead of `useContext()`. `use()` is the standard context API in React 19+.", severity="error")
+}

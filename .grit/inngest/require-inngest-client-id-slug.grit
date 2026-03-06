@@ -1,0 +1,10 @@
+language js
+
+// Require lowercase hyphenated slug for Inngest client ID.
+
+`new Inngest({ $props })` as $outer where {
+	$props <: contains `id: "$val"` where {
+		not ($val <: r"^[a-z0-9]+(-[a-z0-9]+)*$"),
+		register_diagnostic(span=$outer, message="Use a lowercase hyphenated slug for client `id` (e.g. `my-app`). Non-slug IDs cause routing issues.", severity="error")
+	}
+}

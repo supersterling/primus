@@ -1,0 +1,15 @@
+language js
+
+// Require stopWhen over deprecated maxSteps.
+
+or {
+	`generateText({ $props })` as $outer,
+	`streamText({ $props })` as $outer
+} where {
+	$props <: contains `maxSteps: $_` as $match,
+	register_diagnostic(
+		span=$match,
+		message="Use `stopWhen: stepCountIs(n)`. `maxSteps` is deprecated in AI SDK 5.",
+		severity="error"
+	)
+}

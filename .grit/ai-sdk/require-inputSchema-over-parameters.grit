@@ -1,0 +1,12 @@
+language js
+
+// Require inputSchema over deprecated parameters in tool definitions.
+
+`tool({ $props })` as $outer where {
+	$props <: contains `parameters: $_` as $match,
+	register_diagnostic(
+		span=$match,
+		message="Use `inputSchema`. `parameters` is deprecated in AI SDK 5.",
+		severity="error"
+	)
+}

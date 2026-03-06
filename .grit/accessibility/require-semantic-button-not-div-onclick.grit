@@ -1,0 +1,34 @@
+language js
+
+// Require semantic elements for interactive behavior.
+
+or {
+	`<div $props>$_</div>` as $match where {
+		$props <: contains `onClick={$_}`,
+		not ($props <: contains or {
+			`role="button"`, `role="link"`, `role="tab"`,
+			`role="menuitem"`, `role="option"`, `role="gridcell"`,
+			`role="treeitem"`, `role="switch"`, `role="presentation"`,
+			`role="dialog"`, `role="listbox"`
+		}),
+		register_diagnostic(
+			span=$match,
+			message="Use `<button>` for clickable elements. `<div onClick>` lacks keyboard support and screen reader semantics.",
+			severity="error"
+		)
+	},
+	`<span $props>$_</span>` as $match where {
+		$props <: contains `onClick={$_}`,
+		not ($props <: contains or {
+			`role="button"`, `role="link"`, `role="tab"`,
+			`role="menuitem"`, `role="option"`, `role="gridcell"`,
+			`role="treeitem"`, `role="switch"`, `role="presentation"`,
+			`role="dialog"`, `role="listbox"`
+		}),
+		register_diagnostic(
+			span=$match,
+			message="Use `<button>` for clickable elements. `<span onClick>` lacks keyboard support and screen reader semantics.",
+			severity="error"
+		)
+	}
+}

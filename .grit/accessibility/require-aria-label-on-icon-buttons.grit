@@ -1,0 +1,16 @@
+language js
+
+// Require aria-label on buttons that contain no visible text.
+//
+// LIMITATION: Biome GritQL cannot reliably match hyphenated JSX attributes (aria-label).
+// This rule flags ALL buttons without visible text — some may have aria-label and be
+// false positives. Consider Biome's built-in a11y rules as supplement.
+
+`<button>$children</button>` as $match where {
+	not ($children <: contains `"$_"`),
+	register_diagnostic(
+		span=$match,
+		message="Add `aria-label` to icon buttons. Buttons without visible text are inaccessible to screen readers.",
+		severity="error"
+	)
+}

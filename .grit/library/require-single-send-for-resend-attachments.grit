@@ -1,0 +1,12 @@
+language js
+
+// Require resend.emails.send() for emails with attachments.
+
+`resend.batch.send($args)` as $match where {
+	$args <: contains `attachments`,
+	register_diagnostic(
+		span=$match,
+		message="Use `resend.emails.send()` for emails with attachments. The batch endpoint does not support them.",
+		severity="error"
+	)
+}

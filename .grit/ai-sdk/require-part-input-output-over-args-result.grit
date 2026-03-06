@@ -1,0 +1,14 @@
+language js
+
+// Require part.input and part.output over deprecated toolInvocation.args and .result.
+
+or {
+	`$_.toolInvocation.args` as $match,
+	`$_.toolInvocation.result` as $match
+} where {
+	register_diagnostic(
+		span=$match,
+		message="Use `part.input` and `part.output`. `toolInvocation.args` and `.result` are deprecated.",
+		severity="error"
+	)
+}

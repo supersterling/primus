@@ -1,0 +1,19 @@
+language js
+
+// Require muted and playsInline on autoplaying videos.
+
+or {
+	`<video $props />` as $match,
+	`<video $props>$_</video>` as $match
+} where {
+	$props <: contains or { `autoPlay`, `autoplay` },
+	or {
+		not ($props <: contains `muted`),
+		not ($props <: contains or { `playsInline`, `playsinline` })
+	},
+	register_diagnostic(
+		span=$match,
+		message="Add `muted` and `playsInline` to autoplaying videos. Unmuted autoplay is blocked by browsers.",
+		severity="error"
+	)
+}

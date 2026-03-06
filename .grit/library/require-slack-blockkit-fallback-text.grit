@@ -1,0 +1,16 @@
+language js
+
+// Require fallback text alongside blocks in Slack postMessage calls.
+
+or {
+	`postMessage({ $props })` as $match,
+	`client.chat.postMessage({ $props })` as $match
+} where {
+	$props <: contains `blocks`,
+	not ($props <: contains `text`),
+	register_diagnostic(
+		span=$match,
+		message="Add fallback `text` alongside `blocks`. Block Kit messages need text for notifications and accessibility.",
+		severity="error"
+	)
+}

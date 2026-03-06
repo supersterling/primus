@@ -49,6 +49,7 @@ export function AuthFormShell({
                             src={kingSvg}
                             alt=""
                             fill
+                            sizes="(min-width: 768px) 50vw, 0vw"
                             className="object-cover dark:brightness-[0.5] dark:grayscale"
                         />
                     </div>

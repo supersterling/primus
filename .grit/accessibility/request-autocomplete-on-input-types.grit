@@ -1,0 +1,18 @@
+language js
+
+// Request autocomplete attribute on semantic input types.
+
+or {
+	`<input $props />` as $match,
+	`<input $props>$_</input>` as $match
+} where {
+	$props <: contains or {
+		`type="email"`, `type="tel"`, `type="password"`, `type="url"`
+	},
+	not ($props <: contains `autoComplete`),
+	register_diagnostic(
+		span=$match,
+		message="Add `autoComplete` to this input. Autocomplete improves UX and accessibility for common field types.",
+		severity="warning"
+	)
+}

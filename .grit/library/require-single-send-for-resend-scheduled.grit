@@ -1,0 +1,12 @@
+language js
+
+// Require resend.emails.send() for scheduled emails.
+
+`resend.batch.send($args)` as $match where {
+	$args <: contains or { `scheduled_at`, `scheduledAt` },
+	register_diagnostic(
+		span=$match,
+		message="Use `resend.emails.send()` for scheduled emails. The batch endpoint does not support scheduling.",
+		severity="error"
+	)
+}

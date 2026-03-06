@@ -1,0 +1,18 @@
+// Request Server Actions for mutations over client-side fetch.
+language js
+
+file($name, $body) where {
+	$body <: contains `'use client'`,
+	$body <: contains `fetch($url, $opts)` as $match where {
+		$opts <: contains or {
+			`method: "POST"`, `method: "PUT"`, `method: "DELETE"`,
+			`method: "PATCH"`, `method: 'POST'`, `method: 'PUT'`,
+			`method: 'DELETE'`, `method: 'PATCH'`
+		},
+		register_diagnostic(
+			span=$match,
+			message="Use a Server Action for mutations. Server Actions provide type safety and automatic revalidation.",
+			severity="warning"
+		)
+	}
+}

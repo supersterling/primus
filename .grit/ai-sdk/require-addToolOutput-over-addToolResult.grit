@@ -1,0 +1,11 @@
+language js
+
+// Require addToolOutput over deprecated addToolResult.
+
+`addToolResult($...)` as $match where {
+	register_diagnostic(
+		span=$match,
+		message="Use `addToolOutput()`. `addToolResult()` is deprecated in AI SDK 5.",
+		severity="error"
+	)
+}

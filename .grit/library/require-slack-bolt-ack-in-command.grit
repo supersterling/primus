@@ -1,0 +1,12 @@
+language js
+
+// Require ack() call in Slack Bolt command handlers.
+
+`app.command($name, $handler)` as $match where {
+	not ($handler <: contains `ack($...)`),
+	register_diagnostic(
+		span=$match,
+		message="Call `await ack()` in command handlers. Slack requires acknowledgment within 3 seconds.",
+		severity="error"
+	)
+}

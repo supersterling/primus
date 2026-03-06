@@ -1,0 +1,8 @@
+language js
+
+// Require timeout on step.waitForEvent() calls.
+
+`step.waitForEvent($id, { $props })` as $match where {
+	not ($props <: contains `timeout`),
+	register_diagnostic(span=$match, message="Add `timeout` to `step.waitForEvent()`. Without it, functions can wait indefinitely.", severity="error")
+}

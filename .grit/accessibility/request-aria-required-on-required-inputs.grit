@@ -1,0 +1,16 @@
+language js
+
+// Request aria-required on inputs with the required attribute.
+
+or {
+	`<input $props />` as $match,
+	`<input $props>$_</input>` as $match
+} where {
+	$props <: contains `required`,
+	not ($props <: contains `aria-required`),
+	register_diagnostic(
+		span=$match,
+		message="Add `aria-required=\"true\"` alongside `required`. Some assistive technologies rely on the ARIA attribute.",
+		severity="warning"
+	)
+}

@@ -1,0 +1,9 @@
+language js
+
+// Require sentryMiddleware import from @inngest/middleware-sentry.
+
+`import { $imports } from "$source"` as $match where {
+	$imports <: contains `sentryMiddleware`,
+	not ($source <: r"^@inngest/middleware-sentry$"),
+	register_diagnostic(span=$match, message="Import `sentryMiddleware` from `\"@inngest/middleware-sentry\"`. It is a separate package.", severity="error")
+}

@@ -1,0 +1,8 @@
+language js
+
+// Require explicit mode on singleton configuration.
+
+`singleton: { $props }` as $match where {
+	not ($props <: contains `mode`),
+	register_diagnostic(span=$match, message="Add explicit `mode` to singleton config. Default behavior may surprise.", severity="error")
+}

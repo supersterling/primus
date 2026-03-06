@@ -1,0 +1,11 @@
+// Require `'use cache'` directive over deprecated `unstable_cache`.
+language js
+
+`import { $imports } from "next/cache"` as $match where {
+	$imports <: contains `unstable_cache`,
+	register_diagnostic(
+		span=$match,
+		message="Use the `'use cache'` directive with `cacheLife()` and `cacheTag()`. `unstable_cache` is deprecated in Next.js 15+.",
+		severity="error"
+	)
+}

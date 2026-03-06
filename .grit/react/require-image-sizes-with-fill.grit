@@ -1,0 +1,12 @@
+language js
+
+// Require sizes attribute on next/image with fill prop.
+
+or {
+	`<Image $props />` as $match,
+	`<Image $props>$_</Image>` as $match
+} where {
+	$props <: contains or { `fill`, `fill={true}` },
+	not ($props <: contains `sizes`),
+	register_diagnostic(span=$match, message="Add `sizes` to `<Image fill>`. Without it, the browser downloads the largest image regardless of viewport.", severity="error")
+}

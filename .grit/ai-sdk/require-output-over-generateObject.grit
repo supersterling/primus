@@ -1,0 +1,12 @@
+language js
+
+// Require generateText with Output.object() over deprecated generateObject/streamObject.
+
+`import { $imports } from "ai"` as $match where {
+	$imports <: contains or { `generateObject`, `streamObject` },
+	register_diagnostic(
+		span=$match,
+		message="Use `generateText()` with `output: Output.object()`. `generateObject` and `streamObject` are deprecated in AI SDK 5.",
+		severity="error"
+	)
+}

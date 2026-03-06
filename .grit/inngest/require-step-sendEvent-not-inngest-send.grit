@@ -1,0 +1,8 @@
+language js
+
+// Require step.sendEvent() instead of inngest.send() inside function handlers.
+
+`inngest.send($...)` as $match where {
+	$match <: within `createFunction($_, $_, $handler)`,
+	register_diagnostic(span=$match, message="Use `step.sendEvent()` inside function handlers. `inngest.send()` bypasses step memoization.", severity="error")
+}

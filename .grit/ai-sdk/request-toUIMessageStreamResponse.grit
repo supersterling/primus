@@ -1,0 +1,11 @@
+language js
+
+// Request toUIMessageStreamResponse over toDataStreamResponse.
+
+`$result.toDataStreamResponse($...)` as $match where {
+	register_diagnostic(
+		span=$match,
+		message="Use `toUIMessageStreamResponse()` for `useChat` integration. `toDataStreamResponse()` does not handle message state.",
+		severity="warning"
+	)
+}

@@ -1,0 +1,18 @@
+language js
+
+// Require a legend inside every fieldset.
+
+or {
+	`<fieldset>$children</fieldset>` as $match,
+	`<fieldset $props>$children</fieldset>` as $match
+} where {
+	not ($children <: contains or {
+		`<legend>$_</legend>`,
+		`<legend $_>$_</legend>`
+	}),
+	register_diagnostic(
+		span=$match,
+		message="Add a `<legend>` inside `<fieldset>`. Fieldsets without legends have no accessible group label.",
+		severity="error"
+	)
+}
