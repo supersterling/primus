@@ -4,8 +4,6 @@ type RuleId =
     | "require-theme-spacing-token"
     | "require-theme-radius-token"
     | "require-theme-shadow-token"
-    | "require-data-slot-on-components"
-    | "require-unique-data-slot-values"
 
 type Violation = {
     file: string

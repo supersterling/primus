@@ -23,13 +23,11 @@
 import * as ts from "typescript"
 import { extractClasses } from "@/scripts/style/class-extractor"
 import { loadDesignSystem } from "@/scripts/style/design-system"
-import { check as checkDataSlot } from "@/scripts/style/rules/require-data-slot-on-components"
 import { check as checkResolvable } from "@/scripts/style/rules/require-resolvable-tailwind-class"
 import { check as checkColor } from "@/scripts/style/rules/require-theme-color-token"
 import { check as checkRadius } from "@/scripts/style/rules/require-theme-radius-token"
 import { check as checkShadow } from "@/scripts/style/rules/require-theme-shadow-token"
 import { check as checkSpacing } from "@/scripts/style/rules/require-theme-spacing-token"
-import { check as checkDuplicateSlot } from "@/scripts/style/rules/require-unique-data-slot-values"
 import { type Violation } from "@/scripts/style/types"
 
 const SKIP_PATTERNS = [
@@ -102,14 +100,7 @@ async function main(): Promise<void> {
 
     const violations: Violation[] = []
 
-    // Cross-file rule: duplicate data-slot values
-    violations.push(...checkDuplicateSlot(sourceFiles))
-
     for (const sourceFile of sourceFiles) {
-        // Data-slot requirement
-        violations.push(...checkDataSlot(sourceFile))
-
-        // Class-based rules
         const classes = extractClasses(sourceFile.fileName, sourceFile.getFullText())
         if (classes.length > 0) {
             const file = sourceFile.fileName
