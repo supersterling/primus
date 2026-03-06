@@ -17,18 +17,17 @@ import { Button } from "@/components/ui/button"
 import { RainbowButton } from "@/components/ui/rainbow-button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getSession } from "@/lib/auth/session"
+import site from "@/lib/seo/site.json" with { type: "json" }
 import { baseUrl } from "@/lib/utils"
 
 export const metadata: Metadata = {
     title: "Welcome",
-    description:
-        "An opinionated Next.js starter with auth, payments, background jobs, and modern tooling.",
+    description: site.description,
     alternates: { canonical: "/" },
     openGraph: {
         url: "/",
-        title: "Primus — Ship your next SaaS in days, not months",
-        description:
-            "An opinionated Next.js starter with auth, payments, background jobs, and modern tooling.",
+        title: `${site.name} — ${site.tagline}`,
+        description: site.description,
     },
 }
 
@@ -87,10 +86,9 @@ export default function LandingPage() {
                 schema={{
                     "@context": "https://schema.org",
                     "@type": "WebSite",
-                    name: "Primus",
+                    name: site.name,
                     url,
-                    description:
-                        "An opinionated Next.js starter with auth, payments, background jobs, and modern tooling.",
+                    description: site.description,
                 }}
             />
 
