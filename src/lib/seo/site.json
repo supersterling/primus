@@ -1,0 +1,8 @@
+{
+    "name": "Primus",
+    "tagline": "Ship your next SaaS in days, not months.",
+    "description": "An opinionated Next.js starter with auth, payments, background jobs, and modern tooling.",
+    "keywords": ["Next.js starter", "SaaS boilerplate", "TypeScript", "Vercel"],
+    "author": "Primus",
+    "twitterHandle": "@primus"
+}

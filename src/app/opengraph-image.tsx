@@ -10,8 +10,9 @@
  */
 
 import { ImageResponse } from "next/og"
+import site from "@/lib/seo/site.json"
 
-export const alt = "Primus — Ship your next SaaS in days, not months"
+export const alt = `${site.name} — ${site.tagline}`
 export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
 
@@ -27,7 +28,7 @@ export default function Image() {
                 padding: "72px",
             }}
         >
-            <span style={{ color: "white", fontSize: "28px", fontWeight: 600 }}>Primus</span>
+            <span style={{ color: "white", fontSize: "28px", fontWeight: 600 }}>{site.name}</span>
 
             <div style={{ flex: 1 }} />
 

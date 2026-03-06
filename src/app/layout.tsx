@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google"
 import { ViewTransition } from "react"
 import { Toaster } from "sonner"
 import { ThemeProvider } from "@/components/theme-provider"
+import site from "@/lib/seo/site.json" with { type: "json" }
 import { baseUrl } from "@/lib/utils"
 import "@/lib/styles/globals.css"
 
@@ -28,16 +29,15 @@ const instrumentSerif = Instrument_Serif({
 export const metadata: Metadata = {
     metadataBase: new URL(baseUrl()),
 
-    applicationName: "Primus",
+    applicationName: site.name,
     title: {
-        default: "Primus",
-        template: "%s | Primus",
+        default: site.name,
+        template: `%s | ${site.name}`,
     },
-    description:
-        "An opinionated Next.js starter with auth, payments, background jobs, and modern tooling.",
-    keywords: ["Next.js starter", "SaaS boilerplate", "TypeScript", "Vercel"],
-    authors: [{ name: "Primus" }],
-    creator: "Primus",
+    description: site.description,
+    keywords: site.keywords,
+    authors: [{ name: site.author }],
+    creator: site.twitterHandle,
 
     robots: {
         index: true,
@@ -55,17 +55,15 @@ export const metadata: Metadata = {
         type: "website",
         locale: "en_US",
         url: "/",
-        siteName: "Primus",
-        title: "Primus — Ship your next SaaS in days, not months",
-        description:
-            "An opinionated Next.js starter with auth, payments, background jobs, and modern tooling.",
+        siteName: site.name,
+        title: `${site.name} — ${site.tagline}`,
+        description: site.description,
     },
 
     twitter: {
         card: "summary_large_image",
-        title: "Primus — Ship your next SaaS in days, not months",
-        description:
-            "An opinionated Next.js starter with auth, payments, background jobs, and modern tooling.",
+        title: `${site.name} — ${site.tagline}`,
+        description: site.description,
     },
 }
 

@@ -1,3 +1,4 @@
+import site from "@/lib/seo/site.json" with { type: "json" }
 import { baseUrl } from "@/lib/utils"
 
 /**
@@ -14,9 +15,9 @@ import { baseUrl } from "@/lib/utils"
 export function GET(): Response {
     const url = baseUrl()
 
-    const content = `# Primus
+    const content = `# ${site.name}
 
-> An opinionated Next.js starter with auth, payments, background jobs, and modern tooling.
+> ${site.description}
 
 ## Overview
 

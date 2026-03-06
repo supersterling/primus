@@ -1,4 +1,5 @@
 import { type MetadataRoute } from "next"
+import site from "@/lib/seo/site.json" with { type: "json" }
 
 /**
  * Generates /manifest.webmanifest via Next.js metadata routes.
@@ -8,10 +9,10 @@ import { type MetadataRoute } from "next"
  */
 export default function manifest(): MetadataRoute.Manifest {
     return {
-        name: "Primus",
+        name: site.name,
         // biome-ignore lint/style/useNamingConvention: Web App Manifest spec requires snake_case
-        short_name: "Primus",
-        description: "An opinionated Next.js starter for shipping SaaS products fast.",
+        short_name: site.name,
+        description: site.description,
         // biome-ignore lint/style/useNamingConvention: Web App Manifest spec requires snake_case
         start_url: "/",
         display: "standalone",
