@@ -2,9 +2,11 @@
 
 import { Loader2 } from "lucide-react"
 import { type ReactNode, useCallback, useState } from "react"
+import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { authClient } from "@/lib/auth/client"
+import { result } from "@/lib/either"
 
 export type SocialProviders = {
     google: boolean
@@ -28,10 +30,24 @@ export function SocialButton({
 }: SocialButtonProps) {
     const [isPending, setIsPending] = useState(false)
 
-    const handleClick = useCallback(() => {
+    const handleClick = useCallback(async () => {
         setIsPending(true)
-        // biome-ignore lint/style/useNamingConvention: better-auth API property
-        authClient.signIn.social({ provider, callbackURL: callbackUrl })
+
+        const res = await result.trycatch(async () =>
+            // biome-ignore lint/style/useNamingConvention: better-auth API property
+            authClient.signIn.social({ provider, callbackURL: callbackUrl }),
+        )
+
+        if (!res.ok) {
+            toast.error("Unable to sign in. Check your connection and try again.")
+            setIsPending(false)
+            return
+        }
+
+        if (res.value.error) {
+            toast.error(res.value.error.message)
+            setIsPending(false)
+        }
     }, [provider, callbackUrl])
 
     const isDisabled = !enabled || isPending

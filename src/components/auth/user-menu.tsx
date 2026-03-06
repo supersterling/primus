@@ -4,6 +4,7 @@ import { LogOut, Settings } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useCallback } from "react"
+import { toast } from "sonner"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -14,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { authClient } from "@/lib/auth/client"
 import { getInitials } from "@/lib/auth/utils"
+import { result } from "@/lib/either"
 
 type UserMenuSession = {
     user: {
@@ -26,7 +28,18 @@ export function UserMenu({ session }: { session: UserMenuSession | null }) {
     const router = useRouter()
 
     const handleSignOut = useCallback(async () => {
-        await authClient.signOut()
+        const res = await result.trycatch(async () => authClient.signOut())
+
+        if (!res.ok) {
+            toast.error("Unable to sign out. Check your connection and try again.")
+            return
+        }
+
+        if (res.value.error) {
+            toast.error(res.value.error.message)
+            return
+        }
+
         router.push("/")
         router.refresh()
     }, [router])
