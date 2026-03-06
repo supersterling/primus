@@ -12,8 +12,10 @@ Primus is an opinionated Next.js 16 starter on Vercel + Inngest + Better Auth + 
 bun run dev              # Next.js dev server
 bun run dev:inngest      # Inngest local dev server (run alongside dev)
 bun run dev:polar        # Polar webhook tunnel (prints POLAR_WEBHOOK_SECRET)
-bun run checks           # tsc + biome + docref — run before every commit
+bun run checks           # tsc + biome + lint:types + lint:style + docref — run before every commit
 bun run biome:fix        # Auto-fix lint/format issues
+bun run lint:types       # Type-aware lint rules (requires TS program)
+bun run lint:style       # Design system lint (loads Tailwind v4 theme)
 bun run db:push          # Push schema to database (dev)
 bun run db:generate      # Generate Drizzle migration
 bun run db:migrate       # Run migrations

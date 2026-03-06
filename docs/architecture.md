@@ -26,10 +26,16 @@ src/
       functions.ts  [Inngest function registry](inngest:core/functions.ts#functions)
       functions/    Individual Inngest function implementations
   scripts/          One-off scripts run with `bun src/scripts/<name>.ts`
+    lint/           Type-aware linter (TS compiler API) — `bun run lint:types`
+      rules/        Individual rules (require-early-return, require-reachable-nullish-check, etc.)
+    style/          Design system linter (Tailwind v4 theme) — `bun run lint:style`
+      rules/        Individual rules (require-theme-color-token, require-resolvable-tailwind-class, etc.)
 
 docs/
-  rules.md          Coding rules — read before writing any code
+  rules.md          Coding rules index — links to individual files in rules/
+  rules/            Individual rule docs (error-handling, logging, type-safety, etc.)
   architecture.md   This file
+  patterns.md       Pattern index — links to individual files in patterns/
   patterns/         Individual pattern files -- RSC streaming, Suspense, URL state, skeletons
   billing.md        Polar payment integration — checkout, webhook pipeline, Inngest events
   references/       External documentation (large; excluded from agent context)
