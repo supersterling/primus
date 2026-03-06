@@ -4,7 +4,14 @@
     "overrides": [
         {
             "includes": ["src/scripts/**"],
-            "plugins": []
+            "plugins": [],
+            "linter": {
+                "rules": {
+                    "suspicious": {
+                        "noBitwiseOperators": "off"
+                    }
+                }
+            }
         },
         {
             "includes": ["src/components/icons/**"],

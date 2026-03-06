@@ -4,7 +4,7 @@ export function isRelativePath(url: string): url is Route {
     return url.startsWith("/") && !url.startsWith("//")
 }
 
-export function getInitials(name: string | null | undefined): string {
+export function getInitials(name: string | undefined): string {
     if (!name) {
         return ""
     }

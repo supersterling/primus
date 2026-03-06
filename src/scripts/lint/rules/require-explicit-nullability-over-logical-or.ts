@@ -63,7 +63,6 @@ function isInAllowedPosition(node: ts.Node): boolean {
 const BOOLEAN_LIKE = ts.TypeFlags.BooleanLike
 
 function isBooleanType(type: ts.Type): boolean {
-    // biome-ignore lint/suspicious/noBitwiseOperators: TypeScript type flags are bitwise
     if ((type.flags & BOOLEAN_LIKE) !== 0) {
         return true
     }

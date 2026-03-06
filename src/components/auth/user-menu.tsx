@@ -16,11 +16,12 @@ import {
 import { authClient } from "@/lib/auth/client"
 import { getInitials } from "@/lib/auth/utils"
 import { result } from "@/lib/either"
+import { type Nullable } from "@/lib/types"
 
 type UserMenuSession = {
     user: {
         name: string
-        image?: string | null
+        image?: Nullable<string>
     }
 }
 
@@ -54,6 +55,7 @@ export function UserMenu({ session }: { session: UserMenuSession | null }) {
 
     const { user } = session
     const initials = getInitials(user.name)
+    // Normalize Better Auth's string | null | undefined to string | undefined
     const avatarSrc = user.image != null ? user.image : undefined
 
     return (

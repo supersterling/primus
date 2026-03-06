@@ -16,11 +16,17 @@
 import * as ts from "typescript"
 import { check as checkEarlyReturn } from "@/scripts/lint/rules/require-early-return-over-wrapping-conditional"
 import { check as checkLogicalOr } from "@/scripts/lint/rules/require-explicit-nullability-over-logical-or"
+import { check as checkLogicalOrBranch } from "@/scripts/lint/rules/require-reachable-logical-or-branch"
+import { check as checkNullishCheck } from "@/scripts/lint/rules/require-reachable-nullish-check"
+import { check as checkNullUndefined } from "@/scripts/lint/rules/require-single-nullability-representation"
 import { type LintRule, type Violation } from "@/scripts/lint/types"
 
 const rules: LintRule[] = [
     { id: "require-explicit-nullability-over-logical-or", check: checkLogicalOr },
     { id: "require-early-return-over-wrapping-conditional", check: checkEarlyReturn },
+    { id: "require-reachable-nullish-check", check: checkNullishCheck },
+    { id: "require-reachable-logical-or-branch", check: checkLogicalOrBranch },
+    { id: "require-single-nullability-representation", check: checkNullUndefined },
 ]
 
 const SKIP_PATTERNS = [
