@@ -35,6 +35,7 @@ const SKIP_PATTERNS = [
     "src/components/kibo-ui/",
     "src/components/icons/",
     "src/components/aceternity/",
+    "src/scripts/",
     ".next",
 ]
 

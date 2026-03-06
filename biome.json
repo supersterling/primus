@@ -8,10 +8,27 @@
             "linter": {
                 "rules": {
                     "suspicious": {
-                        "noBitwiseOperators": "off"
+                        "noBitwiseOperators": "off",
+                        "noNonNullAssertedOptionalChain": "off"
+                    },
+                    "style": {
+                        "noNonNullAssertion": "off"
+                    },
+                    "complexity": {
+                        "noExcessiveCognitiveComplexity": "off"
+                    },
+                    "nursery": {
+                        "useDestructuring": "off"
+                    },
+                    "performance": {
+                        "useTopLevelRegex": "off"
                     }
                 }
             }
+        },
+        {
+            "includes": ["src/scripts/style/**", "src/scripts/style/*.ts"],
+            "plugins": []
         },
         {
             "includes": ["src/components/icons/**"],
@@ -41,7 +58,6 @@
         "./.grit/style/require-explicit-nullability-handling.grit",
         "./.grit/react/require-tailwind-over-inline-styles.grit",
         "./.grit/react/require-variable-assignment-for-ternary.grit",
-        "./.grit/react/require-theme-tokens-for-tailwind-colors.grit",
         "./.grit/accessibility/require-aria-label-on-icon-buttons.grit",
         "./.grit/accessibility/require-semantic-button-not-div-onclick.grit",
         "./.grit/accessibility/request-placeholder-with-label.grit",

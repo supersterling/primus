@@ -110,7 +110,7 @@ export function Navbar() {
             </header>
 
             {mobileOpen === true && (
-                <div className="fixed inset-x-0 top-[72px] z-40 border-b bg-background/95 px-6 py-4 backdrop-blur-md md:hidden">
+                <div className="fixed inset-x-0 top-18 z-40 border-b bg-background/95 px-6 py-4 backdrop-blur-md md:hidden">
                     <div className="flex flex-col gap-4">
                         {NAV_LINKS.map((link) => (
                             <a

@@ -10,7 +10,7 @@ import { OrbitingCircles } from "@/components/ui/orbiting-circles"
 
 function StackPreview() {
     return (
-        <div className="relative flex min-h-[280px] items-center justify-center overflow-hidden bg-muted/50">
+        <div className="relative flex min-h-72 items-center justify-center overflow-hidden bg-muted/50">
             <div className="relative flex size-full items-center justify-center">
                 <ChessKing className="size-8 text-foreground" aria-hidden="true" />
 
@@ -32,7 +32,7 @@ function StackPreview() {
 
 function DxPreview() {
     return (
-        <div className="flex min-h-[280px] items-center justify-center bg-muted/50 p-6">
+        <div className="flex min-h-72 items-center justify-center bg-muted/50 p-6">
             <div className="w-full rounded-lg border bg-card p-4">
                 <div className="mb-3 flex items-center gap-2 text-muted-foreground">
                     <Terminal className="size-4" />
