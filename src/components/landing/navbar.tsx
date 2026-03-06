@@ -15,12 +15,13 @@ const NAV_LINKS = [
 
 function smoothScroll(e: MouseEvent<HTMLAnchorElement>) {
     const href = e.currentTarget.getAttribute("href")
-    if (href?.startsWith("#")) {
-        e.preventDefault()
-        const target = document.getElementById(href.slice(1))
-        if (target) {
-            target.scrollIntoView({ behavior: "smooth" })
-        }
+    if (!href?.startsWith("#")) {
+        return
+    }
+    e.preventDefault()
+    const target = document.getElementById(href.slice(1))
+    if (target) {
+        target.scrollIntoView({ behavior: "smooth" })
     }
 }
 
