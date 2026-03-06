@@ -5,7 +5,7 @@ import { type ReactNode } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { FieldGroup, FieldSeparator } from "@/components/ui/field"
 import { cn } from "@/lib/utils"
-import kingSvg from "./king.svg"
+import kingPng from "./king.png"
 
 type AuthFormShellProps = {
     title: string
@@ -46,7 +46,7 @@ export function AuthFormShell({
                     </div>
                     <div className="relative hidden bg-muted md:block" aria-hidden="true">
                         <Image
-                            src={kingSvg}
+                            src={kingPng}
                             alt=""
                             fill
                             sizes="(min-width: 768px) 50vw, 0vw"
