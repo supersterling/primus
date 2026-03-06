@@ -1,6 +1,15 @@
 import { ArrowLeft } from "lucide-react"
+import { type Metadata } from "next"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+
+/**
+ * Auth pages are functional — not content pages.
+ * Prevent them from appearing in search results.
+ */
+export const metadata: Metadata = {
+    robots: { index: false, follow: false },
+}
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
     return (

@@ -1,6 +1,15 @@
 import { ChessKing, LayoutDashboard, Settings } from "lucide-react"
+import { type Metadata } from "next"
 import Link from "next/link"
 import { UserMenu } from "@/components/auth/user-menu"
+
+/**
+ * Dashboard is authenticated and private — never index it.
+ */
+export const metadata: Metadata = {
+    robots: { index: false, follow: false },
+}
+
 import {
     Sidebar,
     SidebarContent,
