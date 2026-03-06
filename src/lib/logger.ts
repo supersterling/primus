@@ -8,7 +8,10 @@ function prettyTransport(): Pick<pino.LoggerOptions, "transport"> | undefined {
         return
     }
     return {
-        transport: { target: "pino-pretty", options: { colorize: true, ignore: "pid,hostname" } },
+        transport: {
+            target: "pino-pretty",
+            options: { colorize: true, ignore: "pid,hostname" },
+        },
     }
 }
 

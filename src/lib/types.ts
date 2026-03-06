@@ -181,7 +181,9 @@ export type RequiredBy<T, K extends keyof T> = Prettify<Omit<T, K> & Required<Pi
  * type NumberKeys = KeysMatching<User, number>
  * // "age"
  */
-export type KeysMatching<T, V> = { [K in keyof T]: T[K] extends V ? K : never }[keyof T]
+export type KeysMatching<T, V> = {
+    [K in keyof T]: T[K] extends V ? K : never
+}[keyof T]
 
 /**
  * Picks properties whose values are assignable to the given type.
