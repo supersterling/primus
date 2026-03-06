@@ -17,6 +17,7 @@ import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/c
 import { Input } from "@/components/ui/input"
 import { authClient } from "@/lib/auth/client"
 import { isRelativePath } from "@/lib/auth/utils"
+import { result } from "@/lib/either"
 
 const signInSchema = z.object({
     email: z.string().email("Enter a valid email"),
@@ -86,13 +87,24 @@ export function SignInForm({ className, providers }: SignInFormProps) {
     })
 
     async function onSubmit(values: SignInValues) {
-        const { error } = await authClient.signIn.email({
-            email: values.email,
-            password: values.password,
-        })
+        const res = await result.trycatch(() =>
+            authClient.signIn.email({
+                email: values.email,
+                password: values.password,
+            }),
+        )
 
-        if (error) {
-            toast.error(error.message)
+        if (!res.ok) {
+            toast.error("Something went wrong. Check your connection and try again.")
+            return
+        }
+
+        if (res.value.error) {
+            const message =
+                typeof res.value.error.message === "string" && res.value.error.message !== ""
+                    ? res.value.error.message
+                    : "Sign in failed. Please try again."
+            toast.error(message)
             return
         }
 

@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button"
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { authClient } from "@/lib/auth/client"
+import { result } from "@/lib/either"
 
 const MIN_PASSWORD_LENGTH = 8
 
@@ -93,14 +94,25 @@ export function SignUpForm({ className, providers }: SignUpFormProps) {
     })
 
     async function onSubmit(values: SignUpValues) {
-        const { error } = await authClient.signUp.email({
-            name: values.name,
-            email: values.email,
-            password: values.password,
-        })
+        const res = await result.trycatch(() =>
+            authClient.signUp.email({
+                name: values.name,
+                email: values.email,
+                password: values.password,
+            }),
+        )
 
-        if (error) {
-            toast.error(error.message)
+        if (!res.ok) {
+            toast.error("Something went wrong. Check your connection and try again.")
+            return
+        }
+
+        if (res.value.error) {
+            const message =
+                typeof res.value.error.message === "string" && res.value.error.message !== ""
+                    ? res.value.error.message
+                    : "Sign up failed. Please try again."
+            toast.error(message)
             return
         }
 
