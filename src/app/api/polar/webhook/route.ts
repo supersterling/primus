@@ -21,7 +21,9 @@ import { logger } from "@/lib/logger"
 export const POST = async (req: NextRequest) => {
     if (!env.POLAR_WEBHOOK_SECRET) {
         return NextResponse.json(
-            { error: "POLAR_WEBHOOK_SECRET is not set. See src/app/api/polar/webhook/route.ts." },
+            {
+                error: "POLAR_WEBHOOK_SECRET is not set. See src/app/api/polar/webhook/route.ts.",
+            },
             { status: 503 },
         )
     }

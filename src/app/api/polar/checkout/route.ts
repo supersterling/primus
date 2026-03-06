@@ -19,7 +19,9 @@ import { env } from "@/lib/env"
 export const GET = (req: NextRequest) => {
     if (!env.POLAR_ACCESS_TOKEN) {
         return NextResponse.json(
-            { error: "POLAR_ACCESS_TOKEN is not set. See src/app/api/polar/checkout/route.ts." },
+            {
+                error: "POLAR_ACCESS_TOKEN is not set. See src/app/api/polar/checkout/route.ts.",
+            },
             { status: 503 },
         )
     }
