@@ -36,6 +36,11 @@
             "plugins": []
         },
         {
+            "includes": ["src/app/opengraph-image.tsx"],
+            "linter": { "enabled": false },
+            "plugins": []
+        },
+        {
             "includes": ["src/components/kibo-ui/**"],
             "linter": { "enabled": false },
             "plugins": []
