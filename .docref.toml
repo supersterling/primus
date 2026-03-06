@@ -1,4 +1,4 @@
-include = ["docs/", "src/lib/", "src/inngest/", "src/app/", "src/components/", "scripts/"]
+include = ["docs/", "src/lib/", "src/inngest/", "src/app/", "src/components/"]
 exclude = ["docs/references/"]
 
 [namespaces]
@@ -6,4 +6,3 @@ lib = "src/lib"
 inngest = "src/inngest"
 app = "src/app"
 components = "src/components"
-scripts = "scripts"
