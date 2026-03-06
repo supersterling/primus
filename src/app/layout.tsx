@@ -1,5 +1,6 @@
 import { type Metadata } from "next"
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google"
+import { NuqsAdapter } from "nuqs/adapters/next/app"
 import { ViewTransition } from "react"
 import { Toaster } from "sonner"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -77,15 +78,17 @@ export default function RootLayout({
             <body
                 className={`${geist.variable} ${geistMono.variable} ${instrumentSerif.variable} antialiased`}
             >
-                <ThemeProvider
-                    attribute="class"
-                    defaultTheme="system"
-                    enableSystem
-                    disableTransitionOnChange
-                >
-                    <ViewTransition>{children}</ViewTransition>
-                    <Toaster richColors position="top-center" />
-                </ThemeProvider>
+                <NuqsAdapter>
+                    <ThemeProvider
+                        attribute="class"
+                        defaultTheme="system"
+                        enableSystem
+                        disableTransitionOnChange
+                    >
+                        <ViewTransition>{children}</ViewTransition>
+                        <Toaster richColors position="top-center" />
+                    </ThemeProvider>
+                </NuqsAdapter>
             </body>
         </html>
     )
