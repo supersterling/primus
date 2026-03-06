@@ -12,12 +12,25 @@ import { HowItWorks } from "@/components/landing/how-it-works"
 import { Logos } from "@/components/landing/logos"
 import { Navbar } from "@/components/landing/navbar"
 import { Pricing } from "@/components/landing/pricing"
+import { JsonLd } from "@/components/seo/json-ld"
 import { Button } from "@/components/ui/button"
 import { RainbowButton } from "@/components/ui/rainbow-button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getSession } from "@/lib/auth/session"
+import { baseUrl } from "@/lib/utils"
 
-export const metadata: Metadata = { title: "Welcome" }
+export const metadata: Metadata = {
+    title: "Welcome",
+    description:
+        "An opinionated Next.js starter with auth, payments, background jobs, and modern tooling.",
+    alternates: { canonical: "/" },
+    openGraph: {
+        url: "/",
+        title: "Primus — Ship your next SaaS in days, not months",
+        description:
+            "An opinionated Next.js starter with auth, payments, background jobs, and modern tooling.",
+    },
+}
 
 async function HeroActions() {
     const session = await getSession()
@@ -66,8 +79,21 @@ function HeroActionsFallback() {
 }
 
 export default function LandingPage() {
+    const url = baseUrl()
+
     return (
         <main>
+            <JsonLd
+                schema={{
+                    "@context": "https://schema.org",
+                    "@type": "WebSite",
+                    name: "Primus",
+                    url,
+                    description:
+                        "An opinionated Next.js starter with auth, payments, background jobs, and modern tooling.",
+                }}
+            />
+
             <Navbar />
 
             <Hero>
