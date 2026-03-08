@@ -73,9 +73,23 @@ docref keeps documentation in sync with code. It runs on pre-push and in `bun ru
 
 **1. Clone and install**
 
+Clone with git:
+
 ```bash
-git clone <your-repo>
+# HTTPS
+git clone https://github.com/supersterling/primus.git
+# SSH
+git clone git@github.com:supersterling/primus.git
+
 cd primus
+bun install
+```
+
+Or scaffold a clean copy with degit (no git history):
+
+```bash
+bunx degit supersterling/primus my-app
+cd my-app
 bun install
 ```
 
